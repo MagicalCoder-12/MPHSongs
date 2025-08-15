@@ -1,55 +1,115 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import Song from '@/lib/models/Song';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const body = await request.json()
-    const { title, artist, lyrics, language, inChoirPractice } = body
-
-    const existingSong = await db.song.findUnique({
-      where: { id: params.id }
-    })
-
-    if (!existingSong) {
-      return NextResponse.json({ error: 'Song not found' }, { status: 404 })
+    await connectDB();
+    
+    const song = await Song.findById(params.id);
+    
+    if (!song) {
+      return NextResponse.json(
+        { success: false, error: 'Song not found' },
+        { status: 404 }
+      );
     }
-
-    const song = await db.song.update({
-      where: { id: params.id },
-      data: {
-        ...(title && { title }),
-        ...(artist !== undefined && { artist: artist || null }),
-        ...(lyrics && { lyrics }),
-        ...(language && { language }),
-        ...(inChoirPractice !== undefined && { inChoirPractice }),
-        isNew: false // Mark as not new when updated
-      }
-    })
-
-    return NextResponse.json(song)
+    
+    return NextResponse.json({ success: true, data: song });
   } catch (error) {
-    console.error('Error updating song:', error)
-    return NextResponse.json({ error: 'Failed to update song' }, { status: 500 })
+    console.error('Error fetching song:', error);
+    
+    // Handle MongoDB connection errors specifically
+    if (error instanceof Error && error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
+        { status: 503 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch song' },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const existingSong = await db.song.findUnique({
-      where: { id: params.id }
-    })
-
-    if (!existingSong) {
-      return NextResponse.json({ error: 'Song not found' }, { status: 404 })
+    await connectDB();
+    
+    const body = await request.json();
+    const { title, language, lyrics, isChoirPractice } = body;
+    
+    const updatedSong = await Song.findByIdAndUpdate(
+      params.id,
+      { title, language, lyrics, isChoirPractice },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedSong) {
+      return NextResponse.json(
+        { success: false, error: 'Song not found' },
+        { status: 404 }
+      );
     }
-
-    await db.song.delete({
-      where: { id: params.id }
-    })
-
-    return NextResponse.json({ message: 'Song deleted successfully' })
+    
+    return NextResponse.json({ success: true, data: updatedSong });
   } catch (error) {
-    console.error('Error deleting song:', error)
-    return NextResponse.json({ error: 'Failed to delete song' }, { status: 500 })
+    console.error('Error updating song:', error);
+    
+    // Handle MongoDB connection errors specifically
+    if (error instanceof Error && error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
+        { status: 503 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Failed to update song' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await connectDB();
+    
+    const deletedSong = await Song.findByIdAndDelete(params.id);
+    
+    if (!deletedSong) {
+      return NextResponse.json(
+        { success: false, error: 'Song not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({ success: true, data: deletedSong });
+  } catch (error) {
+    console.error('Error deleting song:', error);
+    
+    // Handle MongoDB connection errors specifically
+    if (error instanceof Error && error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
+        { status: 503 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete song' },
+      { status: 500 }
+    );
   }
 }

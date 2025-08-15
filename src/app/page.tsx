@@ -1,741 +1,566 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Music, Users, Upload, Eye, Trash2, AlertTriangle } from 'lucide-react'
-import { Song } from '@/types/song'
-import { useToast } from '@/hooks/use-toast'
+import { useState, useRef, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Plus, Search, Music, Trash2, Edit, Download, Users, List, Clock, SortAsc, AlertCircle } from 'lucide-react';
+import html2canvas from 'html2canvas';
+
+interface Song {
+  _id: string;
+  title: string;
+  language: string;
+  lyrics: string;
+  isChoirPractice: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function Home() {
-  const [songs, setSongs] = useState<Song[]>([])
-  const [filteredSongs, setFilteredSongs] = useState<Song[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState('all')
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [newSong, setNewSong] = useState({
+  const [activeTab, setActiveTab] = useState('all-songs');
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [choirSongs, setChoirSongs] = useState<Song[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [dialogError, setDialogError] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingSong, setEditingSong] = useState<Song | null>(null);
+  const [formData, setFormData] = useState({
     title: '',
-    artist: '',
+    language: 'English',
     lyrics: '',
-    language: 'English'
-  })
-  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
-  const [selectedSong, setSelectedSong] = useState<Song | null>(null)
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
-  const [songToDelete, setSongToDelete] = useState<Song | null>(null)
-  const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false)
-  const { toast } = useToast()
+    isChoirPractice: false
+  });
 
-  // Fetch songs from API
-  useEffect(() => {
-    const fetchSongs = async () => {
-      try {
-        const response = await fetch('/api/songs')
-        if (response.ok) {
-          const data = await response.json()
-          setSongs(data)
-        }
-      } catch (error) {
-        console.error('Error fetching songs:', error)
-      }
-    }
-    fetchSongs()
-  }, [])
+  const songCardRef = useRef<HTMLDivElement>(null);
 
-  // Filter songs based on search term and active tab
-  useEffect(() => {
-    let filtered = songs
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(song => 
-        song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        song.artist?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        song.lyrics.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    // Filter by tab
-    if (activeTab === 'choir') {
-      filtered = filtered.filter(song => song.inChoirPractice)
-    }
-
-    // Sort by title (ascending order)
-    filtered = filtered.sort((a, b) => a.title.localeCompare(b.title))
-
-    setFilteredSongs(filtered)
-  }, [songs, searchTerm, activeTab])
-
-  const newSongs = songs.filter(song => song.isNew)
-
-  const handleAddSong = async () => {
-    if (newSong.title && newSong.lyrics) {
-      try {
-        const response = await fetch('/api/songs', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newSong),
-        })
-
-        if (response.ok) {
-          const createdSong = await response.json()
-          setSongs([createdSong, ...songs])
-          setNewSong({ title: '', artist: '', lyrics: '', language: 'English' })
-          setIsAddDialogOpen(false)
-          toast({
-            title: "Song added successfully",
-            description: `"${createdSong.title}" has been added to your collection.`,
-          })
+  const fetchSongs = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        search: searchTerm,
+        sortBy,
+        ...(activeTab === 'choir-practice' && { choirOnly: 'true' })
+      });
+      
+      const response = await fetch(`/api/songs?${params.toString()}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        if (activeTab === 'choir-practice') {
+          setChoirSongs(result.data);
         } else {
-          console.error('Failed to create song')
-          toast({
-            title: "Failed to add song",
-            description: "Could not add the song. Please try again.",
-            variant: "destructive",
-          })
+          setSongs(result.data);
         }
-      } catch (error) {
-        console.error('Error creating song:', error)
-        toast({
-          title: "Error adding song",
-          description: "An error occurred while adding the song.",
-          variant: "destructive",
-        })
-      }
-    }
-  }
-
-  const toggleChoirPractice = async (songId: string) => {
-    try {
-      const song = songs.find(s => s.id === songId)
-      if (!song) return
-
-      const response = await fetch(`/api/songs/${songId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          inChoirPractice: !song.inChoirPractice
-        }),
-      })
-
-      if (response.ok) {
-        const updatedSong = await response.json()
-        setSongs(songs.map(s => s.id === songId ? updatedSong : s))
-        toast({
-          title: updatedSong.inChoirPractice ? "Added to practice" : "Removed from practice",
-          description: `"${updatedSong.title}" has been ${updatedSong.inChoirPractice ? 'added to' : 'removed from'} choir practice.`,
-        })
       } else {
-        console.error('Failed to update song')
-        toast({
-          title: "Failed to update",
-          description: "Could not update the song. Please try again.",
-          variant: "destructive",
-        })
+        // Show error message to user
+        setError(result.error || 'Failed to fetch songs');
+        console.error('API Error:', result.error);
       }
     } catch (error) {
-      console.error('Error updating song:', error)
-      toast({
-        title: "Error updating song",
-        description: "An error occurred while updating the song.",
-        variant: "destructive",
-      })
+      console.error('Error fetching songs:', error);
+      setError('Network error. Please check your connection.');
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
-  const handleImageUpload = async (songId: string, file: File) => {
+  const handleCreateSong = async () => {
     try {
-      const formData = new FormData()
-      formData.append('image', file)
-      formData.append('songId', songId)
-
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/songs', {
         method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        // Update the song with the new image URL
-        setSongs(songs.map(s => s.id === songId ? { ...s, imageUrl: data.imageUrl } : s))
-        toast({
-          title: "Image uploaded successfully",
-          description: "The screenshot has been added to your song.",
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setDialogError(null);
+        setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+        setIsDialogOpen(false);
+        fetchSongs();
       } else {
-        const errorData = await response.json()
-        console.error('Failed to upload image:', errorData.error)
-        toast({
-          title: "Upload failed",
-          description: errorData.error || "Failed to upload image. Please try again.",
-          variant: "destructive",
-        })
+        // Show error message to user in dialog
+        setDialogError(result.error || 'Failed to create song');
+        console.error('Create Error:', result.error);
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
-      toast({
-        title: "Upload error",
-        description: "An error occurred while uploading the image. Please try again.",
-        variant: "destructive",
-      })
+      console.error('Error creating song:', error);
+      setDialogError('Network error. Please check your connection.');
     }
-  }
+  };
 
-  const handleFileInputChange = (songId: string, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      handleImageUpload(songId, file)
-    }
-  }
-
-  const triggerFileInput = (songId: string) => {
-    const fileInput = fileInputRefs.current[songId]
-    if (fileInput) {
-      fileInput.click()
-    }
-  }
-
-  const handleViewSong = (song: Song) => {
-    setSelectedSong(song)
-    setIsViewDialogOpen(true)
-  }
-
-  const handleDeleteSong = async (songId: string) => {
+  const handleUpdateSong = async () => {
+    if (!editingSong) return;
+    
     try {
-      const response = await fetch(`/api/songs/${songId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        setSongs(songs.filter(song => song.id !== songId))
-        toast({
-          title: "Song deleted",
-          description: "The song has been removed from your collection.",
-        })
+      const response = await fetch(`/api/songs/${editingSong._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setDialogError(null);
+        setEditingSong(null);
+        setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+        setIsDialogOpen(false);
+        fetchSongs();
       } else {
-        console.error('Failed to delete song')
-        toast({
-          title: "Failed to delete",
-          description: "Could not delete the song. Please try again.",
-          variant: "destructive",
-        })
+        // Show error message to user in dialog
+        setDialogError(result.error || 'Failed to update song');
+        console.error('Update Error:', result.error);
       }
     } catch (error) {
-      console.error('Error deleting song:', error)
-      toast({
-        title: "Error deleting song",
-        description: "An error occurred while deleting the song.",
-        variant: "destructive",
-      })
+      console.error('Error updating song:', error);
+      setDialogError('Network error. Please check your connection.');
     }
-    setSongToDelete(null)
-  }
+  };
+
+  const handleDeleteSong = async (id: string) => {
+    try {
+      const response = await fetch(`/api/songs/${id}`, {
+        method: 'DELETE'
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        fetchSongs();
+      }
+    } catch (error) {
+      console.error('Error deleting song:', error);
+    }
+  };
 
   const handleDeleteAllSongs = async () => {
     try {
-      const response = await fetch('/api/songs', {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setSongs([])
-        toast({
-          title: "All songs deleted",
-          description: `${data.count} songs have been removed from your collection.`,
-        })
-      } else {
-        console.error('Failed to delete all songs')
-        toast({
-          title: "Failed to delete all",
-          description: "Could not delete all songs. Please try again.",
-          variant: "destructive",
-        })
+      const response = await fetch('/api/songs/delete-all', {
+        method: 'DELETE'
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        fetchSongs();
       }
     } catch (error) {
-      console.error('Error deleting all songs:', error)
-      toast({
-        title: "Error deleting all songs",
-        description: "An error occurred while deleting all songs.",
-        variant: "destructive",
-      })
+      console.error('Error deleting all songs:', error);
     }
-    setIsDeleteAllDialogOpen(false)
-  }
+  };
+
+  const handleToggleChoir = async (song: Song) => {
+    try {
+      const response = await fetch(`/api/songs/${song._id}/choir`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isChoirPractice: !song.isChoirPractice })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        fetchSongs();
+      }
+    } catch (error) {
+      console.error('Error toggling choir status:', error);
+    }
+  };
+
+  const handleScreenshot = async (song: Song) => {
+    if (songCardRef.current) {
+      try {
+        const canvas = await html2canvas(songCardRef.current);
+        const link = document.createElement('a');
+        link.download = `${song.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      } catch (error) {
+        console.error('Error taking screenshot:', error);
+      }
+    }
+  };
+
+  const handleEditSong = (song: Song) => {
+    setEditingSong(song);
+    setFormData({
+      title: song.title,
+      language: song.language,
+      lyrics: song.lyrics,
+      isChoirPractice: song.isChoirPractice
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = () => {
+    setDialogError(null);
+    if (editingSong) {
+      handleUpdateSong();
+    } else {
+      handleCreateSong();
+    }
+  };
+
+  // Fetch songs when component mounts or when dependencies change
+  useEffect(() => {
+    fetchSongs();
+  }, [activeTab, searchTerm, sortBy]);
+
+  const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Music className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold">Song Lyrics Manager</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              {songs.length > 0 && (
-                <AlertDialog open={isDeleteAllDialogOpen} onOpenChange={setIsDeleteAllDialogOpen}>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete All
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-destructive" />
-                        Delete All Songs
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete all {songs.length} songs? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteAllSongs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete All Songs
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <Music className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Song Lyrics Manager</h1>
+          </div>
+          
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setDialogError(null);
+              setEditingSong(null);
+              setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button onClick={() => {
+                setDialogError(null);
+                setEditingSong(null);
+                setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Song
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+              <DialogHeader>
+                <DialogTitle>{editingSong ? 'Edit Song' : 'Add New Song'}</DialogTitle>
+                <DialogDescription>
+                  {editingSong ? 'Update the song details below.' : 'Create a new song with lyrics.'}
+                </DialogDescription>
+              </DialogHeader>
+              
+              {/* Dialog Error Display */}
+              {dialogError && (
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <div className="flex items-center gap-2 text-destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <p className="font-medium text-sm">Error</p>
+                  </div>
+                  <p className="text-xs text-destructive/80 mt-1">
+                    {dialogError}
+                  </p>
+                </div>
               )}
-              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Song
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Add New Song</DialogTitle>
-                  <DialogDescription>
-                    Add a new song to your lyrics collection
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
+              
+              <ScrollArea className="flex-1 max-h-[60vh] overflow-y-auto px-1">
+                <div className="grid gap-4 py-4 pr-2">
+                  <div className="grid gap-2">
                     <Label htmlFor="title">Title</Label>
                     <Input
                       id="title"
-                      value={newSong.title}
-                      onChange={(e) => setNewSong({ ...newSong, title: e.target.value })}
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                       placeholder="Enter song title"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="artist">Artist</Label>
-                    <Input
-                      id="artist"
-                      value={newSong.artist}
-                      onChange={(e) => setNewSong({ ...newSong, artist: e.target.value })}
-                      placeholder="Enter artist name"
-                    />
-                  </div>
-                  <div>
+                  <div className="grid gap-2">
                     <Label htmlFor="language">Language</Label>
-                    <Select value={newSong.language} onValueChange={(value) => setNewSong({ ...newSong, language: value })}>
+                    <Select value={formData.language} onValueChange={(value) => setFormData({ ...formData, language: value })}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select language" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="Telugu">Telugu</SelectItem>
                         <SelectItem value="English">English</SelectItem>
-                        <SelectItem value="Spanish">Spanish</SelectItem>
-                        <SelectItem value="French">French</SelectItem>
-                        <SelectItem value="German">German</SelectItem>
-                        <SelectItem value="Italian">Italian</SelectItem>
-                        <SelectItem value="Portuguese">Portuguese</SelectItem>
-                        <SelectItem value="Chinese">Chinese</SelectItem>
-                        <SelectItem value="Japanese">Japanese</SelectItem>
-                        <SelectItem value="Korean">Korean</SelectItem>
+                        <SelectItem value="Hindi">Hindi</SelectItem>
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
+                  <div className="grid gap-2">
                     <Label htmlFor="lyrics">Lyrics</Label>
                     <Textarea
                       id="lyrics"
-                      value={newSong.lyrics}
-                      onChange={(e) => setNewSong({ ...newSong, lyrics: e.target.value })}
+                      value={formData.lyrics}
+                      onChange={(e) => setFormData({ ...formData, lyrics: e.target.value })}
                       placeholder="Enter song lyrics"
-                      rows={6}
+                      rows={12}
+                      className="min-h-[200px] max-h-[400px]"
                     />
                   </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleAddSong}>
-                      Add Song
-                    </Button>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="choir"
+                      checked={formData.isChoirPractice}
+                      onChange={(e) => setFormData({ ...formData, isChoirPractice: e.target.checked })}
+                      className="rounded"
+                    />
+                    <Label htmlFor="choir">Add to choir practice</Label>
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
+              </ScrollArea>
+              <DialogFooter className="pt-4 border-t">
+                <Button onClick={handleSubmit}>
+                  {editingSong ? 'Update Song' : 'Create Song'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search songs by title or lyrics..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
+          <div className="flex gap-2">
+            <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Most Recent
+                  </div>
+                </SelectItem>
+                <SelectItem value="alphabetical">
+                  <div className="flex items-center gap-2">
+                    <SortAsc className="h-4 w-4" />
+                    Alphabetical
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete All
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete all songs from the database.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteAllSongs}>Delete All</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
-      </header>
 
-      <div className="container mx-auto px-4 py-6">
-        {/* New Songs Bar */}
-        {newSongs.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                New
-              </Badge>
-              Latest Songs
-            </h2>
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {newSongs.map((song) => (
-                <Card key={song.id} className="min-w-[200px] flex-shrink-0">
-                  <CardContent className="p-4">
-                    <h3 className="font-medium text-sm">{song.title}</h3>
-                    <p className="text-xs text-muted-foreground">{song.artist}</p>
-                    <Badge variant="outline" className="mt-2 text-xs">
-                      {song.language}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              ))}
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="h-4 w-4" />
+              <p className="font-medium">Database Connection Error</p>
             </div>
+            <p className="text-sm text-destructive/80 mt-1">
+              {error}
+            </p>
+            <p className="text-xs text-destructive/60 mt-2">
+              Please make sure MongoDB is running and your connection string is correct.
+            </p>
           </div>
         )}
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search songs by title, artist, or lyrics..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="all" className="flex items-center gap-2">
-              <Music className="h-4 w-4" />
-              All Songs ({songs.length})
+            <TabsTrigger value="all-songs" className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              All Songs
             </TabsTrigger>
-            <TabsTrigger value="choir" className="flex items-center gap-2">
+            <TabsTrigger value="choir-practice" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Choir Practice ({songs.filter(s => s.inChoirPractice).length})
+              Choir Practice
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="all" className="mt-6">
-            <ScrollArea className="h-[600px]">
-              <div className="space-y-4">
-                {filteredSongs.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No songs found. Add your first song to get started!
-                  </div>
-                ) : (
-                  filteredSongs.map((song) => (
-                    <Card key={song.id}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-lg">{song.title}</CardTitle>
-                            <CardDescription>{song.artist}</CardDescription>
-                          </div>
-                          <div className="flex gap-2">
-                            <Badge variant="outline">{song.language}</Badge>
-                            {song.isNew && (
-                              <Badge className="bg-green-100 text-green-800">New</Badge>
+          
+          <TabsContent value="all-songs" className="mt-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {isLoading ? (
+                <div className="col-span-full text-center py-8">Loading songs...</div>
+              ) : currentSongs.length === 0 ? (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  No songs found. Create your first song to get started!
+                </div>
+              ) : (
+                currentSongs.map((song) => (
+                  <Card key={song._id} className="flex flex-col h-full">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{song.title}</CardTitle>
+                          <CardDescription>
+                            <Badge variant="secondary">{song.language}</Badge>
+                            {song.isChoirPractice && (
+                              <Badge variant="outline" className="ml-2">
+                                <Users className="h-3 w-3 mr-1" />
+                                Choir
+                              </Badge>
                             )}
-                          </div>
+                          </CardDescription>
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                            {song.lyrics}
-                          </div>
-                          <div className="flex justify-between items-center gap-2 flex-wrap">
-                            <Button
-                              variant={song.inChoirPractice ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => toggleChoirPractice(song.id)}
-                            >
-                              <Users className="h-4 w-4 mr-2" />
-                              {song.inChoirPractice ? "In Practice" : "Add to Practice"}
-                            </Button>
-                            <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => triggerFileInput(song.id)}
-                              >
-                                <Upload className="h-4 w-4 mr-2" />
-                                Import Screenshot
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditSong(song)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <Trash2 className="h-4 w-4" />
                               </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleViewSong(song)}
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View
-                              </Button>
-                              <AlertDialog open={songToDelete?.id === song.id} onOpenChange={(open) => !open && setSongToDelete(null)}>
-                                <AlertDialogTrigger asChild>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={() => setSongToDelete(song)}
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle className="flex items-center gap-2">
-                                      <AlertTriangle className="h-5 w-5 text-destructive" />
-                                      Delete Song
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete "{song.title}"? This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteSong(song.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                      Delete Song
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                            <input
-                              ref={(el) => fileInputRefs.current[song.id] = el}
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleFileInputChange(song.id, e)}
-                              className="hidden"
-                            />
-                          </div>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Song</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{song.title}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteSong(song._id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <ScrollArea className="h-48 w-full">
+                        <p className="text-sm whitespace-pre-wrap">{song.lyrics}</p>
+                      </ScrollArea>
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleChoir(song)}
+                        >
+                          <Users className="h-4 w-4 mr-1" />
+                          {song.isChoirPractice ? 'Remove from Choir' : 'Add to Choir'}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleScreenshot(song)}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Screenshot
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
           </TabsContent>
-
-          <TabsContent value="choir" className="mt-6">
-            <ScrollArea className="h-[600px]">
-              <div className="space-y-4">
-                {filteredSongs.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No songs in choir practice. Add songs from the All Songs tab!
-                  </div>
-                ) : (
-                  filteredSongs.map((song) => (
-                    <Card key={song.id}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-lg">{song.title}</CardTitle>
-                            <CardDescription>{song.artist}</CardDescription>
-                          </div>
-                          <div className="flex gap-2">
-                            <Badge variant="outline">{song.language}</Badge>
-                            {song.isNew && (
-                              <Badge className="bg-green-100 text-green-800">New</Badge>
-                            )}
-                          </div>
+          
+          <TabsContent value="choir-practice" className="mt-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {isLoading ? (
+                <div className="col-span-full text-center py-8">Loading choir songs...</div>
+              ) : currentSongs.length === 0 ? (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  No choir practice songs found. Add songs to choir practice from the main list.
+                </div>
+              ) : (
+                currentSongs.map((song) => (
+                  <Card key={song._id} className="flex flex-col h-full">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{song.title}</CardTitle>
+                          <CardDescription>
+                            <Badge variant="secondary">{song.language}</Badge>
+                            <Badge variant="outline" className="ml-2">
+                              <Users className="h-3 w-3 mr-1" />
+                              Choir
+                            </Badge>
+                          </CardDescription>
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                            {song.lyrics}
-                          </div>
-                          <div className="flex justify-between items-center gap-2 flex-wrap">
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => toggleChoirPractice(song.id)}
-                            >
-                              <Users className="h-4 w-4 mr-2" />
-                              Remove from Practice
-                            </Button>
-                            <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => triggerFileInput(song.id)}
-                              >
-                                <Upload className="h-4 w-4 mr-2" />
-                                Import Screenshot
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleViewSong(song)}
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View
-                              </Button>
-                              <AlertDialog open={songToDelete?.id === song.id} onOpenChange={(open) => !open && setSongToDelete(null)}>
-                                <AlertDialogTrigger asChild>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={() => setSongToDelete(song)}
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle className="flex items-center gap-2">
-                                      <AlertTriangle className="h-5 w-5 text-destructive" />
-                                      Delete Song
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete "{song.title}"? This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteSong(song.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                      Delete Song
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                            <input
-                              ref={(el) => fileInputRefs.current[song.id] = el}
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleFileInputChange(song.id, e)}
-                              className="hidden"
-                            />
-                          </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditSong(song)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleChoir(song)}
+                          >
+                            <Users className="h-4 w-4" />
+                          </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <ScrollArea className="h-48 w-full">
+                        <p className="text-sm whitespace-pre-wrap">{song.lyrics}</p>
+                      </ScrollArea>
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleScreenshot(song)}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Screenshot
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Song Detail View Modal */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <DialogTitle className="text-2xl">{selectedSong?.title}</DialogTitle>
-                <DialogDescription className="text-lg mt-1">
-                  {selectedSong?.artist}
-                </DialogDescription>
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="outline">{selectedSong?.language}</Badge>
-                {selectedSong?.isNew && (
-                  <Badge className="bg-green-100 text-green-800">New</Badge>
-                )}
-                {selectedSong?.inChoirPractice && (
-                  <Badge className="bg-blue-100 text-blue-800">In Practice</Badge>
-                )}
-              </div>
-            </div>
-          </DialogHeader>
-          
-          <div className="space-y-6">
-            {/* Image Section */}
-            {selectedSong?.imageUrl && (
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold">Lyrics Image</h3>
-                <div className="border rounded-lg overflow-hidden">
-                  <img
-                    src={selectedSong.imageUrl}
-                    alt={`${selectedSong.title} lyrics`}
-                    className="w-full h-auto max-h-[500px] object-contain"
-                    onError={(e) => {
-                      console.error('Image failed to load:', selectedSong.imageUrl)
-                      e.currentTarget.style.display = 'none'
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Text Lyrics Section */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold">Lyrics Text</h3>
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {selectedSong?.lyrics || 'No lyrics text available'}
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-between items-center pt-4 border-t">
-              <Button
-                variant={selectedSong?.inChoirPractice ? "default" : "outline"}
-                onClick={() => {
-                  if (selectedSong) {
-                    toggleChoirPractice(selectedSong.id)
-                  }
-                }}
-              >
-                <Users className="h-4 w-4 mr-2" />
-                {selectedSong?.inChoirPractice ? "Remove from Practice" : "Add to Practice"}
-              </Button>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    if (selectedSong) {
-                      triggerFileInput(selectedSong.id)
-                    }
-                  }}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Replace Screenshot
-                </Button>
-                <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
-  )
+  );
 }

@@ -1,77 +1,95 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import Song from '@/lib/models/Song';
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const search = searchParams.get('search')
-    const choirOnly = searchParams.get('choirOnly') === 'true'
-
-    let songs = await db.song.findMany({
-      orderBy: {
-        title: 'asc'
-      }
-    })
-
-    // Filter by search term if provided
-    if (search) {
-      const searchLower = search.toLowerCase()
-      songs = songs.filter(song => 
-        song.title.toLowerCase().includes(searchLower) ||
-        song.artist?.toLowerCase().includes(searchLower) ||
-        song.lyrics.toLowerCase().includes(searchLower)
-      )
-    }
-
-    // Filter by choir practice if requested
+    await connectDB();
+    
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get('search') || '';
+    const choirOnly = searchParams.get('choirOnly') === 'true';
+    const sortBy = searchParams.get('sortBy') || 'recent'; // 'recent' or 'alphabetical'
+    
+    const query: any = {};
+    
     if (choirOnly) {
-      songs = songs.filter(song => song.inChoirPractice)
+      query.isChoirPractice = true;
     }
-
-    return NextResponse.json(songs)
+    
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { lyrics: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    let sortOptions = {};
+    if (sortBy === 'alphabetical') {
+      sortOptions = { title: 1 };
+    } else {
+      sortOptions = { createdAt: -1 };
+    }
+    
+    const songs = await Song.find(query).sort(sortOptions);
+    
+    return NextResponse.json({ success: true, data: songs });
   } catch (error) {
-    console.error('Error fetching songs:', error)
-    return NextResponse.json({ error: 'Failed to fetch songs' }, { status: 500 })
+    console.error('Error fetching songs:', error);
+    
+    // Handle MongoDB connection errors specifically
+    if (error instanceof Error && error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
+        { status: 503 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch songs' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { title, artist, lyrics, language } = body
-
-    if (!title || !lyrics) {
-      return NextResponse.json({ error: 'Title and lyrics are required' }, { status: 400 })
-    }
-
-    const song = await db.song.create({
-      data: {
-        title,
-        artist: artist || null,
-        lyrics,
-        language: language || 'English',
-        isNew: true,
-        inChoirPractice: false
-      }
-    })
-
-    return NextResponse.json(song, { status: 201 })
-  } catch (error) {
-    console.error('Error creating song:', error)
-    return NextResponse.json({ error: 'Failed to create song' }, { status: 500 })
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const result = await db.song.deleteMany({})
+    await connectDB();
     
-    return NextResponse.json({ 
-      message: 'All songs deleted successfully',
-      count: result.count 
-    })
+    const body = await request.json();
+    const { title, language, lyrics, isChoirPractice = false } = body;
+    
+    if (!title || !language || !lyrics) {
+      return NextResponse.json(
+        { success: false, error: 'Title, language, and lyrics are required' },
+        { status: 400 }
+      );
+    }
+    
+    const newSong = new Song({
+      title,
+      language,
+      lyrics,
+      isChoirPractice
+    });
+    
+    await newSong.save();
+    
+    return NextResponse.json({ success: true, data: newSong }, { status: 201 });
   } catch (error) {
-    console.error('Error deleting all songs:', error)
-    return NextResponse.json({ error: 'Failed to delete all songs' }, { status: 500 })
+    console.error('Error creating song:', error);
+    
+    // Handle MongoDB connection errors specifically
+    if (error instanceof Error && error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
+        { status: 503 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Failed to create song' },
+      { status: 500 }
+    );
   }
 }

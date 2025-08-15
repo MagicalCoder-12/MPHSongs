@@ -1,141 +1,276 @@
-# 🚀 Welcome to Z.ai Code Scaffold
+# 🎵 Song Lyrics Manager
 
-A modern, production-ready web application scaffold powered by cutting-edge technologies, designed to accelerate your development with [Z.ai](https://chat.z.ai)'s AI-powered coding assistance.
+A full-stack song lyric viewing and management web application built with Next.js 15, MongoDB Atlas, and TypeScript. Perfect for managing songs in multiple languages including Telugu, English, Hindi, and more.
 
-## ✨ Technology Stack
+## ✨ Features
 
-This scaffold provides a robust foundation built with:
+### 🎵 Song Management
+- **Add, Edit, Delete** songs with lyrics
+- **Multi-language Support** - Store songs in Telugu, English, Hindi, and other languages
+- **Smart Sorting** - View songs by most recent or alphabetical order
+- **Confirmation Dialogs** - Safe deletion with warnings before removing songs
+- **Delete All** - Clear the entire database with confirmation
+- **Scrollable Lyrics** - Long lyrics are scrollable while keeping UI accessible
 
-### 🎯 Core Framework
-- **⚡ Next.js 15** - The React framework for production with App Router
-- **📘 TypeScript 5** - Type-safe JavaScript for better developer experience
-- **🎨 Tailwind CSS 4** - Utility-first CSS framework for rapid UI development
+### 👥 Choir Practice Tab
+- **Dedicated Choir Section** - Separate tab for choir practice songs
+- **Easy Management** - Add/remove songs from choir practice without deleting from main list
+- **Shared Access** - Choir practice songs visible to all users
 
-### 🧩 UI Components & Styling
-- **🧩 shadcn/ui** - High-quality, accessible components built on Radix UI
-- **🎯 Lucide React** - Beautiful & consistent icon library
-- **🌈 Framer Motion** - Production-ready motion library for React
-- **🎨 Next Themes** - Perfect dark mode in 2 lines of code
+### 🔍 Search Functionality
+- **Powerful Search** - Search songs by title or lyrics content
+- **Multi-language Search** - Search works across all languages
+- **Real-time Results** - Instant search as you type
 
-### 📋 Forms & Validation
-- **🎣 React Hook Form** - Performant forms with easy validation
-- **✅ Zod** - TypeScript-first schema validation
+### 📸 Screenshot Feature
+- **One-click Screenshots** - Capture song lyrics as images
+- **Download Capability** - Save screenshots directly to device
+- **Clean Formatting** - Professional-looking image output
 
-### 🔄 State Management & Data Fetching
-- **🐻 Zustand** - Simple, scalable state management
-- **🔄 TanStack Query** - Powerful data synchronization for React
-- **🌐 Axios** - Promise-based HTTP client
+### 📱 Responsive Design
+- **Mobile-First** - Works perfectly on all device sizes
+- **Modern UI** - Clean, intuitive interface with Tailwind CSS
+- **Dark/Light Mode** - Theme support for comfortable viewing
 
-### 🗄️ Database & Backend
-- **🗄️ Prisma** - Next-generation Node.js and TypeScript ORM
-- **🔐 NextAuth.js** - Complete open-source authentication solution
+## 🚀 Technology Stack
 
-### 🎨 Advanced UI Features
-- **📊 TanStack Table** - Headless UI for building tables and datagrids
-- **🖱️ DND Kit** - Modern drag and drop toolkit for React
-- **📊 Recharts** - Redefined chart library built with React and D3
-- **🖼️ Sharp** - High performance image processing
+- **Frontend**: Next.js 15 with App Router, TypeScript, Tailwind CSS
+- **UI Components**: shadcn/ui with Radix UI primitives
+- **Database**: MongoDB Atlas with Mongoose ODM
+- **Backend**: Next.js API Routes
+- **Deployment**: Vercel-ready
+- **Screenshot**: html2canvas for image generation
 
-### 🌍 Internationalization & Utilities
-- **🌍 Next Intl** - Internationalization library for Next.js
-- **📅 Date-fns** - Modern JavaScript date utility library
-- **🪝 ReactUse** - Collection of essential React hooks for modern development
+## 🛡️ Error Handling
 
-## 🎯 Why This Scaffold?
+The application includes comprehensive error handling to ensure a smooth user experience:
 
-- **🏎️ Fast Development** - Pre-configured tooling and best practices
-- **🎨 Beautiful UI** - Complete shadcn/ui component library with advanced interactions
-- **🔒 Type Safety** - Full TypeScript configuration with Zod validation
-- **📱 Responsive** - Mobile-first design principles with smooth animations
-- **🗄️ Database Ready** - Prisma ORM configured for rapid backend development
-- **🔐 Auth Included** - NextAuth.js for secure authentication flows
-- **📊 Data Visualization** - Charts, tables, and drag-and-drop functionality
-- **🌍 i18n Ready** - Multi-language support with Next Intl
-- **🚀 Production Ready** - Optimized build and deployment settings
-- **🤖 AI-Friendly** - Structured codebase perfect for AI assistance
+### **Database Connection Errors**
+- Clear error messages when MongoDB is not connected
+- User-friendly error display with troubleshooting guidance
+- Application remains functional even when database is unavailable
 
-## 🚀 Quick Start
+### **Form Validation Errors**
+- Real-time validation in the create/edit song dialog
+- Specific error messages for missing required fields
+- Error display directly in the dialog for immediate feedback
 
+### **Network Errors**
+- Graceful handling of network connectivity issues
+- Informative error messages to guide users
+- Automatic retry functionality where appropriate
+
+### **Error Display Features**
+- **Main Page Error Display**: Red error box with clear messaging and guidance
+- **Dialog Error Display**: Error messages shown directly in the create/edit dialog
+- **Console Logging**: Detailed error information for debugging
+- **User Guidance**: Clear next steps for resolving common issues
+
+## 🧪 Testing the Application
+
+### **Error Handling Demo**
+
+To test the error handling features:
+
+1. **Database Connection Error:**
+   - Start the application without MongoDB running
+   - You should see a red error box on the main page
+   - Try creating a song - you'll see an error in the dialog
+   - The error message will guide you to check your MongoDB connection
+
+2. **Form Validation:**
+   - Open the "Add Song" dialog
+   - Try submitting without filling in required fields
+   - You'll see validation errors in the dialog
+
+3. **Network Error Simulation:**
+   - Disconnect your internet connection
+   - Try creating a song
+   - You'll see a network error message
+
+### **Current Status**
+
+The application is currently showing a MongoDB connection error because:
+- MongoDB is not running locally
+- The connection string in `.env.local` points to `mongodb://localhost:27017/song_lyrics`
+
+**To fix this:**
+1. Follow the setup instructions in `MONGODB_SETUP.md`
+2. Or update `.env.local` with your MongoDB Atlas connection string
+3. Restart the development server
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+- Node.js 18+ 
+- MongoDB Atlas account
+- Vercel account (for deployment)
+
+### Local Development
+
+1. **Clone the repository**
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
+git clone <your-repo-url>
+cd song-lyrics-manager
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see your application running.
+2. **Install dependencies**
+```bash
+npm install
+```
 
-## 🤖 Powered by Z.ai
+3. **Set up environment variables**
+```bash
+cp .env.local.example .env.local
+```
 
-This scaffold is optimized for use with [Z.ai](https://chat.z.ai) - your AI assistant for:
+Edit `.env.local` with your MongoDB Atlas connection string:
+```env
+MONGODB_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/song_lyrics?retryWrites=true&w=majority
+```
 
-- **💻 Code Generation** - Generate components, pages, and features instantly
-- **🎨 UI Development** - Create beautiful interfaces with AI assistance  
-- **🔧 Bug Fixing** - Identify and resolve issues with intelligent suggestions
-- **📝 Documentation** - Auto-generate comprehensive documentation
-- **🚀 Optimization** - Performance improvements and best practices
+4. **Start the development server**
+```bash
+npm run dev
+```
 
-Ready to build something amazing? Start chatting with Z.ai at [chat.z.ai](https://chat.z.ai) and experience the future of AI-powered development!
+5. **Open your browser**
+Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🚀 Deployment to Vercel
+
+### 1. Push to GitHub
+```bash
+git add .
+git commit -m "Initial commit"
+git push origin main
+```
+
+### 2. Deploy to Vercel
+
+1. **Connect to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Sign in with your GitHub account
+   - Click "New Project"
+   - Select your repository
+
+2. **Configure Environment Variables**
+   - In your Vercel project dashboard, go to Settings → Environment Variables
+   - Add your MongoDB connection string:
+     ```
+     Key: MONGODB_URI
+     Value: mongodb+srv://your_username:your_password@your_cluster.mongodb.net/song_lyrics?retryWrites=true&w=majority
+     ```
+
+3. **Deploy**
+   - Click "Deploy"
+   - Vercel will automatically build and deploy your application
+
+### 3. Post-Deployment
+
+- **Test your application** at the provided Vercel URL
+- **Set up custom domain** if needed in Vercel dashboard
+- **Monitor performance** using Vercel Analytics
 
 ## 📁 Project Structure
 
 ```
 src/
-├── app/                 # Next.js App Router pages
-├── components/          # Reusable React components
-│   └── ui/             # shadcn/ui components
-├── hooks/              # Custom React hooks
-└── lib/                # Utility functions and configurations
+├── app/
+│   ├── api/                 # API routes
+│   │   └── songs/           # Song CRUD operations
+│   │       ├── [id]/        # Individual song operations
+│   │       ├── choir/       # Choir practice operations
+│   │       └── delete-all/  # Bulk delete operation
+│   ├── page.tsx            # Main application page
+│   ├── layout.tsx          # Root layout
+│   └── globals.css         # Global styles
+├── components/
+│   └── ui/                 # shadcn/ui components
+├── lib/
+│   ├── models/             # MongoDB schemas
+│   │   └── Song.ts         # Song model
+│   ├── mongodb.ts          # MongoDB connection
+│   └── utils.ts            # Utility functions
+└── hooks/                  # Custom React hooks
 ```
 
-## 🎨 Available Features & Components
+## 🔧 API Endpoints
 
-This scaffold includes a comprehensive set of modern web development tools:
+### Songs
+- `GET /api/songs` - Fetch all songs with optional search and sorting
+- `POST /api/songs` - Create a new song
+- `GET /api/songs/[id]` - Get a specific song
+- `PUT /api/songs/[id]` - Update a song
+- `DELETE /api/songs/[id]` - Delete a song
 
-### 🧩 UI Components (shadcn/ui)
-- **Layout**: Card, Separator, Aspect Ratio, Resizable Panels
-- **Forms**: Input, Textarea, Select, Checkbox, Radio Group, Switch
-- **Feedback**: Alert, Toast (Sonner), Progress, Skeleton
-- **Navigation**: Breadcrumb, Menubar, Navigation Menu, Pagination
-- **Overlay**: Dialog, Sheet, Popover, Tooltip, Hover Card
-- **Data Display**: Badge, Avatar, Calendar
+### Choir Practice
+- `PUT /api/songs/[id]/choir` - Add/remove song from choir practice
 
-### 📊 Advanced Data Features
-- **Tables**: Powerful data tables with sorting, filtering, pagination (TanStack Table)
-- **Charts**: Beautiful visualizations with Recharts
-- **Forms**: Type-safe forms with React Hook Form + Zod validation
+### Bulk Operations
+- `DELETE /api/songs/delete-all` - Delete all songs (with confirmation)
 
-### 🎨 Interactive Features
-- **Animations**: Smooth micro-interactions with Framer Motion
-- **Drag & Drop**: Modern drag-and-drop functionality with DND Kit
-- **Theme Switching**: Built-in dark/light mode support
+## 🎯 Usage Guide
 
-### 🔐 Backend Integration
-- **Authentication**: Ready-to-use auth flows with NextAuth.js
-- **Database**: Type-safe database operations with Prisma
-- **API Client**: HTTP requests with Axios + TanStack Query
-- **State Management**: Simple and scalable with Zustand
+### Adding a Song
+1. Click the "Add Song" button
+2. Fill in the song title, select language, and add lyrics
+3. Optionally check "Add to choir practice"
+4. Click "Create Song"
 
-### 🌍 Production Features
-- **Internationalization**: Multi-language support with Next Intl
-- **Image Optimization**: Automatic image processing with Sharp
-- **Type Safety**: End-to-end TypeScript with Zod validation
-- **Essential Hooks**: 100+ useful React hooks with ReactUse for common patterns
+### Managing Songs
+- **Edit**: Click the edit icon on any song card
+- **Delete**: Click the trash icon with confirmation dialog
+- **Choir Practice**: Toggle choir status with the choir button
+- **Screenshot**: Capture lyrics as an image with the download button
 
-## 🤝 Get Started with Z.ai
+### Searching
+- Use the search bar to find songs by title or lyrics content
+- Search works across all languages simultaneously
+- Results update in real-time as you type
 
-1. **Clone this scaffold** to jumpstart your project
-2. **Visit [chat.z.ai](https://chat.z.ai)** to access your AI coding assistant
-3. **Start building** with intelligent code generation and assistance
-4. **Deploy with confidence** using the production-ready setup
+### Sorting
+- Use the sort dropdown to switch between:
+  - **Most Recent**: Newest songs first
+  - **Alphabetical**: A-Z order by title
+
+## 🌍 Multi-Language Support
+
+The application supports songs in:
+- **Telugu** (తెలుగు)
+- **English** 
+- **Hindi** (हिन्दी)
+- **Other** languages
+
+MongoDB handles Unicode text storage, ensuring proper display of all languages.
+
+## 🔧 Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `MONGODB_URI` | MongoDB Atlas connection string | Yes |
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🚀 Built With
+
+- [Next.js 15](https://nextjs.org/) - React framework
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) - Cloud database
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [shadcn/ui](https://ui.shadcn.com/) - Component library
+- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
+- [Vercel](https://vercel.com/) - Deployment platform
 
 ---
 
-Built with ❤️ for the developer community. Supercharged by [Z.ai](https://chat.z.ai) 🚀
+Built with ❤️ for music ministries and choir teams. Perfect for managing multilingual song collections! 🎵

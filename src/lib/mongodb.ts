@@ -1,9 +1,10 @@
+// lib/mongodb.ts
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/song_lyrics';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error('Please define MONGODB_URI in .env');
 }
 
 let cached = global.mongoose;
@@ -20,11 +21,14 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-      socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 5,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts)
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log('MongoDB connected successfully');
         return mongoose;

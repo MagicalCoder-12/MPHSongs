@@ -13,13 +13,6 @@ function isValidLanguage(lang: unknown): lang is Language {
 
 export async function GET(request: NextRequest) {
   try {
-    // Log the Vercel function's outbound IP
-    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    console.log('📊 Vercel Function IP Address:', clientIP);
-    console.log('⏰ Timestamp:', new Date().toISOString());
-    console.log('🎯 Request Method:', request.method);
-    console.log('🔗 Request URL:', request.url);
-
     await connectDB();
     
     const searchParams = request.nextUrl.searchParams;
@@ -67,14 +60,9 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 export async function POST(request: NextRequest) {
   try {
-    // Log the Vercel function's outbound IP
-    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    console.log('📊 Vercel Function IP Address (POST):', clientIP);
-    console.log('⏰ Timestamp:', new Date().toISOString());
-    console.log('🎯 Request Method:', request.method);
-
     await connectDB();
     
     const body = await request.json();
@@ -108,12 +96,6 @@ export async function POST(request: NextRequest) {
     
     await newSong.save();
     
-    console.log('✅ Song created successfully');
-    console.log('📝 Song ID:', newSong._id);
-    console.log('🎤 Title:', newSong.title);
-    console.log('🗣️ Language:', newSong.language);
-    console.log('📍 From IP:', clientIP);
-
     return NextResponse.json({ success: true,  newSong }, { status: 201 });
   } catch (error) {
     console.error('Error creating song:', error);
@@ -178,7 +160,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       );
     }
     
-    return NextResponse.json({ success: true, data: updatedSong });
+    return NextResponse.json({ success: true,  updatedSong });
   } catch (error) {
     console.error('Error updating song:', error);
     

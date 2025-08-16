@@ -160,13 +160,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         { status: 500 }
       );
     }
-      );
-    }
-    
-    return NextResponse.json(
-      { success: false, error: 'Failed to update song' },
-      { status: 500 }
-    );
   }
 }
 

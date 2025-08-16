@@ -12,7 +12,7 @@ import { Users, Download, Edit, Trash2 } from "lucide-react";
 interface Song {
   _id: string;
   title: string;
-  language: string;
+  songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;
   createdAt: string;
@@ -60,7 +60,7 @@ export function SongCard({
               <CardTitle className="text-lg">{song.title}</CardTitle>
               <CardDescription>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  <Badge variant="secondary">{song.language}</Badge>
+                  <Badge variant="secondary">{song.songLanguage}</Badge>
                   {song.isChoirPractice && (
                     <Badge variant="outline">
                       <Users className="h-3 w-3 mr-1" />
@@ -140,7 +140,7 @@ export function SongCard({
             <DialogTitle className="text-2xl">{song.title}</DialogTitle>
           </DialogHeader>
           <div className="flex gap-2 mb-4">
-            <Badge variant="secondary">{song.language}</Badge>
+            <Badge variant="secondary">{song.songLanguage}</Badge>
             {song.isChoirPractice && (
               <Badge variant="outline">
                 <Users className="h-3 w-3 mr-1" />

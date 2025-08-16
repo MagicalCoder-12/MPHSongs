@@ -4,11 +4,11 @@ import Song from '@/lib/models/Song';
 
 // Define allowed languages
 const ALLOWED_LANGUAGES = ['Telugu', 'Hindi', 'English', 'Other'] as const;
-type Language = typeof ALLOWED_LANGUAGES[number];
+type SongLanguage = typeof ALLOWED_LANGUAGES[number];
 
 // Helper to validate language input
-function isValidLanguage(lang: unknown): lang is Language {
-  return typeof lang === 'string' && ALLOWED_LANGUAGES.includes(lang as Language);
+function isValidSongLanguage(lang: unknown): lang is SongLanguage {
+  return typeof lang === 'string' && ALLOWED_LANGUAGES.includes(lang as SongLanguage);
 }
 
 export async function GET(request: NextRequest) {
@@ -64,10 +64,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    
     const body = await request.json();
-    const { title, language, lyrics, isChoirPractice = false } = body;
-    
+  const { title, songLanguage, lyrics, isChoirPractice = false } = body;
     // Validate required fields
     if (!title || !lyrics) {
       return NextResponse.json(
@@ -75,9 +73,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
     // Validate language
-    if (!language || !isValidLanguage(language)) {
+    if (!songLanguage || !isValidSongLanguage(songLanguage)) {
       return NextResponse.json(
         { 
           success: false, 
@@ -86,30 +83,24 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
     const newSong = new Song({
       title: title.trim(),
-      language,
+      songLanguage,
       lyrics: lyrics.trim(),
       isChoirPractice: !!isChoirPractice
     });
-    
     await newSong.save();
-    
     return NextResponse.json({ success: true,  newSong }, { status: 201 });
   } catch (error) {
     console.error('Error creating song:', error);
-    
-    // Handle MongoDB connection errors specifically
-    if (error instanceof Error && error.name === 'MongoNetworkError') {
+    if (error instanceof Error) {
       return NextResponse.json(
-        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
-        { status: 503 }
+        { success: false, error: `Failed to create song: ${error.message}`, stack: error.stack },
+        { status: 500 }
       );
     }
-    
     return NextResponse.json(
-      { success: false, error: 'Failed to create song' },
+      { success: false, error: 'Failed to create song', raw: JSON.stringify(error) },
       { status: 500 }
     );
   }
@@ -117,58 +108,58 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    await connectDB();
-    
-    const { id } = params;
-    const body = await request.json();
-    const { title, language, lyrics, isChoirPractice } = body;
-    
-    // Validate required fields
-    if (!title || !lyrics) {
-      return NextResponse.json(
-        { success: false, error: 'Title and lyrics are required' },
-        { status: 400 }
-      );
-    }
-    
-    // Validate language
-    if (!language || !isValidLanguage(language)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: `Invalid language. Must be one of: ${ALLOWED_LANGUAGES.join(', ')}` 
+    try {
+      await connectDB();
+      const { id } = params;
+      const body = await request.json();
+    const { title, songLanguage, lyrics, isChoirPractice } = body;
+      // Validate required fields
+      if (!title || !lyrics) {
+        return NextResponse.json(
+          { success: false, error: 'Title and lyrics are required' },
+          { status: 400 }
+        );
+      }
+      // Validate language
+      if (!songLanguage || !isValidSongLanguage(songLanguage)) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: `Invalid language. Must be one of: ${ALLOWED_LANGUAGES.join(', ')}` 
+          },
+          { status: 400 }
+        );
+      }
+      const updatedSong = await Song.findByIdAndUpdate(
+        id,
+        {
+          title: title.trim(),
+          songLanguage,
+          lyrics: lyrics.trim(),
+          isChoirPractice: !!isChoirPractice
         },
-        { status: 400 }
+        { new: true, runValidators: true }
+      );
+      if (!updatedSong) {
+        return NextResponse.json(
+          { success: false, error: 'Song not found' },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({ success: true, updatedSong }, { status: 200 });
+    } catch (error) {
+      console.error('Error updating song:', error);
+      if (error instanceof Error) {
+        return NextResponse.json(
+          { success: false, error: `Failed to update song: ${error.message}`, stack: error.stack },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json(
+        { success: false, error: 'Failed to update song', raw: JSON.stringify(error) },
+        { status: 500 }
       );
     }
-
-    const updatedSong = await Song.findByIdAndUpdate(
-      id,
-      {
-        title: title.trim(),
-        language,
-        lyrics: lyrics.trim(),
-        isChoirPractice: !!isChoirPractice
-      },
-      { new: true, runValidators: true }
-    );
-    
-    if (!updatedSong) {
-      return NextResponse.json(
-        { success: false, error: 'Song not found' },
-        { status: 404 }
-      );
-    }
-    
-    return NextResponse.json({ success: true,  updatedSong });
-  } catch (error) {
-    console.error('Error updating song:', error);
-    
-    // Handle MongoDB connection errors specifically
-    if (error instanceof Error && error.name === 'MongoNetworkError') {
-      return NextResponse.json(
-        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
-        { status: 503 }
       );
     }
     

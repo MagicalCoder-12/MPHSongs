@@ -7,7 +7,7 @@ const songSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    language: {
+    songLanguage: {
       type: String,
       required: true,
       enum: ['Telugu', 'English', 'Hindi', 'Other'],

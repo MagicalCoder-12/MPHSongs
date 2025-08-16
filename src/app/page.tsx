@@ -18,7 +18,7 @@ import { SongCard } from '@/components/ui/song-card';
 interface Song {
   _id: string;
   title: string;
-  language: string;
+  songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;
   createdAt: string;
@@ -38,7 +38,7 @@ export default function Home() {
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    language: 'English',
+    songLanguage: 'English',
     lyrics: '',
     isChoirPractice: false
   });
@@ -86,7 +86,7 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-        setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+  setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
         fetchSongs();
       } else {
@@ -114,7 +114,7 @@ export default function Home() {
       if (result.success) {
         setDialogError(null);
         setEditingSong(null);
-        setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+  setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
         fetchSongs();
       } else {
@@ -183,7 +183,7 @@ export default function Home() {
     setEditingSong(song);
     setFormData({
       title: song.title,
-      language: song.language,
+      songLanguage: song.songLanguage,
       lyrics: song.lyrics,
       isChoirPractice: song.isChoirPractice
     });
@@ -224,14 +224,14 @@ export default function Home() {
             if (!open) {
               setDialogError(null);
               setEditingSong(null);
-              setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+              setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
             }
           }}>
             <DialogTrigger asChild>
               <Button onClick={() => {
                 setDialogError(null);
                 setEditingSong(null);
-                setFormData({ title: '', language: 'English', lyrics: '', isChoirPractice: false });
+                setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
               }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Song
@@ -270,8 +270,8 @@ export default function Home() {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="language">Language</Label>
-                    <Select value={formData.language} onValueChange={(value) => setFormData({ ...formData, language: value })}>
+                    <Label htmlFor="songLanguage">Language</Label>
+                    <Select value={formData.songLanguage} onValueChange={(value) => setFormData({ ...formData, songLanguage: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select language" />
                       </SelectTrigger>

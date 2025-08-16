@@ -114,3 +114,93 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    await connectDB();
+    
+    const { id } = params;
+    const body = await request.json();
+    const { title, language, lyrics, isChoirPractice } = body;
+    
+    // Validate required fields
+    if (!title || !lyrics) {
+      return NextResponse.json(
+        { success: false, error: 'Title and lyrics are required' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate language
+    if (!language || !isValidLanguage(language)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Invalid language. Must be one of: ${ALLOWED_LANGUAGES.join(', ')}` 
+        },
+        { status: 400 }
+      );
+    }
+
+    const updatedSong = await Song.findByIdAndUpdate(
+      id,
+      {
+        title: title.trim(),
+        language,
+        lyrics: lyrics.trim(),
+        isChoirPractice: !!isChoirPractice
+      },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedSong) {
+      return NextResponse.json(
+        { success: false, error: 'Song not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({ success: true, data: updatedSong });
+  } catch (error) {
+    console.error('Error updating song:', error);
+    
+    // Handle MongoDB connection errors specifically
+    if (error instanceof Error && error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { success: false, error: 'Database connection failed. Please check your MongoDB connection.' },
+        { status: 503 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: 'Failed to update song' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    await connectDB();
+    
+    const { id } = params;
+    
+    const deletedSong = await Song.findByIdAndDelete(id);
+    
+    if (!deletedSong) {
+      return NextResponse.json(
+        { success: false, error: 'Song not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({ success: true, message: 'Song deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting song:', error);
+    
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete song' },
+      { status: 500 }
+    );
+  }
+}

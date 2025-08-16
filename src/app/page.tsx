@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Plus, Search, Music, Trash2, Edit, Download, Users, List, Clock, SortAsc, AlertCircle } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
-import { SongCard } from '@/components/song-card';
+import { SongCard } from '@/components/ui/song-card';
 
 interface Song {
   _id: string;

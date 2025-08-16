@@ -108,58 +108,56 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    try {
-      await connectDB();
-      const { id } = params;
-      const body = await request.json();
+    await connectDB();
+    const { id } = params;
+    const body = await request.json();
     const { title, songLanguage, lyrics, isChoirPractice } = body;
-      // Validate required fields
-      if (!title || !lyrics) {
-        return NextResponse.json(
-          { success: false, error: 'Title and lyrics are required' },
-          { status: 400 }
-        );
-      }
-      // Validate language
-      if (!songLanguage || !isValidSongLanguage(songLanguage)) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: `Invalid language. Must be one of: ${ALLOWED_LANGUAGES.join(', ')}` 
-          },
-          { status: 400 }
-        );
-      }
-      const updatedSong = await Song.findByIdAndUpdate(
-        id,
-        {
-          title: title.trim(),
-          songLanguage,
-          lyrics: lyrics.trim(),
-          isChoirPractice: !!isChoirPractice
-        },
-        { new: true, runValidators: true }
-      );
-      if (!updatedSong) {
-        return NextResponse.json(
-          { success: false, error: 'Song not found' },
-          { status: 404 }
-        );
-      }
-      return NextResponse.json({ success: true, updatedSong }, { status: 200 });
-    } catch (error) {
-      console.error('Error updating song:', error);
-      if (error instanceof Error) {
-        return NextResponse.json(
-          { success: false, error: `Failed to update song: ${error.message}`, stack: error.stack },
-          { status: 500 }
-        );
-      }
+    // Validate required fields
+    if (!title || !lyrics) {
       return NextResponse.json(
-        { success: false, error: 'Failed to update song', raw: JSON.stringify(error) },
+        { success: false, error: 'Title and lyrics are required' },
+        { status: 400 }
+      );
+    }
+    // Validate language
+    if (!songLanguage || !isValidSongLanguage(songLanguage)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Invalid language. Must be one of: ${ALLOWED_LANGUAGES.join(', ')}` 
+        },
+        { status: 400 }
+      );
+    }
+    const updatedSong = await Song.findByIdAndUpdate(
+      id,
+      {
+        title: title.trim(),
+        songLanguage,
+        lyrics: lyrics.trim(),
+        isChoirPractice: !!isChoirPractice
+      },
+      { new: true, runValidators: true }
+    );
+    if (!updatedSong) {
+      return NextResponse.json(
+        { success: false, error: 'Song not found' },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json({ success: true, updatedSong }, { status: 200 });
+  } catch (error) {
+    console.error('Error updating song:', error);
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { success: false, error: `Failed to update song: ${error.message}`, stack: error.stack },
         { status: 500 }
       );
     }
+    return NextResponse.json(
+      { success: false, error: 'Failed to update song', raw: JSON.stringify(error) },
+      { status: 500 }
+    );
   }
 }
 

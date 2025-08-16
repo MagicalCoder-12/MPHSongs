@@ -43,7 +43,7 @@ export default function Home() {
     isChoirPractice: false
   });
 
-  const fetchSongs = async () => {
+   const fetchSongs = async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -58,9 +58,9 @@ export default function Home() {
       
       if (result.success) {
         if (activeTab === 'choir-practice') {
-          setChoirSongs(result.data);
+          setChoirSongs(result.songs || []); // Ensure it's always an array
         } else {
-          setSongs(result.data);
+          setSongs(result.songs || []); // Ensure it's always an array
         }
       } else {
         setError(result.error || 'Failed to fetch songs');
@@ -388,64 +388,71 @@ export default function Home() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="all-songs" className="flex items-center gap-2">
-              <List className="h-4 w-4" />
-              All Songs
-            </TabsTrigger>
-            <TabsTrigger value="choir-practice" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Choir Practice
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all-songs" className="mt-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {isLoading ? (
-                <div className="col-span-full text-center py-8">Loading songs...</div>
-              ) : currentSongs.length === 0 ? (
-                <div className="col-span-full text-center py-8 text-muted-foreground">
-                  No songs found. Create your first song to get started!
-                </div>
-              ) : (
-                currentSongs.map((song) => (
-                  <SongCard
-                    key={song._id}
-                    song={song}
-                    onEdit={handleEditSong}
-                    onDelete={handleDeleteSong}
-                    onToggleChoir={handleToggleChoir}
-                    onViewDetails={handleViewDetails}
-                  />
-                ))
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="choir-practice" className="mt-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {isLoading ? (
-                <div className="col-span-full text-center py-8">Loading choir songs...</div>
-              ) : currentSongs.length === 0 ? (
-                <div className="col-span-full text-center py-8 text-muted-foreground">
-                  No choir practice songs found. Add songs to choir practice from the main list.
-                </div>
-              ) : (
-                currentSongs.map((song) => (
-                  <SongCard
-                    key={song._id}
-                    song={song}
-                    onEdit={handleEditSong}
-                    onDelete={handleDeleteSong}
-                    onToggleChoir={handleToggleChoir}
-                    onViewDetails={handleViewDetails}
-                  />
-                ))
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="all-songs" className="flex items-center gap-2">
+            <List className="h-4 w-4" />
+            All Songs
+          </TabsTrigger>
+          <TabsTrigger value="choir-practice" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Choir Practice
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all-songs" className="mt-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              <div className="col-span-full text-center py-8">Loading songs...</div>
+            ) : currentSongs === undefined ? ( // Handle undefined case
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No songs found. Create your first song to get started!
+              </div>
+            ) : currentSongs.length === 0 ? ( // Handle empty array
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No songs found. Create your first song to get started!
+              </div>
+            ) : (
+              currentSongs.map((song) => (
+                <SongCard
+                  key={song._id}
+                  song={song}
+                  onEdit={handleEditSong}
+                  onDelete={handleDeleteSong}
+                  onToggleChoir={handleToggleChoir}
+                  onViewDetails={handleViewDetails}
+                />
+              ))
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="choir-practice" className="mt-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              <div className="col-span-full text-center py-8">Loading choir songs...</div>
+            ) : currentSongs === undefined ? ( // Handle undefined case
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No choir practice songs found. Add songs to choir practice from the main list.
+              </div>
+            ) : currentSongs.length === 0 ? ( // Handle empty array
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No choir practice songs found. Add songs to choir practice from the main list.
+              </div>
+            ) : (
+              currentSongs.map((song) => (
+                <SongCard
+                  key={song._id}
+                  song={song}
+                  onEdit={handleEditSong}
+                  onDelete={handleDeleteSong}
+                  onToggleChoir={handleToggleChoir}
+                  onViewDetails={handleViewDetails}
+                />
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

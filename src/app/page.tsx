@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Plus, Search, Music, Trash2, Edit, Download, Users, List, Clock, SortAsc, AlertCircle } from 'lucide-react';
 import html2canvas from 'html2canvas';
+
+import { SongCard } from '@/components/song-card';
 
 interface Song {
   _id: string;
@@ -43,8 +44,6 @@ export default function Home() {
     isChoirPractice: false
   });
 
-  const songCardRef = useRef<HTMLDivElement>(null);
-
   const fetchSongs = async () => {
     setIsLoading(true);
     setError(null);
@@ -65,7 +64,6 @@ export default function Home() {
           setSongs(result.data);
         }
       } else {
-        // Show error message to user
         setError(result.error || 'Failed to fetch songs');
         console.error('API Error:', result.error);
       }
@@ -93,7 +91,6 @@ export default function Home() {
         setIsDialogOpen(false);
         fetchSongs();
       } else {
-        // Show error message to user in dialog
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
       }
@@ -122,7 +119,6 @@ export default function Home() {
         setIsDialogOpen(false);
         fetchSongs();
       } else {
-        // Show error message to user in dialog
         setDialogError(result.error || 'Failed to update song');
         console.error('Update Error:', result.error);
       }
@@ -183,16 +179,32 @@ export default function Home() {
   };
 
   const handleScreenshot = async (song: Song) => {
-    if (songCardRef.current) {
-      try {
-        const canvas = await html2canvas(songCardRef.current);
-        const link = document.createElement('a');
-        link.download = `${song.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-      } catch (error) {
-        console.error('Error taking screenshot:', error);
-      }
+    try {
+      // Create a temporary div for screenshot
+      const tempDiv = document.createElement('div');
+      tempDiv.className = 'p-6 bg-white';
+      tempDiv.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">${song.title}</h2>
+        <div class="mb-4">
+          <span class="inline-block px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 mr-2">
+            ${song.language}
+          </span>
+          ${song.isChoirPractice ? 
+            '<span class="inline-block px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Choir Practice</span>' : 
+            ''}
+        </div>
+        <p class="whitespace-pre-wrap text-lg">${song.lyrics}</p>
+      `;
+      
+      document.body.appendChild(tempDiv);
+      const canvas = await html2canvas(tempDiv);
+      const link = document.createElement('a');
+      link.download = `${song.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      document.body.removeChild(tempDiv);
+    } catch (error) {
+      console.error('Error taking screenshot:', error);
     }
   };
 
@@ -214,6 +226,10 @@ export default function Home() {
     } else {
       handleCreateSong();
     }
+  };
+
+  const handleViewDetails = (song: Song) => {
+    // This is handled in the dialog component
   };
 
   // Fetch songs when component mounts or when dependencies change
@@ -422,77 +438,15 @@ export default function Home() {
                 </div>
               ) : (
                 currentSongs.map((song) => (
-                  <Card key={song._id} className="flex flex-col h-full">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">{song.title}</CardTitle>
-                          <CardDescription>
-                            <Badge variant="secondary">{song.language}</Badge>
-                            {song.isChoirPractice && (
-                              <Badge variant="outline" className="ml-2">
-                                <Users className="h-3 w-3 mr-1" />
-                                Choir
-                              </Badge>
-                            )}
-                          </CardDescription>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditSong(song)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Song</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete "{song.title}"? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteSong(song._id)}>
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <ScrollArea className="h-48 w-full">
-                        <p className="text-sm whitespace-pre-wrap">{song.lyrics}</p>
-                      </ScrollArea>
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleToggleChoir(song)}
-                        >
-                          <Users className="h-4 w-4 mr-1" />
-                          {song.isChoirPractice ? 'Remove from Choir' : 'Add to Choir'}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleScreenshot(song)}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Screenshot
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <SongCard
+                    key={song._id}
+                    song={song}
+                    onEdit={handleEditSong}
+                    onDelete={handleDeleteSong}
+                    onToggleChoir={handleToggleChoir}
+                    onScreenshot={handleScreenshot}
+                    onViewDetails={handleViewDetails}
+                  />
                 ))
               )}
             </div>
@@ -508,53 +462,15 @@ export default function Home() {
                 </div>
               ) : (
                 currentSongs.map((song) => (
-                  <Card key={song._id} className="flex flex-col h-full">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">{song.title}</CardTitle>
-                          <CardDescription>
-                            <Badge variant="secondary">{song.language}</Badge>
-                            <Badge variant="outline" className="ml-2">
-                              <Users className="h-3 w-3 mr-1" />
-                              Choir
-                            </Badge>
-                          </CardDescription>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditSong(song)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleChoir(song)}
-                          >
-                            <Users className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <ScrollArea className="h-48 w-full">
-                        <p className="text-sm whitespace-pre-wrap">{song.lyrics}</p>
-                      </ScrollArea>
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleScreenshot(song)}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Screenshot
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <SongCard
+                    key={song._id}
+                    song={song}
+                    onEdit={handleEditSong}
+                    onDelete={handleDeleteSong}
+                    onToggleChoir={handleToggleChoir}
+                    onScreenshot={handleScreenshot}
+                    onViewDetails={handleViewDetails}
+                  />
                 ))
               )}
             </div>

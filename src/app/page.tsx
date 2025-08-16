@@ -413,8 +413,8 @@ export default function Home() {
               </div>
             ) : (
               currentSongs.map((song) => (
+                // ...existing code...
                 <SongCard
-                  key={song._id}
                   song={song}
                   onEdit={handleEditSong}
                   onDelete={handleDeleteSong}
@@ -440,8 +440,8 @@ export default function Home() {
               </div>
             ) : (
               currentSongs.map((song) => (
+                // ...existing code...
                 <SongCard
-                  key={song._id}
                   song={song}
                   onEdit={handleEditSong}
                   onDelete={handleDeleteSong}
@@ -453,6 +453,7 @@ export default function Home() {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

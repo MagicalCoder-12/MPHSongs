@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Download, Users, List, Clock, SortAsc, AlertCircle } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle } from 'lucide-react';
 
 import { SongCard } from '@/components/ui/song-card';
 
@@ -138,6 +137,8 @@ export default function Home() {
       
       if (result.success) {
         fetchSongs();
+      } else {
+        console.error('Delete failed:', result.error);
       }
     } catch (error) {
       console.error('Error deleting song:', error);
@@ -175,36 +176,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error toggling choir status:', error);
-    }
-  };
-
-  const handleScreenshot = async (song: Song) => {
-    try {
-      // Create a temporary div for screenshot
-      const tempDiv = document.createElement('div');
-      tempDiv.className = 'p-6 bg-white';
-      tempDiv.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">${song.title}</h2>
-        <div class="mb-4">
-          <span class="inline-block px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 mr-2">
-            ${song.language}
-          </span>
-          ${song.isChoirPractice ? 
-            '<span class="inline-block px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Choir Practice</span>' : 
-            ''}
-        </div>
-        <p class="whitespace-pre-wrap text-lg">${song.lyrics}</p>
-      `;
-      
-      document.body.appendChild(tempDiv);
-      const canvas = await html2canvas(tempDiv);
-      const link = document.createElement('a');
-      link.download = `${song.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-      document.body.removeChild(tempDiv);
-    } catch (error) {
-      console.error('Error taking screenshot:', error);
     }
   };
 
@@ -444,7 +415,6 @@ export default function Home() {
                     onEdit={handleEditSong}
                     onDelete={handleDeleteSong}
                     onToggleChoir={handleToggleChoir}
-                    onScreenshot={handleScreenshot}
                     onViewDetails={handleViewDetails}
                   />
                 ))
@@ -468,7 +438,6 @@ export default function Home() {
                     onEdit={handleEditSong}
                     onDelete={handleDeleteSong}
                     onToggleChoir={handleToggleChoir}
-                    onScreenshot={handleScreenshot}
                     onViewDetails={handleViewDetails}
                   />
                 ))

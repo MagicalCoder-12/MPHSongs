@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, Download, Edit, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Users, Edit, Trash2 } from "lucide-react";
 
 interface Song {
   _id: string;
@@ -23,7 +24,6 @@ interface SongCardProps {
   onEdit: (song: Song) => void;
   onDelete: (id: string) => void;
   onToggleChoir: (song: Song) => void;
-  onScreenshot: (song: Song) => void;
   onViewDetails: (song: Song) => void;
 }
 
@@ -32,7 +32,6 @@ export function SongCard({
   onEdit, 
   onDelete, 
   onToggleChoir, 
-  onScreenshot,
   onViewDetails
 }: SongCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -82,16 +81,27 @@ export function SongCard({
               >
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onScreenshot(song);
-                }}
-              >
-                <Download className="h-4 w-4" />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Song</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete "{song.title}"? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(song._id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </CardHeader>

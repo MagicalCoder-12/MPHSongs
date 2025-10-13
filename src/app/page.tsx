@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut } from 'lucide-react';
 
 import { SongCard } from '@/components/ui/song-card';
 
@@ -38,10 +38,14 @@ export default function Home() {
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    songLanguage: 'English',
+    songLanguage: 'Telugu',
     lyrics: '',
     isChoirPractice: false
   });
+  // Admin authentication state
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
 
    const fetchSongs = async () => {
     setIsLoading(true);
@@ -58,9 +62,9 @@ export default function Home() {
       
       if (result.success) {
         if (activeTab === 'choir-practice') {
-          setChoirSongs(result.songs || []); // Ensure it's always an array
+          setChoirSongs(result.songs || []);
         } else {
-          setSongs(result.songs || []); // Ensure it's always an array
+          setSongs(result.songs || []);
         }
       } else {
         setError(result.error || 'Failed to fetch songs');
@@ -72,6 +76,21 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLogin = () => {
+    // Check credentials (Admin User: Aj, Pass: MPH)
+    if (loginForm.username === 'Aj' && loginForm.password === 'MPH') {
+      setIsAdmin(true);
+      setShowLoginDialog(false);
+      setLoginForm({ username: '', password: '' });
+    } else {
+      alert('Invalid credentials. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAdmin(false);
   };
 
   const handleCreateSong = async () => {
@@ -86,9 +105,9 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-  setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
-        fetchSongs();
+        await fetchSongs();
       } else {
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
@@ -114,9 +133,9 @@ export default function Home() {
       if (result.success) {
         setDialogError(null);
         setEditingSong(null);
-  setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
-        fetchSongs();
+        await fetchSongs();
       } else {
         setDialogError(result.error || 'Failed to update song');
         console.error('Update Error:', result.error);
@@ -128,6 +147,12 @@ export default function Home() {
   };
 
   const handleDeleteSong = async (id: string) => {
+    // Only allow admin to delete songs
+    if (!isAdmin) {
+      alert('You must be logged in as admin to delete songs.');
+      return;
+    }
+    
     try {
       const response = await fetch(`/api/songs/${id}`, {
         method: 'DELETE'
@@ -146,6 +171,12 @@ export default function Home() {
   };
 
   const handleDeleteAllSongs = async () => {
+    // Only allow admin to delete all songs
+    if (!isAdmin) {
+      alert('You must be logged in as admin to delete all songs.');
+      return;
+    }
+    
     try {
       const response = await fetch('/api/songs/delete-all', {
         method: 'DELETE'
@@ -219,101 +250,151 @@ export default function Home() {
             <h1 className="text-3xl font-bold">Song Lyrics Manager</h1>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) {
-              setDialogError(null);
-              setEditingSong(null);
-              setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button onClick={() => {
+          <div className="flex items-center gap-2">
+            {isAdmin ? (
+              <Button onClick={handleLogout} variant="outline" size="sm">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            ) : (
+              <Button onClick={() => setShowLoginDialog(true)} variant="outline" size="sm">
+                <LogIn className="h-4 w-4 mr-2" />
+                Admin Login
+              </Button>
+            )}
+            
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) {
                 setDialogError(null);
                 setEditingSong(null);
-                setFormData({ title: '', songLanguage: 'English', lyrics: '', isChoirPractice: false });
-              }}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Song
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-              <DialogHeader>
-                <DialogTitle>{editingSong ? 'Edit Song' : 'Add New Song'}</DialogTitle>
-                <DialogDescription>
-                  {editingSong ? 'Update the song details below.' : 'Create a new song with lyrics.'}
-                </DialogDescription>
-              </DialogHeader>
-              
-              {/* Dialog Error Display */}
-              {dialogError && (
-                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <div className="flex items-center gap-2 text-destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <p className="font-medium text-sm">Error</p>
-                  </div>
-                  <p className="text-xs text-destructive/80 mt-1">
-                    {dialogError}
-                  </p>
-                </div>
-              )}
-              
-              <ScrollArea className="flex-1 max-h-[60vh] overflow-y-auto px-1">
-                <div className="grid gap-4 py-4 pr-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      placeholder="Enter song title"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="songLanguage">Language</Label>
-                    <Select value={formData.songLanguage} onValueChange={(value) => setFormData({ ...formData, songLanguage: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select language" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Telugu">Telugu</SelectItem>
-                        <SelectItem value="English">English</SelectItem>
-                        <SelectItem value="Hindi">Hindi</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="lyrics">Lyrics</Label>
-                    <Textarea
-                      id="lyrics"
-                      value={formData.lyrics}
-                      onChange={(e) => setFormData({ ...formData, lyrics: e.target.value })}
-                      placeholder="Enter song lyrics"
-                      rows={12}
-                      className="min-h-[200px] max-h-[400px]"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="choir"
-                      checked={formData.isChoirPractice}
-                      onChange={(e) => setFormData({ ...formData, isChoirPractice: e.target.checked })}
-                      className="rounded"
-                    />
-                    <Label htmlFor="choir">Add to choir practice</Label>
-                  </div>
-                </div>
-              </ScrollArea>
-              <DialogFooter className="pt-4 border-t">
-                <Button onClick={handleSubmit}>
-                  {editingSong ? 'Update Song' : 'Create Song'}
+                setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button onClick={() => {
+                  setDialogError(null);
+                  setEditingSong(null);
+                  setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+                }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Song
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+                <DialogHeader>
+                  <DialogTitle>{editingSong ? 'Edit Song' : 'Add New Song'}</DialogTitle>
+                  <DialogDescription>
+                    {editingSong ? 'Update the song details below.' : 'Create a new song with lyrics.'}
+                  </DialogDescription>
+                </DialogHeader>
+                
+                {/* Dialog Error Display */}
+                {dialogError && (
+                  <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <div className="flex items-center gap-2 text-destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <p className="font-medium text-sm">Error</p>
+                    </div>
+                    <p className="text-xs text-destructive/80 mt-1">
+                      {dialogError}
+                    </p>
+                  </div>
+                )}
+                
+                <ScrollArea className="flex-1 max-h-[60vh] overflow-y-auto px-1">
+                  <div className="grid gap-4 py-4 pr-2">
+                    <div className="grid gap-2">
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        placeholder="Enter song title"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="songLanguage">Language</Label>
+                      <Select value={formData.songLanguage} onValueChange={(value) => setFormData({ ...formData, songLanguage: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Telugu">Telugu</SelectItem>
+                          <SelectItem value="English">English</SelectItem>
+                          <SelectItem value="Hindi">Hindi</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="lyrics">Lyrics</Label>
+                      <Textarea
+                        id="lyrics"
+                        value={formData.lyrics}
+                        onChange={(e) => setFormData({ ...formData, lyrics: e.target.value })}
+                        placeholder="Enter song lyrics"
+                        rows={12}
+                        className="min-h-[200px] max-h-[400px]"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="choir"
+                        checked={formData.isChoirPractice}
+                        onChange={(e) => setFormData({ ...formData, isChoirPractice: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="choir">Add to choir practice</Label>
+                    </div>
+                  </div>
+                </ScrollArea>
+                <DialogFooter className="pt-4 border-t">
+                  <Button onClick={handleSubmit}>
+                    {editingSong ? 'Update Song' : 'Create Song'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
+
+        {/* Login Dialog */}
+        <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Admin Login</DialogTitle>
+              <DialogDescription>
+                Enter your credentials to access admin features.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={loginForm.username}
+                  onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                  placeholder="Enter username"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  placeholder="Enter password"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={handleLogin}>Login</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
@@ -348,26 +429,29 @@ export default function Home() {
               </SelectContent>
             </Select>
             
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete All
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete all songs from the database.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAllSongs}>Delete All</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            {/* Delete All button - only visible to admin */}
+            {isAdmin && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete All
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete all songs from the database.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAllSongs}>Delete All</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
 
@@ -403,24 +487,26 @@ export default function Home() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               <div className="col-span-full text-center py-8">Loading songs...</div>
-            ) : currentSongs === undefined ? ( // Handle undefined case
+            ) : currentSongs === undefined ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
                 No songs found. Create your first song to get started!
               </div>
-            ) : currentSongs.length === 0 ? ( // Handle empty array
+            ) : currentSongs.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
                 No songs found. Create your first song to get started!
               </div>
             ) : (
               currentSongs.map((song) => (
-                // ...existing code...
-                <SongCard
-                  song={song}
-                  onEdit={handleEditSong}
-                  onDelete={handleDeleteSong}
-                  onToggleChoir={handleToggleChoir}
-                  onViewDetails={handleViewDetails}
-                />
+                <div key={song._id}>
+                  <SongCard
+                    song={song}
+                    onEdit={handleEditSong}
+                    onDelete={handleDeleteSong}
+                    onToggleChoir={handleToggleChoir}
+                    onViewDetails={handleViewDetails}
+                    isAdmin={isAdmin} // Pass isAdmin prop
+                  />
+                </div>
               ))
             )}
           </div>
@@ -430,24 +516,26 @@ export default function Home() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               <div className="col-span-full text-center py-8">Loading choir songs...</div>
-            ) : currentSongs === undefined ? ( // Handle undefined case
+            ) : currentSongs === undefined ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
                 No choir practice songs found. Add songs to choir practice from the main list.
               </div>
-            ) : currentSongs.length === 0 ? ( // Handle empty array
+            ) : currentSongs.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
                 No choir practice songs found. Add songs to choir practice from the main list.
               </div>
             ) : (
               currentSongs.map((song) => (
-                // ...existing code...
-                <SongCard
-                  song={song}
-                  onEdit={handleEditSong}
-                  onDelete={handleDeleteSong}
-                  onToggleChoir={handleToggleChoir}
-                  onViewDetails={handleViewDetails}
-                />
+                <div key={song._id}>
+                  <SongCard
+                    song={song}
+                    onEdit={handleEditSong}
+                    onDelete={handleDeleteSong}
+                    onToggleChoir={handleToggleChoir}
+                    onViewDetails={handleViewDetails}
+                    isAdmin={isAdmin} // Pass isAdmin prop
+                  />
+                </div>
               ))
             )}
           </div>

@@ -25,6 +25,7 @@ interface SongCardProps {
   onDelete: (id: string) => void;
   onToggleChoir: (song: Song) => void;
   onViewDetails: (song: Song) => void;
+  isAdmin?: boolean; // Added isAdmin prop to control delete visibility
 }
 
 export function SongCard({ 
@@ -32,7 +33,8 @@ export function SongCard({
   onEdit, 
   onDelete, 
   onToggleChoir, 
-  onViewDetails
+  onViewDetails,
+  isAdmin = false // Default to false
 }: SongCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -81,27 +83,30 @@ export function SongCard({
               >
                 <Edit className="h-4 w-4" />
               </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent aria-describedby={undefined}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Song</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete "{song.title}"? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onDelete(song._id)}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              {/* Only show delete button if user is admin */}
+              {isAdmin && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent aria-describedby={undefined}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Song</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{song.title}"? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => onDelete(song._id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </div>
         </CardHeader>

@@ -15,21 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AJI_Creators - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with AJI_Creators. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["AJI_Creators", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "AJI_Creators Team" }],
+  title: "MPH Songs",
+  description: "Song lyrics manager for MPH. Built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui.",
+  keywords: ["MPH", "Songs", "Lyrics", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui"],
+  authors: [{ name: "MPH Team" }],
   openGraph: {
-    title: "AJI_Creators Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.aji_creators.ai",
-    siteName: "AJI_Creators",
+    title: "MPH Songs",
+    description: "Song lyrics manager for MPH",
+    url: "https://mph-songs.vercel.app",
+    siteName: "MPH Songs",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AJI_Creators Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "MPH Songs",
+    description: "Song lyrics manager for MPH",
   },
 };
 

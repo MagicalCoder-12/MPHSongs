@@ -11,7 +11,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Printer, Download } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 import { SongCard } from '@/components/ui/song-card';
 
@@ -24,6 +25,116 @@ interface Song {
   createdAt: string;
   updatedAt: string;
 }
+
+// Function to detect potential duplicates
+const detectDuplicates = (newSong: Omit<Song, '_id' | 'createdAt' | 'updatedAt'>, existingSongs: Song[]) => {
+  const duplicates = existingSongs.filter(song => {
+    // Check for exact title match
+    if (song.title.toLowerCase().trim() === newSong.title.toLowerCase().trim()) {
+      return true;
+    }
+    
+    // Check for similar titles (Levenshtein distance < 3)
+    const levenshteinDistance = (a: string, b: string): number => {
+      if (a.length === 0) return b.length;
+      if (b.length === 0) return a.length;
+      
+      const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+      
+      for (let i = 0; i <= a.length; i++) {
+        matrix[0][i] = i;
+      }
+      
+      for (let j = 0; j <= b.length; j++) {
+        matrix[j][0] = j;
+      }
+      
+      for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          matrix[j][i] = Math.min(
+            matrix[j][i - 1] + 1, // insertion
+            matrix[j - 1][i] + 1, // deletion
+            matrix[j - 1][i - 1] + cost // substitution
+          );
+        }
+      }
+      
+      return matrix[b.length][a.length];
+    };
+    
+    // Check if titles are very similar
+    const distance = levenshteinDistance(
+      song.title.toLowerCase().trim(), 
+      newSong.title.toLowerCase().trim()
+    );
+    
+    return distance < 3;
+  });
+  
+  return duplicates;
+};
+
+// Function to print a song
+const printSong = (song: Song) => {
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${song.title} - MPH Songs</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 20px;
+              line-height: 1.6;
+            }
+            h1 {
+              color: #333;
+              border-bottom: 2px solid #eee;
+              padding-bottom: 10px;
+            }
+            .song-info {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 20px;
+              color: #666;
+            }
+            .lyrics {
+              white-space: pre-wrap;
+              font-size: 16px;
+            }
+            @media print {
+              body {
+                padding: 10px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${song.title}</h1>
+          <div class="song-info">
+            <div>Language: ${song.songLanguage}</div>
+            ${song.isChoirPractice ? '<div>Choir Practice Song</div>' : ''}
+          </div>
+          <div class="lyrics">${song.lyrics}</div>
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              }
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+};
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
@@ -46,6 +157,9 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  // Duplicate detection state
+  const [duplicateWarning, setDuplicateWarning] = useState<Song | null>(null);
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
 
    const fetchSongs = async () => {
     setIsLoading(true);
@@ -94,6 +208,44 @@ export default function Home() {
   };
 
   const handleCreateSong = async () => {
+    // Check for duplicates before creating
+    const duplicates = detectDuplicates(formData, songs);
+    if (duplicates.length > 0) {
+      setDuplicateWarning(duplicates[0]);
+      setShowDuplicateDialog(true);
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/songs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setDialogError(null);
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+        setIsDialogOpen(false);
+        // Force refresh the song list to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
+        await fetchSongs();
+      } else {
+        setDialogError(result.error || 'Failed to create song');
+        console.error('Create Error:', result.error);
+      }
+    } catch (error) {
+      console.error('Error creating song:', error);
+      setDialogError('Network error. Please check your connection.');
+    }
+  };
+
+  const handleCreateSongOverride = async () => {
+    setShowDuplicateDialog(false);
+    setDuplicateWarning(null);
+    
     try {
       const response = await fetch('/api/songs', {
         method: 'POST',
@@ -261,6 +413,7 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             {isAdmin ? (
               <Button onClick={handleLogout} variant="outline" size="sm">
                 <LogOut className="h-4 w-4 mr-2" />
@@ -406,6 +559,27 @@ export default function Home() {
           </DialogContent>
         </Dialog>
 
+        {/* Duplicate Warning Dialog */}
+        <AlertDialog open={showDuplicateDialog} onOpenChange={setShowDuplicateDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Potential Duplicate Detected</AlertDialogTitle>
+              <AlertDialogDescription>
+                A song with a similar title already exists:
+                <div className="mt-2 p-3 bg-muted rounded-lg">
+                  <p className="font-semibold">{duplicateWarning?.title}</p>
+                  <p className="text-sm text-muted-foreground">Language: {duplicateWarning?.songLanguage}</p>
+                </div>
+                Are you sure you want to create this song? This might result in duplicate entries.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setShowDuplicateDialog(false)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleCreateSongOverride}>Create Anyway</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
             <div className="relative">
@@ -515,6 +689,7 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin} // Pass isAdmin prop
+                    onPrint={() => printSong(song)} // Pass print function
                   />
                 </div>
               ))
@@ -544,6 +719,7 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin} // Pass isAdmin prop
+                    onPrint={() => printSong(song)} // Pass print function
                   />
                 </div>
               ))

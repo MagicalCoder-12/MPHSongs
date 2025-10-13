@@ -107,6 +107,8 @@ export default function Home() {
         setDialogError(null);
         setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
+        // Force refresh the song list to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
         setDialogError(result.error || 'Failed to create song');
@@ -135,6 +137,8 @@ export default function Home() {
         setEditingSong(null);
         setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
+        // Force refresh the song list to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
         setDialogError(result.error || 'Failed to update song');
@@ -161,7 +165,9 @@ export default function Home() {
       const result = await response.json();
       
       if (result.success) {
-        fetchSongs();
+        // Force refresh the song list to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
+        await fetchSongs();
       } else {
         console.error('Delete failed:', result.error);
       }
@@ -185,7 +191,9 @@ export default function Home() {
       const result = await response.json();
       
       if (result.success) {
-        fetchSongs();
+        // Force refresh the song list to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
+        await fetchSongs();
       }
     } catch (error) {
       console.error('Error deleting all songs:', error);
@@ -203,7 +211,9 @@ export default function Home() {
       const result = await response.json();
       
       if (result.success) {
-        fetchSongs();
+        // Force refresh the song list to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
+        await fetchSongs();
       }
     } catch (error) {
       console.error('Error toggling choir status:', error);
@@ -316,7 +326,7 @@ export default function Home() {
                     <div className="grid gap-2">
                       <Label htmlFor="songLanguage">Language</Label>
                       <Select value={formData.songLanguage} onValueChange={(value) => setFormData({ ...formData, songLanguage: value })}>
-                        <SelectTrigger>
+                        <SelectTrigger id="songLanguage">
                           <SelectValue placeholder="Select language" />
                         </SelectTrigger>
                         <SelectContent>

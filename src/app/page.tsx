@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Printer, Download } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { PWAInstall } from '@/components/ui/pwa-install';
+import { IOSInstall } from '@/components/ui/ios-install';
 
 import { SongCard } from '@/components/ui/song-card';
 
@@ -24,6 +26,22 @@ interface Song {
   isChoirPractice: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+// Extend window interface for PWA events
+declare global {
+  interface WindowEventMap {
+    beforeinstallprompt: BeforeInstallPromptEvent;
+  }
+}
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
 }
 
 // Function to detect potential duplicates
@@ -160,8 +178,22 @@ export default function Home() {
   // Duplicate detection state
   const [duplicateWarning, setDuplicateWarning] = useState<Song | null>(null);
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
 
-   const fetchSongs = async () => {
+  // Check if app is installed
+  useEffect(() => {
+    // Check if the app is running as standalone
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsAppInstalled(true);
+    }
+    
+    // Check if app is installed via navigator
+    if ((window as any).navigator.standalone) {
+      setIsAppInstalled(true);
+    }
+  }, []);
+
+  const fetchSongs = async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -414,6 +446,12 @@ export default function Home() {
           
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            {!isAppInstalled && (
+              <>
+                <PWAInstall />
+                <IOSInstall />
+              </>
+            )}
             {isAdmin ? (
               <Button onClick={handleLogout} variant="outline" size="sm">
                 <LogOut className="h-4 w-4 mr-2" />

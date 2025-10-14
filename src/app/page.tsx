@@ -436,15 +436,15 @@ export default function Home() {
   const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div className="flex items-center gap-3">
-            <Music className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Song Lyrics Manager</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Song Lyrics Manager</h1>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
             {!isAppInstalled && (
               <>
@@ -453,14 +453,14 @@ export default function Home() {
               </>
             )}
             {isAdmin ? (
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+              <Button onClick={handleLogout} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+                <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline text-xs sm:text-sm">Logout</span>
               </Button>
             ) : (
-              <Button onClick={() => setShowLoginDialog(true)} variant="outline" size="sm">
-                <LogIn className="h-4 w-4 mr-2" />
-                Admin Login
+              <Button onClick={() => setShowLoginDialog(true)} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+                <LogIn className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline text-xs sm:text-sm">Admin Login</span>
               </Button>
             )}
             
@@ -477,9 +477,9 @@ export default function Home() {
                   setDialogError(null);
                   setEditingSong(null);
                   setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
-                }}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Song
+                }} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline text-xs sm:text-sm">Add Song</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
@@ -618,7 +618,7 @@ export default function Home() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -626,26 +626,28 @@ export default function Home() {
                 placeholder="Search songs by title or lyrics..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-10 sm:h-11"
               />
             </div>
           </div>
           <div className="flex gap-2">
             <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[140px] sm:w-[180px] h-10 sm:h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="recent">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    Most Recent
+                    <span className="hidden xs:inline">Most Recent</span>
+                    <span className="xs:hidden">Recent</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="alphabetical">
                   <div className="flex items-center gap-2">
                     <SortAsc className="h-4 w-4" />
-                    Alphabetical
+                    <span className="hidden xs:inline">Alphabetical</span>
+                    <span className="xs:hidden">Alpha</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -655,9 +657,9 @@ export default function Home() {
             {isAdmin && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete All
+                  <Button variant="destructive" className="h-10 sm:h-11 px-2 sm:px-4">
+                    <Trash2 className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden xs:inline text-xs sm:text-sm">Delete All</span>
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -679,12 +681,12 @@ export default function Home() {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
             <div className="flex items-center gap-2 text-destructive">
               <AlertCircle className="h-4 w-4" />
-              <p className="font-medium">Database Connection Error</p>
+              <p className="font-medium text-sm sm:text-base">Database Connection Error</p>
             </div>
-            <p className="text-sm text-destructive/80 mt-1">
+            <p className="text-xs sm:text-sm text-destructive/80 mt-1">
               {error}
             </p>
             <p className="text-xs text-destructive/60 mt-2">
@@ -694,19 +696,21 @@ export default function Home() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="all-songs" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-2 h-10 sm:h-11">
+          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
             <List className="h-4 w-4" />
-            All Songs
+            <span className="hidden xs:inline">All Songs</span>
+            <span className="xs:hidden">Songs</span>
           </TabsTrigger>
-          <TabsTrigger value="choir-practice" className="flex items-center gap-2">
+          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
             <Users className="h-4 w-4" />
-            Choir Practice
+            <span className="hidden xs:inline">Choir Practice</span>
+            <span className="xs:hidden">Choir</span>
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="all-songs" className="mt-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <TabsContent value="all-songs" className="mt-4 sm:mt-6">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               <div className="col-span-full text-center py-8">Loading songs...</div>
             ) : currentSongs === undefined ? (
@@ -735,8 +739,8 @@ export default function Home() {
           </div>
         </TabsContent>
         
-        <TabsContent value="choir-practice" className="mt-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <TabsContent value="choir-practice" className="mt-4 sm:mt-6">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               <div className="col-span-full text-center py-8">Loading choir songs...</div>
             ) : currentSongs === undefined ? (

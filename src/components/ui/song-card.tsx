@@ -54,19 +54,19 @@ export function SongCard({
     <>
       <Card 
         className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
-          isExpanded ? "scale-105 shadow-xl border-primary" : "hover:shadow-md"
+          isExpanded ? "scale-[1.02] shadow-xl border-primary" : "hover:shadow-md"
         }`}
         onClick={handleCardClick}
       >
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-lg">{song.title}</CardTitle>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-start gap-1">
+            <div className="min-w-0 flex-1">
+              <CardTitle className="text-base sm:text-lg truncate">{song.title}</CardTitle>
               <CardDescription>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  <Badge variant="secondary">{song.songLanguage}</Badge>
+                  <Badge variant="secondary" className="text-xs">{song.songLanguage}</Badge>
                   {song.isChoirPractice && (
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="text-xs">
                       <Users className="h-3 w-3 mr-1" />
                       Choir
                     </Badge>
@@ -74,10 +74,11 @@ export function SongCard({
                 </div>
               </CardDescription>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-0.5 sm:gap-1">
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
+                className="h-8 w-8 sm:h-9 sm:w-9"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(song);
@@ -89,7 +90,7 @@ export function SongCard({
               {isAdmin && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
@@ -112,24 +113,26 @@ export function SongCard({
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-40 w-full">
-            <p className="text-sm whitespace-pre-wrap">{song.lyrics}</p>
+        <CardContent className="pt-2">
+          <ScrollArea className="h-32 sm:h-40 w-full">
+            <p className="text-xs sm:text-sm whitespace-pre-wrap line-clamp-6">{song.lyrics}</p>
           </ScrollArea>
-          <div className="flex gap-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
             <Button
               variant="outline"
               size="sm"
+              className="flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleChoir(song);
               }}
             >
-              {song.isChoirPractice ? 'Remove from Choir' : 'Add to Choir'}
+              {song.isChoirPractice ? 'Remove Choir' : 'Add Choir'}
             </Button>
             <Button
               variant="outline"
               size="sm"
+              className="flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 handleViewDetails();
@@ -141,13 +144,14 @@ export function SongCard({
               <Button
                 variant="outline"
                 size="sm"
+                className="flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   onPrint();
                 }}
               >
-                <Printer className="h-4 w-4 mr-2" />
-                Print
+                <Printer className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Print</span>
               </Button>
             )}
           </div>
@@ -157,9 +161,9 @@ export function SongCard({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="text-2xl">{song.title}</DialogTitle>
+            <DialogTitle className="text-xl sm:text-2xl">{song.title}</DialogTitle>
           </DialogHeader>
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4">
             <Badge variant="secondary">{song.songLanguage}</Badge>
             {song.isChoirPractice && (
               <Badge variant="outline">
@@ -169,11 +173,11 @@ export function SongCard({
             )}
           </div>
           <div className="mt-4">
-            <p className="whitespace-pre-wrap text-lg leading-relaxed">{song.lyrics}</p>
+            <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed">{song.lyrics}</p>
           </div>
           {onPrint && (
             <div className="mt-4 flex justify-end">
-              <Button onClick={onPrint}>
+              <Button onClick={onPrint} className="h-9 sm:h-10">
                 <Printer className="h-4 w-4 mr-2" />
                 Print Song
               </Button>

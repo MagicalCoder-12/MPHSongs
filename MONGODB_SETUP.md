@@ -27,20 +27,6 @@
 
 ### Option 2: Local MongoDB (For Development)
 
-#### Using Docker (Recommended):
-
-1. **Install Docker** if you haven't already
-
-2. **Run MongoDB with Docker:**
-   ```bash
-   docker run -d -p 27017:27017 --name mongodb mongo:latest
-   ```
-
-3. **Your local MongoDB is now running at:**
-   ```
-   MONGODB_URI=mongodb://localhost:27017/song_lyrics
-   ```
-
 #### Using MongoDB Community Server:
 
 1. **Download and install MongoDB Community Server** for your OS from [https://www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
@@ -83,27 +69,18 @@ If you see "Database connection failed" errors:
 
 1. **Check if MongoDB is running:**
    ```bash
-   # For Docker
-   docker ps
-   
    # For service installation
    mongod --version
    ```
 
 2. **Restart MongoDB:**
    ```bash
-   # Docker
-   docker restart mongodb
-   
    # Service
    sudo systemctl restart mongod
    ```
 
 3. **Check MongoDB logs:**
    ```bash
-   # Docker
-   docker logs mongodb
-   
    # Service
    sudo tail -f /var/log/mongodb/mongod.log
    ```

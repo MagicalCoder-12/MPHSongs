@@ -20,7 +20,7 @@ export function PWAInstall() {
     }
 
     const handler = (e: Event) => {
-      e.preventDefault();
+      // Remove e.preventDefault() to allow the banner to show
       setSupportsPWA(true);
       setPromptInstall(e);
     };
@@ -30,12 +30,28 @@ export function PWAInstall() {
     return () => window.removeEventListener('beforeinstallprompt', handler as any);
   }, []);
 
-  const onClick = (evt: React.MouseEvent) => {
+  const onClick = async (evt: React.MouseEvent) => {
     evt.preventDefault();
     if (!promptInstall) {
       return;
     }
-    promptInstall.prompt();
+    
+    // Show the install prompt
+    (promptInstall as any).prompt();
+    
+    // Wait for the user to respond to the prompt
+    const { outcome } = await (promptInstall as any).userChoice;
+    
+    // If user installs the app
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    } else {
+      console.log('User dismissed the install prompt');
+    }
+    
+    // Clear the saved prompt since it can't be used again
+    setPromptInstall(null);
+    setSupportsPWA(false);
   };
 
   // Don't show on iOS or if already installed

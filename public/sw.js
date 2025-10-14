@@ -72,6 +72,8 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
   importScripts();
   self.skipWaiting();
   workbox.clientsClaim();
+  
+  // Cache the start URL
   workbox.registerRoute("/", new workbox.NetworkFirst({
     "cacheName": "start-url",
     plugins: [{
@@ -92,9 +94,35 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
       }
     }]
   }), 'GET');
-  workbox.registerRoute(/.*/i, new workbox.NetworkOnly({
-    "cacheName": "dev",
-    plugins: []
-  }), 'GET');
+  
+  // Cache static assets
+  workbox.registerRoute(
+    /\.(?:js|css|woff|woff2|ttf|eot|png|jpg|jpeg|gif|svg|ico)$/i,
+    new workbox.CacheFirst({
+      "cacheName": "static-resources",
+      plugins: [
+        new workbox.ExpirationPlugin({
+          maxEntries: 50,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        }),
+      ],
+    }),
+    'GET'
+  );
+  
+  // Cache API routes
+  workbox.registerRoute(
+    /^.*\/api\/.*$/i,
+    new workbox.NetworkFirst({
+      "cacheName": "api-cache",
+      plugins: [
+        new workbox.ExpirationPlugin({
+          maxEntries: 20,
+          maxAgeSeconds: 10 * 60, // 10 minutes
+        }),
+      ],
+    }),
+    'GET'
+  );
 
 }));

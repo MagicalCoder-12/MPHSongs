@@ -21,11 +21,51 @@ const nextConfig: NextConfig = {
     // 构建时忽略ESLint错误
     ignoreDuringBuilds: true,
   },
+  // Add PWA-related headers
+  async headers() {
+    return [
+      {
+        source: '/manifest.json',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/manifest+json',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/:all*(svg|jpg|png|webp|avif|gif|ico|woff|woff2|ttf|eot)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withPWA({
   dest: 'public',
-  disable: false, // Enable PWA in development for testing
+  disable: process.env.NODE_ENV === 'development' ? false : false, // Enable PWA in development for testing
   register: true,
   skipWaiting: true,
+  // Add runtime caching for API routes
+  runtimeCaching: [
+    {
+      urlPattern: /^https?.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'offline-cache',
+        expiration: {
+          maxEntries: 200,
+        },
+      },
+    },
+  ],
 })(nextConfig);

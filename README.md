@@ -33,6 +33,7 @@ A full-stack song lyric viewing and management web application built with Next.j
 - **Cross-Platform** - Works on Android, iOS, and desktop browsers
 - **Fast Loading** - Cached resources ensure quick startup times
 - **Proper Icons** - Multiple icon sizes for different devices
+- **Enhanced Caching** - Access previously viewed content offline
 
 ## 🚀 Technology Stack
 
@@ -123,11 +124,9 @@ For detailed installation instructions, see [PWA_INSTALLATION.md](PWA_INSTALLATI
 - Test that the app can be launched from the home screen
 - Confirm the app works without the browser UI
 
-### Recent PWA Fixes
-See [PWA_FIXES.md](PWA_FIXES.md) for details on recent improvements to:
-- Install banner visibility
-- Service worker error resolution
-- Offline functionality enhancements
+### Recent PWA Improvements
+- **Enhanced Caching**: See [PWA_CACHING.md](PWA_CACHING.md) for details on improved offline access
+- **Install Banner Fixes**: See [PWA_FIXES.md](PWA_FIXES.md) for details on recent improvements
 
 ## 🛠️ Installation & Setup
 

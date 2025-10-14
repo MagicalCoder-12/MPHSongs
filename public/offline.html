@@ -51,6 +51,17 @@
         .retry-btn:hover {
             background-color: #0051cc;
         }
+        .cached-info {
+            background-color: #e3f2fd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .cached-info h3 {
+            margin-top: 0;
+            color: #0070f3;
+        }
         @media (max-width: 600px) {
             .container {
                 margin: 20px;
@@ -63,6 +74,12 @@
         <div class="icon">🎵</div>
         <h1>You're Offline</h1>
         <p>It seems you've lost your internet connection. Please check your network and try again.</p>
+        
+        <div class="cached-info">
+            <h3>Good News!</h3>
+            <p>As a PWA user, you can still access previously viewed songs and content while offline. The app will automatically sync with the server when you're back online.</p>
+        </div>
+        
         <button class="retry-btn" onclick="window.location.reload()">Retry Connection</button>
     </div>
     <script>
@@ -76,6 +93,25 @@
                     console.log('Service Worker registration failed:', error);
                 });
         }
+        
+        // Check if we have cached content
+        window.addEventListener('load', async () => {
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    const cacheInfo = document.querySelector('.cached-info');
+                    if (cacheNames.length > 0 && cacheInfo) {
+                        // Update the message to show that content is available
+                        cacheInfo.innerHTML = `
+                            <h3>Content Available Offline</h3>
+                            <p>You have ${cacheNames.length} cached resources. You can continue using the app while offline. Content will sync automatically when you're back online.</p>
+                        `;
+                    }
+                } catch (error) {
+                    console.log('Error checking cache:', error);
+                }
+            }
+        });
     </script>
 </body>
 </html>

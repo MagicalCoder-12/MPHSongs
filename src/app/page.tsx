@@ -118,8 +118,10 @@ export default function Home() {
   const [duplicateWarning, setDuplicateWarning] = useState<Song | null>(null);
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
   const [isAppInstalled, setIsAppInstalled] = useState(false);
+  // Offline state
+  const [isOnline, setIsOnline] = useState(true);
 
-  // Check if app is installed
+  // Check if app is installed and online status
   useEffect(() => {
     // Check if the app is running as standalone
     if (window.matchMedia('(display-mode: standalone)').matches) {
@@ -130,6 +132,21 @@ export default function Home() {
     if ((window as any).navigator.standalone) {
       setIsAppInstalled(true);
     }
+    
+    // Check online status
+    setIsOnline(navigator.onLine);
+    
+    // Listen for online/offline events
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const fetchSongs = async () => {
@@ -377,6 +394,21 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
+        {/* Offline Banner */}
+        {!isOnline && (
+          <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              <p className="font-medium">You are currently offline</p>
+            </div>
+            <p className="text-sm mt-1">
+              {isAppInstalled 
+                ? "You can still access previously viewed content. Changes will sync when you're back online." 
+                : "Install the app for full offline functionality."}
+            </p>
+          </div>
+        )}
+        
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
             <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />

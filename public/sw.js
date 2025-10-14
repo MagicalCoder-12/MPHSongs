@@ -73,6 +73,11 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
   self.skipWaiting();
   workbox.clientsClaim();
   
+  // Pre-cache the offline page
+  workbox.precaching.precacheAndRoute([
+    { url: '/offline.html', revision: '1' }
+  ]);
+  
   // Cache the start URL
   workbox.registerRoute("/", new workbox.NetworkFirst({
     "cacheName": "start-url",
@@ -110,16 +115,20 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
     'GET'
   );
   
-  // Cache API routes
+  // Cache API routes with stale-while-revalidate for better offline experience
   workbox.registerRoute(
     /^.*\/api\/.*$/i,
-    new workbox.NetworkFirst({
+    new workbox.StaleWhileRevalidate({
       "cacheName": "api-cache",
       plugins: [
         new workbox.ExpirationPlugin({
-          maxEntries: 20,
-          maxAgeSeconds: 10 * 60, // 10 minutes
+          maxEntries: 50,
+          maxAgeSeconds: 30 * 60, // 30 minutes
         }),
+        // Cache responses even if they are errors (for offline fallback)
+        new workbox.CacheableResponsePlugin({
+          statuses: [0, 200, 404, 500]
+        })
       ],
     }),
     'GET'
@@ -130,9 +139,10 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
     new workbox.NavigationRoute(
       new workbox.NetworkFirst({
         cacheName: 'pages',
+        networkTimeoutSeconds: 3,
         plugins: [
           new workbox.ExpirationPlugin({
-            maxEntries: 20,
+            maxEntries: 50,
             maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
           }),
         ],
@@ -145,5 +155,22 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
       }
     )
   );
+  
+  // Handle offline fallback for navigation requests
+  workbox.setCatchHandler(({ event }) => {
+    switch (event.request.destination) {
+      case 'document':
+        return caches.match('/offline.html');
+      case 'image':
+        return caches.match('/icons/favicon/favicon-96x96.png');
+      case 'font':
+        // Return a fallback font
+        return new Response('', {
+          headers: { 'Content-Type': 'font/woff2' },
+        });
+      default:
+        return Response.error();
+    }
+  });
 
 }));

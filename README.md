@@ -123,6 +123,12 @@ For detailed installation instructions, see [PWA_INSTALLATION.md](PWA_INSTALLATI
 - Test that the app can be launched from the home screen
 - Confirm the app works without the browser UI
 
+### Recent PWA Fixes
+See [PWA_FIXES.md](PWA_FIXES.md) for details on recent improvements to:
+- Install banner visibility
+- Service worker error resolution
+- Offline functionality enhancements
+
 ## 🛠️ Installation & Setup
 
 ### Prerequisites

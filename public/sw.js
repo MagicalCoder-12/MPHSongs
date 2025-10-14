@@ -124,5 +124,26 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
     }),
     'GET'
   );
+  
+  // Provide offline fallback for HTML documents
+  workbox.registerRoute(
+    new workbox.NavigationRoute(
+      new workbox.NetworkFirst({
+        cacheName: 'pages',
+        plugins: [
+          new workbox.ExpirationPlugin({
+            maxEntries: 20,
+            maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+          }),
+        ],
+      }),
+      {
+        // Allow the fallback to apply to all navigation requests
+        allowlist: [],
+        // Exclude certain paths from the fallback
+        denylist: [/^\/api\/.*$/],
+      }
+    )
+  );
 
 }));

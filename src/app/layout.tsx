@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from '@vercel/analytics/next';
 import { ThemeProvider } from "next-themes";
+import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,15 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "MPH Songs",
+  },
+  applicationName: "MPH Songs",
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -43,6 +53,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
 };
 
 export default function RootLayout({
@@ -62,6 +76,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <ServiceWorkerRegistrar />
           <Toaster />
           <Analytics />
         </ThemeProvider>

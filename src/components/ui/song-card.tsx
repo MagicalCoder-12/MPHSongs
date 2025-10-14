@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Download, Edit, Trash2, Printer } from "lucide-react";
+import { Users, Edit, Trash2 } from "lucide-react";
 
 interface Song {
   _id: string;
@@ -26,7 +26,6 @@ interface SongCardProps {
   onToggleChoir: (song: Song) => void;
   onViewDetails: (song: Song) => void;
   isAdmin?: boolean; // Added isAdmin prop to control delete visibility
-  onPrint?: () => void; // Added onPrint prop for print functionality
 }
 
 export function SongCard({ 
@@ -36,7 +35,6 @@ export function SongCard({
   onToggleChoir, 
   onViewDetails,
   isAdmin = false, // Default to false
-  onPrint // Destructure onPrint prop
 }: SongCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -140,20 +138,6 @@ export function SongCard({
             >
               View Details
             </Button>
-            {onPrint && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPrint();
-                }}
-              >
-                <Printer className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline">Print</span>
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -175,14 +159,6 @@ export function SongCard({
           <div className="mt-4">
             <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed">{song.lyrics}</p>
           </div>
-          {onPrint && (
-            <div className="mt-4 flex justify-end">
-              <Button onClick={onPrint} className="h-9 sm:h-10">
-                <Printer className="h-4 w-4 mr-2" />
-                Print Song
-              </Button>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
     </>

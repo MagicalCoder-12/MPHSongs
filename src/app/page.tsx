@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Printer, Download } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -91,67 +91,6 @@ const detectDuplicates = (newSong: Omit<Song, '_id' | 'createdAt' | 'updatedAt'>
   });
   
   return duplicates;
-};
-
-// Function to print a song
-const printSong = (song: Song) => {
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${song.title} - MPH Songs</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 20px;
-              line-height: 1.6;
-            }
-            h1 {
-              color: #333;
-              border-bottom: 2px solid #eee;
-              padding-bottom: 10px;
-            }
-            .song-info {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 20px;
-              color: #666;
-            }
-            .lyrics {
-              white-space: pre-wrap;
-              font-size: 16px;
-            }
-            @media print {
-              body {
-                padding: 10px;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <h1>${song.title}</h1>
-          <div class="song-info">
-            <div>Language: ${song.songLanguage}</div>
-            ${song.isChoirPractice ? '<div>Choir Practice Song</div>' : ''}
-          </div>
-          <div class="lyrics">${song.lyrics}</div>
-          <script>
-            window.onload = function() {
-              window.print();
-              window.onafterprint = function() {
-                window.close();
-              }
-            }
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-  }
 };
 
 export default function Home() {
@@ -731,7 +670,6 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin} // Pass isAdmin prop
-                    onPrint={() => printSong(song)} // Pass print function
                   />
                 </div>
               ))
@@ -761,7 +699,6 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin} // Pass isAdmin prop
-                    onPrint={() => printSong(song)} // Pass print function
                   />
                 </div>
               ))

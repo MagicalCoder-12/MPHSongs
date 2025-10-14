@@ -22,15 +22,17 @@ A full-stack song lyric viewing and management web application built with Next.j
 - **Multi-language Search** - Search works across all languages
 - **Real-time Results** - Instant search as you type
 
-### 📸 Screenshot Feature
-- **One-click Screenshots** - Capture song lyrics as images
-- **Download Capability** - Save screenshots directly to device
-- **Clean Formatting** - Professional-looking image output
-
 ### 📱 Responsive Design
 - **Mobile-First** - Works perfectly on all device sizes
 - **Modern UI** - Clean, intuitive interface with Tailwind CSS
 - **Dark/Light Mode** - Theme support for comfortable viewing
+
+### 📲 Progressive Web App (PWA)
+- **Install on Mobile** - Add to home screen for app-like experience
+- **Offline Access** - View songs even without internet connection
+- **Cross-Platform** - Works on Android, iOS, and desktop browsers
+- **Fast Loading** - Cached resources ensure quick startup times
+- **Proper Icons** - Multiple icon sizes for different devices
 
 ## 🚀 Technology Stack
 
@@ -39,7 +41,7 @@ A full-stack song lyric viewing and management web application built with Next.j
 - **Database**: MongoDB Atlas with Mongoose ODM
 - **Backend**: Next.js API Routes
 - **Deployment**: Vercel-ready
-- **Screenshot**: html2canvas for image generation
+- **PWA Support**: Web Manifest, Service Worker, Workbox
 
 ## 🛡️ Error Handling
 
@@ -62,7 +64,7 @@ The application includes comprehensive error handling to ensure a smooth user ex
 
 ### **Error Display Features**
 - **Main Page Error Display**: Red error box with clear messaging and guidance
-- **Dialog Error Display**: Error messages shown directly in the create/edit dialog
+- **Dialog Error Display**: Error messages shown directly in the dialog
 - **Console Logging**: Detailed error information for debugging
 - **User Guidance**: Clear next steps for resolving common issues
 
@@ -98,6 +100,28 @@ The application is currently showing a MongoDB connection error because:
 1. Follow the setup instructions in `MONGODB_SETUP.md`
 2. Or update `.env.local` with your MongoDB Atlas connection string
 3. Restart the development server
+
+## 📲 PWA Installation
+
+This application supports Progressive Web App installation on mobile devices:
+
+### Android
+1. Open the app in Chrome
+2. Tap the install icon in the address bar
+3. Confirm installation
+
+### iOS
+1. Open the app in Safari
+2. Tap the Share button
+3. Select "Add to Home Screen"
+
+For detailed installation instructions, see [PWA_INSTALLATION.md](PWA_INSTALLATION.md)
+
+### PWA Features Verification
+- Check that the app installs with the correct icons
+- Verify offline functionality works
+- Test that the app can be launched from the home screen
+- Confirm the app works without the browser UI
 
 ## 🛠️ Installation & Setup
 
@@ -171,6 +195,7 @@ git push origin main
 - **Test your application** at the provided Vercel URL
 - **Set up custom domain** if needed in Vercel dashboard
 - **Monitor performance** using Vercel Analytics
+- **Verify PWA functionality** works in production
 
 ## 📁 Project Structure
 
@@ -198,79 +223,4 @@ src/
 ## 🔧 API Endpoints
 
 ### Songs
-- `GET /api/songs` - Fetch all songs with optional search and sorting
-- `POST /api/songs` - Create a new song
-- `GET /api/songs/[id]` - Get a specific song
-- `PUT /api/songs/[id]` - Update a song
-- `DELETE /api/songs/[id]` - Delete a song
-
-### Choir Practice
-- `PUT /api/songs/[id]/choir` - Add/remove song from choir practice
-
-### Bulk Operations
-- `DELETE /api/songs/delete-all` - Delete all songs (with confirmation)
-
-## 🎯 Usage Guide
-
-### Adding a Song
-1. Click the "Add Song" button
-2. Fill in the song title, select language, and add lyrics
-3. Optionally check "Add to choir practice"
-4. Click "Create Song"
-
-### Managing Songs
-- **Edit**: Click the edit icon on any song card
-- **Delete**: Click the trash icon with confirmation dialog
-- **Choir Practice**: Toggle choir status with the choir button
-- **Screenshot**: Capture lyrics as an image with the download button
-
-### Searching
-- Use the search bar to find songs by title or lyrics content
-- Search works across all languages simultaneously
-- Results update in real-time as you type
-
-### Sorting
-- Use the sort dropdown to switch between:
-  - **Most Recent**: Newest songs first
-  - **Alphabetical**: A-Z order by title
-
-## 🌍 Multi-Language Support
-
-The application supports songs in:
-- **Telugu** (తెలుగు)
-- **English** 
-- **Hindi** (हिन्दी)
-- **Other** languages
-
-MongoDB handles Unicode text storage, ensuring proper display of all languages.
-
-## 🔧 Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `MONGODB_URI` | MongoDB Atlas connection string | Yes |
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🚀 Built With
-
-- [Next.js 15](https://nextjs.org/) - React framework
-- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) - Cloud database
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [shadcn/ui](https://ui.shadcn.com/) - Component library
-- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
-- [Vercel](https://vercel.com/) - Deployment platform
-
----
-
-Built with ❤️ for music ministries and choir teams. Perfect for managing multilingual song collections! 🎵
+```

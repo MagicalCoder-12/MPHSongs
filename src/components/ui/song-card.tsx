@@ -52,52 +52,49 @@ export function SongCard({
   return (
     <>
       <Card 
-        className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
-          isExpanded ? "scale-[1.02] shadow-xl border-primary" : "hover:shadow-md"
-        }`}
+        className="leather-card cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
         onClick={handleCardClick}
       >
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 relative z-10">
           <div className="flex justify-between items-start gap-1">
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base sm:text-lg truncate">{song.title}</CardTitle>
+              <CardTitle className="text-base sm:text-lg truncate text-[var(--card-foreground)] font-serif">{song.title}</CardTitle>
               <CardDescription>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  <Badge variant="secondary" className="text-xs">{song.songLanguage}</Badge>
+                  <span className="beige-chip text-xs">{song.songLanguage}</span>
                   {song.isChoirPractice && (
-                    <Badge variant="outline" className="text-xs">
-                      <Users className="h-3 w-3 mr-1" />
+                    <span className="beige-chip text-xs flex items-center gap-1">
+                      <Users className="h-3 w-3" />
                       Choir
-                    </Badge>
+                    </span>
                   )}
                   {song.isChristmasSong && (
-                    <Badge variant="outline" className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
-                      <TreePine className="h-3 w-3 mr-1" />
+                    <span className="beige-chip text-xs flex items-center gap-1">
+                      <TreePine className="h-3 w-3 text-green-700" />
                       Christmas
-                    </Badge>
+                    </span>
                   )}
                 </div>
               </CardDescription>
             </div>
             <div className="flex gap-0.5 sm:gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 sm:h-9 sm:w-9"
+              <button
+                className="gold-icon-btn !w-8 !h-8 sm:!w-9 sm:!h-9"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(song);
                 }}
+                aria-label="Edit song"
               >
                 <Edit className="h-4 w-4" />
-              </Button>
+              </button>
               {/* Only show delete button if user is admin */}
               {isAdmin && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                    <button className="gold-icon-btn !w-8 !h-8 sm:!w-9 sm:!h-9" aria-label="Delete song">
                       <Trash2 className="h-4 w-4" />
-                    </Button>
+                    </button>
                   </AlertDialogTrigger>
                   <AlertDialogContent aria-describedby={undefined}>
                     <AlertDialogHeader>
@@ -118,30 +115,26 @@ export function SongCard({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-2">
+        <CardContent className="pt-2 relative z-10">
           <ScrollArea className="h-32 sm:h-40 w-full">
-            <p className="text-xs sm:text-sm whitespace-pre-wrap line-clamp-6">{song.lyrics}</p>
+            <p className="text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-[var(--card-foreground)]">{song.lyrics}</p>
           </ScrollArea>
           <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
             <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleChoir(song);
               }}
+              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]"
             >
               {song.isChoirPractice ? 'Remove Choir' : 'Add Choir'}
             </Button>
             <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 handleViewDetails();
               }}
+              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]"
             >
               View Details
             </Button>
@@ -150,27 +143,27 @@ export function SongCard({
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto" aria-describedby={undefined}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl">{song.title}</DialogTitle>
+            <DialogTitle className="text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-wrap gap-2 mb-4">
-            <Badge variant="secondary">{song.songLanguage}</Badge>
+            <span className="beige-chip">{song.songLanguage}</span>
             {song.isChoirPractice && (
-              <Badge variant="outline">
-                <Users className="h-3 w-3 mr-1" />
+              <span className="beige-chip flex items-center gap-1">
+                <Users className="h-3 w-3" />
                 Choir Practice
-              </Badge>
+              </span>
             )}
             {song.isChristmasSong && (
-              <Badge variant="outline" className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
-                <TreePine className="h-3 w-3 mr-1" />
+              <span className="beige-chip flex items-center gap-1">
+                <TreePine className="h-3 w-3 text-green-700" />
                 Christmas Song
-              </Badge>
+              </span>
             )}
           </div>
           <div className="mt-4">
-            <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed">{song.lyrics}</p>
+            <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-foreground font-sans">{song.lyrics}</p>
           </div>
         </DialogContent>
       </Dialog>

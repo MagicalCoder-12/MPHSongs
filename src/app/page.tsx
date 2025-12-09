@@ -11,8 +11,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Snowflake, TreePine } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Snowflake, TreePine, Sun } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { useTheme } from 'next-themes';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
 
@@ -96,6 +97,7 @@ const detectDuplicates = (newSong: Omit<Song, '_id' | 'createdAt' | 'updatedAt'>
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
+  const { theme, setTheme } = useTheme();
   const [songs, setSongs] = useState<Song[]>([]);
   const [choirSongs, setChoirSongs] = useState<Song[]>([]);
   const [christmasSongs, setChristmasSongs] = useState<Song[]>([]);
@@ -403,8 +405,18 @@ export default function Home() {
       : songs;
 
   return (
-    <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 relative">
+      {/* Christmas Particles */}
+      <div className="christmas-particles">
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+        <div className="particle"></div>
+      </div>
+      
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Offline Banner */}
         {!isOnline && (
           <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg">
@@ -422,12 +434,20 @@ export default function Home() {
         
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Song Lyrics Manager</h1>
+            <div className="golden-glow">
+              <Music className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--christmas-gold)]" />
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-serif text-foreground">Song Lyrics Manager</h1>
           </div>
           
           <div className="flex items-center gap-1 sm:gap-2">
-            <ThemeToggle />
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'light')}
+              className="gold-icon-btn"
+              aria-label="Theme toggle"
+            >
+              <Sun className="h-5 w-5" />
+            </button>
             {!isAppInstalled && (
               <>
                 <PWAInstall />
@@ -435,12 +455,12 @@ export default function Home() {
               </>
             )}
             {isAdmin ? (
-              <Button onClick={handleLogout} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+              <Button onClick={handleLogout} className="neomorph-button h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]">
                 <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className="hidden xs:inline text-xs sm:text-sm">Logout</span>
               </Button>
             ) : (
-              <Button onClick={() => setShowLoginDialog(true)} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+              <Button onClick={() => setShowLoginDialog(true)} className="neomorph-button h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]">
                 <LogIn className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className="hidden xs:inline text-xs sm:text-sm">Admin Login</span>
               </Button>
@@ -451,15 +471,28 @@ export default function Home() {
               if (!open) {
                 setDialogError(null);
                 setEditingSong(null);
-                setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
+                setFormData({ 
+                  title: '', 
+                  songLanguage: 'Telugu', 
+                  lyrics: '', 
+                  isChoirPractice: false, 
+                  isChristmasSong: activeTab === 'christmas-songs' 
+                });
               }
             }}>
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setDialogError(null);
                   setEditingSong(null);
-                  setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
-                }} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+                  // Auto-set isChristmasSong based on current tab
+                  setFormData({ 
+                    title: '', 
+                    songLanguage: 'Telugu', 
+                    lyrics: '', 
+                    isChoirPractice: false, 
+                    isChristmasSong: activeTab === 'christmas-songs' 
+                  });
+                }} className="neomorph-button h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]">
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="hidden xs:inline text-xs sm:text-sm">Add Song</span>
                 </Button>
@@ -531,19 +564,30 @@ export default function Home() {
                       />
                       <Label htmlFor="choir">Add to choir practice</Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="christmas"
-                        checked={formData.isChristmasSong}
-                        onChange={(e) => setFormData({ ...formData, isChristmasSong: e.target.checked })}
-                        className="rounded"
-                      />
-                      <Label htmlFor="christmas" className="flex items-center gap-1">
-                        <TreePine className="h-4 w-4 text-green-600" />
-                        Christmas Song
-                      </Label>
-                    </div>
+                    {/* Hide Christmas checkbox when editing or show disabled when on Christmas tab */}
+                    {!editingSong && activeTab !== 'christmas-songs' && (
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="christmas"
+                          checked={formData.isChristmasSong}
+                          onChange={(e) => setFormData({ ...formData, isChristmasSong: e.target.checked })}
+                          className="rounded"
+                        />
+                        <Label htmlFor="christmas" className="flex items-center gap-1">
+                          <TreePine className="h-4 w-4 text-green-600" />
+                          Christmas Song
+                        </Label>
+                      </div>
+                    )}
+                    {activeTab === 'christmas-songs' && !editingSong && (
+                      <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                          <TreePine className="h-4 w-4" />
+                          <p className="text-sm font-medium">This song will be added to Christmas Songs</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </ScrollArea>
                 <DialogFooter className="pt-4 border-t">
@@ -615,44 +659,46 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <div className="relative neomorph-inset">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-[var(--christmas-gold)]" />
               <Input
                 placeholder="Search songs by title or lyrics..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 sm:h-11"
+                className="pl-10 h-10 sm:h-11 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
             </div>
           </div>
           <div className="flex gap-2">
-            <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
-              <SelectTrigger className="w-[140px] sm:w-[180px] h-10 sm:h-11">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span className="hidden xs:inline">Most Recent</span>
-                    <span className="xs:hidden">Recent</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="alphabetical">
-                  <div className="flex items-center gap-2">
-                    <SortAsc className="h-4 w-4" />
-                    <span className="hidden xs:inline">Alphabetical</span>
-                    <span className="xs:hidden">Alpha</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="neomorph-inset">
+              <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
+                <SelectTrigger className="w-[140px] sm:w-[180px] h-10 sm:h-11 bg-transparent border-none focus:ring-0 focus:ring-offset-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      <span className="hidden xs:inline">Most Recent</span>
+                      <span className="xs:hidden">Recent</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="alphabetical">
+                    <div className="flex items-center gap-2">
+                      <SortAsc className="h-4 w-4" />
+                      <span className="hidden xs:inline">Alphabetical</span>
+                      <span className="xs:hidden">Alpha</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             
             {/* Delete All button - only visible to admin */}
             {isAdmin && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="h-10 sm:h-11 px-2 sm:px-4">
+                  <Button className="neomorph-button h-10 sm:h-11 px-2 sm:px-4 bg-[var(--destructive)] text-white hover:bg-[var(--destructive)]">
                     <Trash2 className="h-4 w-4 sm:mr-2" />
                     <span className="hidden xs:inline text-xs sm:text-sm">Delete All</span>
                   </Button>

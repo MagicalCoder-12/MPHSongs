@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Edit, Trash2 } from "lucide-react";
+import { Users, Edit, Trash2, TreePine } from "lucide-react";
 
 interface Song {
   _id: string;
@@ -15,6 +15,7 @@ interface Song {
   songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;
+  isChristmasSong?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -67,6 +68,12 @@ export function SongCard({
                     <Badge variant="outline" className="text-xs">
                       <Users className="h-3 w-3 mr-1" />
                       Choir
+                    </Badge>
+                  )}
+                  {song.isChristmasSong && (
+                    <Badge variant="outline" className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+                      <TreePine className="h-3 w-3 mr-1" />
+                      Christmas
                     </Badge>
                   )}
                 </div>
@@ -153,6 +160,12 @@ export function SongCard({
               <Badge variant="outline">
                 <Users className="h-3 w-3 mr-1" />
                 Choir Practice
+              </Badge>
+            )}
+            {song.isChristmasSong && (
+              <Badge variant="outline" className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+                <TreePine className="h-3 w-3 mr-1" />
+                Christmas Song
               </Badge>
             )}
           </div>

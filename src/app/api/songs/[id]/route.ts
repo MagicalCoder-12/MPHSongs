@@ -45,11 +45,17 @@ export async function PUT(
     await connectDB();
     
     const body = await request.json();
-    const { title, language, lyrics, isChoirPractice } = body;
+    const { title, language, songLanguage, lyrics, isChoirPractice, isChristmasSong } = body;
     
     const updatedSong = await Song.findByIdAndUpdate(
       params.id,
-      { title, language, lyrics, isChoirPractice },
+      { 
+        title, 
+        songLanguage: songLanguage || language, 
+        lyrics, 
+        isChoirPractice,
+        isChristmasSong 
+      },
       { new: true, runValidators: true }
     );
     

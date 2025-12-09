@@ -22,6 +22,10 @@ const songSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isChristmasSong: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true, // ← Adds createdAt & updatedAt automatically

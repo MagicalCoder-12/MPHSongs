@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Snowflake, TreePine } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -24,6 +24,7 @@ interface Song {
   songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;
+  isChristmasSong?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -97,6 +98,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
   const [songs, setSongs] = useState<Song[]>([]);
   const [choirSongs, setChoirSongs] = useState<Song[]>([]);
+  const [christmasSongs, setChristmasSongs] = useState<Song[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
   const [isLoading, setIsLoading] = useState(false);
@@ -108,7 +110,8 @@ export default function Home() {
     title: '',
     songLanguage: 'Telugu',
     lyrics: '',
-    isChoirPractice: false
+    isChoirPractice: false,
+    isChristmasSong: false
   });
   // Admin authentication state
   const [isAdmin, setIsAdmin] = useState(false);
@@ -156,7 +159,8 @@ export default function Home() {
       const params = new URLSearchParams({
         search: searchTerm,
         sortBy,
-        ...(activeTab === 'choir-practice' && { choirOnly: 'true' })
+        ...(activeTab === 'choir-practice' && { choirOnly: 'true' }),
+        ...(activeTab === 'christmas-songs' && { christmasOnly: 'true' })
       });
       
       const response = await fetch(`/api/songs?${params.toString()}`);
@@ -165,6 +169,8 @@ export default function Home() {
       if (result.success) {
         if (activeTab === 'choir-practice') {
           setChoirSongs(result.songs || []);
+        } else if (activeTab === 'christmas-songs') {
+          setChristmasSongs(result.songs || []);
         } else {
           setSongs(result.songs || []);
         }
@@ -215,7 +221,7 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -245,7 +251,7 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -275,7 +281,7 @@ export default function Home() {
       if (result.success) {
         setDialogError(null);
         setEditingSong(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -366,7 +372,8 @@ export default function Home() {
       title: song.title,
       songLanguage: song.songLanguage,
       lyrics: song.lyrics,
-      isChoirPractice: song.isChoirPractice
+      isChoirPractice: song.isChoirPractice,
+      isChristmasSong: song.isChristmasSong || false
     });
     setIsDialogOpen(true);
   };
@@ -389,7 +396,11 @@ export default function Home() {
     fetchSongs();
   }, [activeTab, searchTerm, sortBy]);
 
-  const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
+  const currentSongs = activeTab === 'choir-practice' 
+    ? choirSongs 
+    : activeTab === 'christmas-songs' 
+      ? christmasSongs 
+      : songs;
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8">
@@ -440,14 +451,14 @@ export default function Home() {
               if (!open) {
                 setDialogError(null);
                 setEditingSong(null);
-                setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+                setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
               }
             }}>
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setDialogError(null);
                   setEditingSong(null);
-                  setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+                  setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
                 }} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="hidden xs:inline text-xs sm:text-sm">Add Song</span>
@@ -519,6 +530,19 @@ export default function Home() {
                         className="rounded"
                       />
                       <Label htmlFor="choir">Add to choir practice</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="christmas"
+                        checked={formData.isChristmasSong}
+                        onChange={(e) => setFormData({ ...formData, isChristmasSong: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="christmas" className="flex items-center gap-1">
+                        <TreePine className="h-4 w-4 text-green-600" />
+                        Christmas Song
+                      </Label>
                     </div>
                   </div>
                 </ScrollArea>
@@ -667,16 +691,24 @@ export default function Home() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-10 sm:h-11">
-          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
+        <TabsList className="grid w-full grid-cols-3 h-10 sm:h-11">
+          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm">
             <List className="h-4 w-4" />
-            <span className="hidden xs:inline">All Songs</span>
+            <span className="hidden xs:inline">Songs</span>
             <span className="xs:hidden">Songs</span>
           </TabsTrigger>
-          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
+          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm">
             <Users className="h-4 w-4" />
-            <span className="hidden xs:inline">Choir Practice</span>
+            <span className="hidden xs:inline">Choir</span>
             <span className="xs:hidden">Choir</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="christmas-songs" 
+            className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm christmas-tab relative overflow-hidden"
+          >
+            <TreePine className="h-4 w-4 text-green-600" />
+            <span className="hidden xs:inline">Christmas Songs</span>
+            <span className="xs:hidden">Christmas</span>
           </TabsTrigger>
         </TabsList>
         
@@ -731,6 +763,37 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin} // Pass isAdmin prop
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="christmas-songs" className="mt-4 sm:mt-6">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              <div className="col-span-full text-center py-8">Loading Christmas songs...</div>
+            ) : christmasSongs === undefined ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                <TreePine className="h-12 w-12 mx-auto mb-4 text-green-600" />
+                No Christmas songs found. Add a Christmas song to get started!
+              </div>
+            ) : christmasSongs.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                <TreePine className="h-12 w-12 mx-auto mb-4 text-green-600" />
+                No Christmas songs found. Add a Christmas song to get started!
+              </div>
+            ) : (
+              christmasSongs.map((song) => (
+                <div key={song._id}>
+                  <SongCard
+                    song={song}
+                    onEdit={handleEditSong}
+                    onDelete={handleDeleteSong}
+                    onToggleChoir={handleToggleChoir}
+                    onViewDetails={handleViewDetails}
+                    isAdmin={isAdmin}
                   />
                 </div>
               ))

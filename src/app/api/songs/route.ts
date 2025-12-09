@@ -18,12 +18,20 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get('search') || '';
     const choirOnly = searchParams.get('choirOnly') === 'true';
+    const christmasOnly = searchParams.get('christmasOnly') === 'true';
     const sortBy = searchParams.get('sortBy') || 'recent'; // 'recent' or 'alphabetical'
     
     const query: any = {};
     
     if (choirOnly) {
       query.isChoirPractice = true;
+    }
+    
+    if (christmasOnly) {
+      query.isChristmasSong = true;
+    } else if (!choirOnly) {
+      // In the regular songs tab, exclude Christmas songs
+      query.isChristmasSong = { $ne: true };
     }
     
     if (search) {
@@ -65,7 +73,7 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
     const body = await request.json();
-  const { title, songLanguage, lyrics, isChoirPractice = false } = body;
+  const { title, songLanguage, lyrics, isChoirPractice = false, isChristmasSong = false } = body;
     // Validate required fields
     if (!title || !lyrics) {
       return NextResponse.json(
@@ -87,7 +95,8 @@ export async function POST(request: NextRequest) {
       title: title.trim(),
       songLanguage,
       lyrics: lyrics.trim(),
-      isChoirPractice: !!isChoirPractice
+      isChoirPractice: !!isChoirPractice,
+      isChristmasSong: !!isChristmasSong
     });
     await newSong.save();
     return NextResponse.json({ success: true,  newSong }, { status: 201 });

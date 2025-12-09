@@ -88,7 +88,30 @@
   --christmas-beige: #ECD8B7;
 }
 
-.dark {
+/* Light Theme */
+.theme-light {
+  --background: #FFFFFF;
+  --foreground: #0A0A0A;
+  --card: #FFFFFF;
+  --card-foreground: #0A0A0A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0A0A0A;
+  --primary: #18181B;
+  --primary-foreground: #FAFAFA;
+  --secondary: #F4F4F5;
+  --secondary-foreground: #18181B;
+  --muted: #F4F4F5;
+  --muted-foreground: #71717A;
+  --accent: #F4F4F5;
+  --accent-foreground: #18181B;
+  --destructive: #EF4444;
+  --border: #E4E4E7;
+  --input: #E4E4E7;
+  --ring: #18181B;
+}
+
+.dark,
+.theme-dark {
   /* Keep light theme for Christmas - warm cozy feel */
   --background: #F6EBD6;
   --foreground: #2C1810;
@@ -296,6 +319,12 @@
   overflow: hidden;
   pointer-events: none;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.christmas-particles.active {
+  opacity: 1;
 }
 
 .particle {
@@ -331,6 +360,98 @@
   100% {
     transform: translateY(-50px) scale(0);
     opacity: 0;
+  }
+}
+
+/* Enhanced Christmas Tab Particles */
+.christmas-tab-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.christmas-tab-particles.active {
+  opacity: 1;
+}
+
+/* Snowflake particles */
+.snowflake {
+  position: absolute;
+  top: -10px;
+  color: rgba(214, 183, 107, 0.6);
+  font-size: 1em;
+  user-select: none;
+  animation: fall linear infinite;
+}
+
+.snowflake:nth-child(odd) {
+  color: rgba(231, 121, 91, 0.4);
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Sparkle particles */
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, rgba(214, 183, 107, 0.9) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: sparkle-twinkle 3s ease-in-out infinite;
+}
+
+.sparkle::before,
+.sparkle::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.sparkle::before {
+  width: 3px;
+  height: 10px;
+  top: -2px;
+  left: 1.5px;
+}
+
+.sparkle::after {
+  width: 10px;
+  height: 3px;
+  left: -2px;
+  top: 1.5px;
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

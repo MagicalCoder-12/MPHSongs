@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Snowflake, TreePine, Sun } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Snowflake, TreePine, Sun, Palette } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useTheme } from 'next-themes';
 import { PWAInstall } from '@/components/ui/pwa-install';
@@ -98,6 +98,7 @@ const detectDuplicates = (newSong: Omit<Song, '_id' | 'createdAt' | 'updatedAt'>
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
   const { theme, setTheme } = useTheme();
+  const [appTheme, setAppTheme] = useState<'christmas' | 'light' | 'dark'>('christmas');
   const [songs, setSongs] = useState<Song[]>([]);
   const [choirSongs, setChoirSongs] = useState<Song[]>([]);
   const [christmasSongs, setChristmasSongs] = useState<Song[]>([]);
@@ -125,6 +126,40 @@ export default function Home() {
   const [isAppInstalled, setIsAppInstalled] = useState(false);
   // Offline state
   const [isOnline, setIsOnline] = useState(true);
+
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('app-theme') as 'christmas' | 'light' | 'dark' | null;
+    if (savedTheme) {
+      setAppTheme(savedTheme);
+      const root = document.documentElement;
+      root.classList.remove('theme-christmas', 'theme-light', 'theme-dark');
+      
+      if (savedTheme === 'christmas') {
+        root.classList.add('theme-christmas');
+      } else if (savedTheme === 'light') {
+        root.classList.add('theme-light');
+      } else {
+        root.classList.add('theme-dark');
+      }
+    }
+  }, []);
+
+  // Handle theme change
+  const handleThemeChange = (newTheme: 'christmas' | 'light' | 'dark') => {
+    setAppTheme(newTheme);
+    const root = document.documentElement;
+    root.classList.remove('theme-christmas', 'theme-light', 'theme-dark');
+    
+    if (newTheme === 'christmas') {
+      root.classList.add('theme-christmas');
+    } else if (newTheme === 'light') {
+      root.classList.add('theme-light');
+    } else {
+      root.classList.add('theme-dark');
+    }
+    localStorage.setItem('app-theme', newTheme);
+  };
 
   // Check if app is installed and online status
   useEffect(() => {
@@ -406,14 +441,50 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 relative">
-      {/* Christmas Particles */}
-      <div className="christmas-particles">
+      {/* Christmas Particles - Always visible at top */}
+      <div className={`christmas-particles ${activeTab === 'christmas-songs' ? 'active' : ''}`}>
         <div className="particle"></div>
         <div className="particle"></div>
         <div className="particle"></div>
         <div className="particle"></div>
         <div className="particle"></div>
         <div className="particle"></div>
+      </div>
+
+      {/* Enhanced Christmas Tab Particles - Only on Christmas tab */}
+      <div className={`christmas-tab-particles ${activeTab === 'christmas-songs' ? 'active' : ''}`}>
+        {activeTab === 'christmas-songs' && (
+          <>
+            {/* Snowflakes */}
+            {Array.from({ length: 15 }).map((_, i) => (
+              <div
+                key={`snow-${i}`}
+                className="snowflake"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDuration: `${8 + Math.random() * 7}s`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  fontSize: `${0.5 + Math.random() * 0.8}em`,
+                }}
+              >
+                ❄
+              </div>
+            ))}
+            {/* Sparkles */}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={`sparkle-${i}`}
+                className="sparkle"
+                style={{
+                  top: `${10 + Math.random() * 80}%`,
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 3}s`,
+                  animationDuration: `${2 + Math.random() * 2}s`,
+                }}
+              />
+            ))}
+          </>
+        )}
       </div>
       
       <div className="max-w-6xl mx-auto relative z-10">
@@ -441,6 +512,40 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-1 sm:gap-2">
+            {/* Theme Selector - Only visible to admin */}
+            {isAdmin && (
+              <div className="neomorph-inset">
+                <Select value={appTheme} onValueChange={(value: 'christmas' | 'light' | 'dark') => handleThemeChange(value)}>
+                  <SelectTrigger className="w-[140px] h-8 sm:h-9 bg-transparent border-none focus:ring-0 focus:ring-offset-0">
+                    <div className="flex items-center gap-2">
+                      <Palette className="h-4 w-4 text-[var(--christmas-gold)]" />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="christmas">
+                      <div className="flex items-center gap-2">
+                        <TreePine className="h-4 w-4 text-green-600" />
+                        <span>Christmas</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="light">
+                      <div className="flex items-center gap-2">
+                        <Sun className="h-4 w-4" />
+                        <span>Light</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="dark">
+                      <div className="flex items-center gap-2">
+                        <Music className="h-4 w-4" />
+                        <span>Dark</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'light')}
               className="gold-icon-btn"

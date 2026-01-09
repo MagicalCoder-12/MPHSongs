@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,9 +11,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Snowflake, TreePine, Sun, Palette } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { useTheme } from 'next-themes';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
 
@@ -25,7 +24,6 @@ interface Song {
   songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;
-  isChristmasSong?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -97,11 +95,8 @@ const detectDuplicates = (newSong: Omit<Song, '_id' | 'createdAt' | 'updatedAt'>
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
-  const { theme, setTheme } = useTheme();
-
   const [songs, setSongs] = useState<Song[]>([]);
   const [choirSongs, setChoirSongs] = useState<Song[]>([]);
-  const [christmasSongs, setChristmasSongs] = useState<Song[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
   const [isLoading, setIsLoading] = useState(false);
@@ -113,8 +108,7 @@ export default function Home() {
     title: '',
     songLanguage: 'Telugu',
     lyrics: '',
-    isChoirPractice: false,
-    isChristmasSong: false
+    isChoirPractice: false
   });
   // Admin authentication state
   const [isAdmin, setIsAdmin] = useState(false);
@@ -162,8 +156,7 @@ export default function Home() {
       const params = new URLSearchParams({
         search: searchTerm,
         sortBy,
-        ...(activeTab === 'choir-practice' && { choirOnly: 'true' }),
-        ...(activeTab === 'christmas-songs' && { christmasOnly: 'true' })
+        ...(activeTab === 'choir-practice' && { choirOnly: 'true' })
       });
       
       const response = await fetch(`/api/songs?${params.toString()}`);
@@ -172,8 +165,6 @@ export default function Home() {
       if (result.success) {
         if (activeTab === 'choir-practice') {
           setChoirSongs(result.songs || []);
-        } else if (activeTab === 'christmas-songs') {
-          setChristmasSongs(result.songs || []);
         } else {
           setSongs(result.songs || []);
         }
@@ -224,7 +215,7 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -254,7 +245,7 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -284,7 +275,7 @@ export default function Home() {
       if (result.success) {
         setDialogError(null);
         setEditingSong(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false, isChristmasSong: false });
+        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -375,8 +366,7 @@ export default function Home() {
       title: song.title,
       songLanguage: song.songLanguage,
       lyrics: song.lyrics,
-      isChoirPractice: song.isChoirPractice,
-      isChristmasSong: song.isChristmasSong || false
+      isChoirPractice: song.isChoirPractice
     });
     setIsDialogOpen(true);
   };
@@ -399,27 +389,11 @@ export default function Home() {
     fetchSongs();
   }, [activeTab, searchTerm, sortBy]);
 
-  const currentSongs = activeTab === 'choir-practice' 
-    ? choirSongs 
-    : activeTab === 'christmas-songs' 
-      ? christmasSongs 
-      : songs;
+  const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
 
   return (
-    <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 relative">
-      {/* Christmas Particles */}
-      <div className="christmas-particles">
-        <div className="particle"></div>
-        <div className="particle"></div>
-        <div className="particle"></div>
-        <div className="particle"></div>
-        <div className="particle"></div>
-        <div className="particle"></div>
-      </div>
-
-
-      
-      <div className="max-w-6xl mx-auto relative z-10">
+    <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto">
         {/* Offline Banner */}
         {!isOnline && (
           <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg">
@@ -437,21 +411,12 @@ export default function Home() {
         
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="golden-glow">
-              <Music className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--christmas-gold)]" />
-            </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-serif text-foreground">Song Lyrics Manager</h1>
+            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Song Lyrics Manager</h1>
           </div>
           
           <div className="flex items-center gap-1 sm:gap-2">
-            
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'light')}
-              className="rounded-full bg-[var(--christmas-maroon)] text-[var(--christmas-gold)] w-11 h-11 flex items-center justify-center transition-all duration-300 border border-[rgba(214,183,107,0.3)]"
-              aria-label="Theme toggle"
-            >
-              <Sun className="h-5 w-5" />
-            </button>
+            <ThemeToggle />
             {!isAppInstalled && (
               <>
                 <PWAInstall />
@@ -459,12 +424,12 @@ export default function Home() {
               </>
             )}
             {isAdmin ? (
-              <Button onClick={handleLogout} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]">
+              <Button onClick={handleLogout} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
                 <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className="hidden xs:inline text-xs sm:text-sm">Logout</span>
               </Button>
             ) : (
-              <Button onClick={() => setShowLoginDialog(true)} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]">
+              <Button onClick={() => setShowLoginDialog(true)} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
                 <LogIn className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className="hidden xs:inline text-xs sm:text-sm">Admin Login</span>
               </Button>
@@ -475,28 +440,15 @@ export default function Home() {
               if (!open) {
                 setDialogError(null);
                 setEditingSong(null);
-                setFormData({ 
-                  title: '', 
-                  songLanguage: 'Telugu', 
-                  lyrics: '', 
-                  isChoirPractice: false, 
-                  isChristmasSong: activeTab === 'christmas-songs' 
-                });
+                setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
               }
             }}>
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setDialogError(null);
                   setEditingSong(null);
-                  // Auto-set isChristmasSong based on current tab
-                  setFormData({ 
-                    title: '', 
-                    songLanguage: 'Telugu', 
-                    lyrics: '', 
-                    isChoirPractice: false, 
-                    isChristmasSong: activeTab === 'christmas-songs' 
-                  });
-                }} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]">
+                  setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+                }} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="hidden xs:inline text-xs sm:text-sm">Add Song</span>
                 </Button>
@@ -568,30 +520,6 @@ export default function Home() {
                       />
                       <Label htmlFor="choir">Add to choir practice</Label>
                     </div>
-                    {/* Hide Christmas checkbox when editing or show disabled when on Christmas tab */}
-                    {!editingSong && activeTab !== 'christmas-songs' && (
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="christmas"
-                          checked={formData.isChristmasSong}
-                          onChange={(e) => setFormData({ ...formData, isChristmasSong: e.target.checked })}
-                          className="rounded"
-                        />
-                        <Label htmlFor="christmas" className="flex items-center gap-1">
-                          <TreePine className="h-4 w-4 text-green-600" />
-                          Christmas Song
-                        </Label>
-                      </div>
-                    )}
-                    {activeTab === 'christmas-songs' && !editingSong && (
-                      <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                        <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                          <TreePine className="h-4 w-4" />
-                          <p className="text-sm font-medium">This song will be added to Christmas Songs</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </ScrollArea>
                 <DialogFooter className="pt-4 border-t">
@@ -663,46 +591,44 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div className="flex-1">
-            <div className="relative bg-[var(--christmas-beige)] p-1 rounded-lg">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-[var(--christmas-gold)]" />
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search songs by title or lyrics..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 sm:h-11 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="pl-10 h-10 sm:h-11"
               />
             </div>
           </div>
           <div className="flex gap-2">
-            <div className="bg-[var(--christmas-beige)] p-1 rounded-lg">
-              <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
-                <SelectTrigger className="w-[140px] sm:w-[180px] h-10 sm:h-11 bg-transparent border-none focus:ring-0 focus:ring-offset-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="recent">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span className="hidden xs:inline">Most Recent</span>
-                      <span className="xs:hidden">Recent</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="alphabetical">
-                    <div className="flex items-center gap-2">
-                      <SortAsc className="h-4 w-4" />
-                      <span className="hidden xs:inline">Alphabetical</span>
-                      <span className="xs:hidden">Alpha</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
+              <SelectTrigger className="w-[140px] sm:w-[180px] h-10 sm:h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span className="hidden xs:inline">Most Recent</span>
+                    <span className="xs:hidden">Recent</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="alphabetical">
+                  <div className="flex items-center gap-2">
+                    <SortAsc className="h-4 w-4" />
+                    <span className="hidden xs:inline">Alphabetical</span>
+                    <span className="xs:hidden">Alpha</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
             
             {/* Delete All button - only visible to admin */}
             {isAdmin && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button className="h-10 sm:h-11 px-2 sm:px-4 bg-[var(--destructive)] text-white hover:bg-[var(--destructive)]">
+                  <Button variant="destructive" className="h-10 sm:h-11 px-2 sm:px-4">
                     <Trash2 className="h-4 w-4 sm:mr-2" />
                     <span className="hidden xs:inline text-xs sm:text-sm">Delete All</span>
                   </Button>
@@ -741,24 +667,16 @@ export default function Home() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-10 sm:h-11">
-          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm">
+        <TabsList className="grid w-full grid-cols-2 h-10 sm:h-11">
+          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
             <List className="h-4 w-4" />
-            <span className="hidden xs:inline">Songs</span>
+            <span className="hidden xs:inline">All Songs</span>
             <span className="xs:hidden">Songs</span>
           </TabsTrigger>
-          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm">
+          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
             <Users className="h-4 w-4" />
-            <span className="hidden xs:inline">Choir</span>
+            <span className="hidden xs:inline">Choir Practice</span>
             <span className="xs:hidden">Choir</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="christmas-songs" 
-            className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm christmas-tab relative overflow-hidden"
-          >
-            <TreePine className="h-4 w-4 text-green-600" />
-            <span className="hidden xs:inline">Christmas Songs</span>
-            <span className="xs:hidden">Christmas</span>
           </TabsTrigger>
         </TabsList>
         
@@ -813,37 +731,6 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin} // Pass isAdmin prop
-                  />
-                </div>
-              ))
-            )}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="christmas-songs" className="mt-4 sm:mt-6">
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {isLoading ? (
-              <div className="col-span-full text-center py-8">Loading Christmas songs...</div>
-            ) : christmasSongs === undefined ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                <TreePine className="h-12 w-12 mx-auto mb-4 text-green-600" />
-                No Christmas songs found. Add a Christmas song to get started!
-              </div>
-            ) : christmasSongs.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                <TreePine className="h-12 w-12 mx-auto mb-4 text-green-600" />
-                No Christmas songs found. Add a Christmas song to get started!
-              </div>
-            ) : (
-              christmasSongs.map((song) => (
-                <div key={song._id}>
-                  <SongCard
-                    song={song}
-                    onEdit={handleEditSong}
-                    onDelete={handleDeleteSong}
-                    onToggleChoir={handleToggleChoir}
-                    onViewDetails={handleViewDetails}
-                    isAdmin={isAdmin}
                   />
                 </div>
               ))

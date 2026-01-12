@@ -58,7 +58,7 @@ export function SongCard({
         <CardHeader className="pb-2 relative z-10">
           <div className="flex justify-between items-start gap-1">
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base sm:text-lg truncate text-[var(--card-foreground)] font-serif">{song.title}</CardTitle>
+              <CardTitle className="text-base sm:text-lg truncate font-serif text-foreground">{song.title}</CardTitle>
               <CardDescription>
                 <div className="flex flex-wrap gap-1 mt-1">
                   <span className="beige-chip text-xs">{song.songLanguage}</span>
@@ -117,7 +117,7 @@ export function SongCard({
         </CardHeader>
         <CardContent className="pt-2 relative z-10">
           <ScrollArea className="h-32 sm:h-40 w-full">
-            <p className="text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-[var(--card-foreground)]">{song.lyrics}</p>
+            <p className="text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">{song.lyrics}</p>
           </ScrollArea>
           <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
             <Button
@@ -163,7 +163,7 @@ export function SongCard({
             )}
           </div>
           <div className="mt-4">
-            <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed text-foreground font-sans">{song.lyrics}</p>
+            <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted">{song.lyrics}</p>
           </div>
         </DialogContent>
       </Dialog>

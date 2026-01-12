@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,12 +11,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
 
 import { SongCard } from '@/components/ui/song-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Song {
   _id: string;
@@ -120,6 +121,9 @@ export default function Home() {
   const [isAppInstalled, setIsAppInstalled] = useState(false);
   // Offline state
   const [isOnline, setIsOnline] = useState(true);
+  
+  // Refs
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check if app is installed and online status
   useEffect(() => {
@@ -146,6 +150,10 @@ export default function Home() {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      // Clean up debounce timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
     };
   }, []);
 
@@ -593,6 +601,9 @@ export default function Home() {
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              {isLoading && (
+                <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-muted-foreground" />
+              )}
               <Input
                 placeholder="Search songs by title or lyrics..."
                 value={searchTerm}
@@ -668,12 +679,12 @@ export default function Home() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 h-10 sm:h-11">
-          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
+          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <List className="h-4 w-4" />
             <span className="hidden xs:inline">All Songs</span>
             <span className="xs:hidden">Songs</span>
           </TabsTrigger>
-          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base">
+          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Users className="h-4 w-4" />
             <span className="hidden xs:inline">Choir Practice</span>
             <span className="xs:hidden">Choir</span>
@@ -683,7 +694,11 @@ export default function Home() {
         <TabsContent value="all-songs" className="mt-4 sm:mt-6">
           <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
-              <div className="col-span-full text-center py-8">Loading songs...</div>
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="space-y-3">
+                  <Skeleton className="h-48 w-full rounded-xl" />
+                </div>
+              ))
             ) : currentSongs === undefined ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
                 No songs found. Create your first song to get started!
@@ -712,7 +727,11 @@ export default function Home() {
         <TabsContent value="choir-practice" className="mt-4 sm:mt-6">
           <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
-              <div className="col-span-full text-center py-8">Loading choir songs...</div>
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="space-y-3">
+                  <Skeleton className="h-48 w-full rounded-xl" />
+                </div>
+              ))
             ) : currentSongs === undefined ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
                 No choir practice songs found. Add songs to choir practice from the main list.

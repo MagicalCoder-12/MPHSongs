@@ -125,7 +125,7 @@ export function SongCard({
                 e.stopPropagation();
                 onToggleChoir(song);
               }}
-              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]"
+              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {song.isChoirPractice ? 'Remove Choir' : 'Add Choir'}
             </Button>
@@ -134,7 +134,7 @@ export function SongCard({
                 e.stopPropagation();
                 handleViewDetails();
               }}
-              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-[var(--christmas-coral)] text-white hover:bg-[var(--christmas-coral)]"
+              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
             >
               View Details
             </Button>

@@ -537,6 +537,7 @@ export default function Home() {
     };
   }, [siteTheme]);
 
+  const isGoodFridayTheme = siteTheme === 'good-friday';
   const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
 
   return (
@@ -561,7 +562,13 @@ export default function Home() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Song Lyrics Manager</h1>
+              <h1
+                className={`text-xl font-bold sm:text-2xl md:text-3xl ${
+                  isGoodFridayTheme ? 'font-[family:var(--font-playfair)] tracking-[0.03em]' : ''
+                }`}
+              >
+                Song Lyrics Manager
+              </h1>
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Site theme: {SITE_THEME_LABELS[siteTheme]}
               </p>
@@ -704,7 +711,22 @@ export default function Home() {
           </div>
         </div>
 
-        {siteTheme !== 'normal' && (
+        {isGoodFridayTheme && (
+          <div className="mb-4 overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-sm backdrop-blur-sm sm:mb-6">
+            <div className="h-1 w-full bg-gradient-to-r from-transparent via-accent to-transparent" />
+            <div className="px-4 py-4 sm:px-6">
+              <p className="font-[family:var(--font-playfair)] text-lg font-semibold text-primary">
+                Good Friday
+              </p>
+              <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+                Ash and gold brings a quieter, reverent tone to the app in both light and dark mode,
+                while keeping the same familiar layout for song browsing.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {siteTheme !== 'normal' && siteTheme !== 'good-friday' && (
           <div className="mb-4 sm:mb-6 rounded-2xl border border-border/70 bg-card/85 px-4 py-4 shadow-sm backdrop-blur-sm">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>

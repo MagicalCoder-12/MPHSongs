@@ -15,9 +15,17 @@ import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCi
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
+import {
+  isValidSiteTheme,
+  SITE_THEME_LABELS,
+  SITE_THEME_PLACEHOLDERS,
+  type SiteTheme,
+} from '@/lib/site-theme';
 
 import { SongCard } from '@/components/ui/song-card';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const SITE_THEME_STORAGE_KEY = 'mph-site-theme';
 
 interface Song {
   _id: string;
@@ -99,6 +107,8 @@ export default function Home() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [choirSongs, setChoirSongs] = useState<Song[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [siteTheme, setSiteTheme] = useState<SiteTheme>('normal');
+  const [isSavingSiteTheme, setIsSavingSiteTheme] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -202,6 +212,19 @@ export default function Home() {
     }
   };
 
+  const loadSiteTheme = async () => {
+    try {
+      const response = await fetch('/api/site-theme', { cache: 'no-store' });
+      const result = await response.json();
+
+      if (result.success && isValidSiteTheme(result.siteTheme)) {
+        setSiteTheme(result.siteTheme);
+      }
+    } catch (error) {
+      console.error('Error fetching site theme:', error);
+    }
+  };
+
   const handleLogin = async () => {
     try {
       const response = await fetch('/api/admin/login', {
@@ -233,6 +256,37 @@ export default function Home() {
       console.error('Error logging out:', error);
     } finally {
       setIsAdmin(false);
+    }
+  };
+
+  const handleSiteThemeChange = async (value: SiteTheme) => {
+    const previousTheme = siteTheme;
+    setSiteTheme(value);
+    setIsSavingSiteTheme(true);
+
+    try {
+      const response = await fetch('/api/site-theme', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteTheme: value })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        if (response.status === 401) {
+          setIsAdmin(false);
+        }
+
+        setSiteTheme(previousTheme);
+        alert(result.error || 'Failed to update site theme.');
+      }
+    } catch (error) {
+      console.error('Error updating site theme:', error);
+      setSiteTheme(previousTheme);
+      alert('Unable to update the site theme right now.');
+    } finally {
+      setIsSavingSiteTheme(false);
     }
   };
 
@@ -455,6 +509,34 @@ export default function Home() {
     loadAdminSession();
   }, []);
 
+  useEffect(() => {
+    try {
+      const storedTheme = window.localStorage.getItem(SITE_THEME_STORAGE_KEY);
+
+      if (isValidSiteTheme(storedTheme)) {
+        setSiteTheme(storedTheme);
+      }
+    } catch (error) {
+      console.error('Error loading stored site theme:', error);
+    }
+
+    loadSiteTheme();
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.siteTheme = siteTheme;
+
+    try {
+      window.localStorage.setItem(SITE_THEME_STORAGE_KEY, siteTheme);
+    } catch (error) {
+      console.error('Error storing site theme:', error);
+    }
+
+    return () => {
+      delete document.documentElement.dataset.siteTheme;
+    };
+  }, [siteTheme]);
+
   const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
 
   return (
@@ -478,11 +560,35 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
             <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Song Lyrics Manager</h1>
+            <div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Song Lyrics Manager</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Site theme: {SITE_THEME_LABELS[siteTheme]}
+              </p>
+            </div>
           </div>
           
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
             <ThemeToggle />
+            {isAdmin && (
+              <div className="w-[150px] sm:w-[170px]">
+                <Select
+                  value={siteTheme}
+                  onValueChange={(value: SiteTheme) => handleSiteThemeChange(value)}
+                  disabled={isSavingSiteTheme}
+                >
+                  <SelectTrigger className="h-8 sm:h-9 md:h-10">
+                    <SelectValue placeholder="Site theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="good-friday">Good Friday</SelectItem>
+                    <SelectItem value="easter">Easter</SelectItem>
+                    <SelectItem value="christmas">Christmas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {!isAppInstalled && (
               <>
                 <PWAInstall />
@@ -597,6 +703,24 @@ export default function Home() {
             </Dialog>
           </div>
         </div>
+
+        {siteTheme !== 'normal' && (
+          <div className="mb-4 sm:mb-6 rounded-2xl border border-border/70 bg-card/85 px-4 py-4 shadow-sm backdrop-blur-sm">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-primary">{SITE_THEME_LABELS[siteTheme]} Theme</p>
+                <p className="text-sm text-muted-foreground">
+                  {SITE_THEME_PLACEHOLDERS[siteTheme as Exclude<SiteTheme, 'normal'>]}
+                </p>
+              </div>
+              {isAdmin && (
+                <Badge variant="secondary" className="w-fit">
+                  Placeholder Preview
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Login Dialog */}
         <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>

@@ -26,6 +26,10 @@ const songSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    tags: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true, // ← Adds createdAt & updatedAt automatically
@@ -33,9 +37,10 @@ const songSchema = new mongoose.Schema(
 );
 
 // Index for search functionality
-songSchema.index({ 
-  title: 'text', 
-  lyrics: 'text' 
+songSchema.index({
+  title: 'text',
+  lyrics: 'text',
+  tags: 'text',
 });
 
 // Index for sorting

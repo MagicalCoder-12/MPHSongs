@@ -16,12 +16,17 @@ export async function GET(request: NextRequest) {
     const search = sanitizeSearchTerm(searchParams.get('search'));
     const choirOnly = searchParams.get('choirOnly') === 'true';
     const christmasOnly = searchParams.get('christmasOnly') === 'true';
+    const tag = sanitizeSearchTerm(searchParams.get('tag'));
     const sortBy = searchParams.get('sortBy') || 'recent'; // 'recent' or 'alphabetical'
     
     const query: any = {};
     
     if (choirOnly) {
       query.isChoirPractice = true;
+    }
+
+    if (tag) {
+      query.tags = tag;
     }
     
     if (christmasOnly) {
@@ -36,7 +41,8 @@ export async function GET(request: NextRequest) {
 
       query.$or = [
         { title: { $regex: escapedSearch, $options: 'i' } },
-        { lyrics: { $regex: escapedSearch, $options: 'i' } }
+        { lyrics: { $regex: escapedSearch, $options: 'i' } },
+        { tags: { $regex: escapedSearch, $options: 'i' } }
       ];
     }
     
@@ -87,14 +93,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong } = parsedPayload.data;
+    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
 
     const newSong = new Song({
       title,
       songLanguage,
       lyrics,
       isChoirPractice,
-      isChristmasSong
+      isChristmasSong,
+      tags
     });
     await newSong.save();
     return NextResponse.json({ success: true,  newSong }, { status: 201 });

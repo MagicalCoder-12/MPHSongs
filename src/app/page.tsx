@@ -21,11 +21,22 @@ import {
   SITE_THEME_PLACEHOLDERS,
   type SiteTheme,
 } from '@/lib/site-theme';
+import { GOOD_FRIDAY_TAG } from '@/lib/song-tags';
 
 import { SongCard } from '@/components/ui/song-card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const SITE_THEME_STORAGE_KEY = 'mph-site-theme';
+const GOOD_FRIDAY_TAB = 'good-friday';
+const CHOIR_TAB = 'choir-practice';
+
+type SongFormData = {
+  title: string;
+  songLanguage: string;
+  lyrics: string;
+  isChoirPractice: boolean;
+  isGoodFridaySong: boolean;
+};
 
 interface Song {
   _id: string;
@@ -33,6 +44,8 @@ interface Song {
   songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;
+  isChristmasSong?: boolean;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -54,7 +67,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 // Function to detect potential duplicates
-const detectDuplicates = (newSong: Omit<Song, '_id' | 'createdAt' | 'updatedAt'>, existingSongs: Song[]) => {
+const detectDuplicates = (newSong: SongFormData, existingSongs: Song[]) => {
   const duplicates = existingSongs.filter(song => {
     // Check for exact title match
     if (song.title.toLowerCase().trim() === newSong.title.toLowerCase().trim()) {
@@ -102,6 +115,14 @@ const detectDuplicates = (newSong: Omit<Song, '_id' | 'createdAt' | 'updatedAt'>
   return duplicates;
 };
 
+const getEmptyFormData = (activeTab: string): SongFormData => ({
+  title: '',
+  songLanguage: 'Telugu',
+  lyrics: '',
+  isChoirPractice: false,
+  isGoodFridaySong: activeTab === GOOD_FRIDAY_TAB,
+});
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
   const [songs, setSongs] = useState<Song[]>([]);
@@ -115,12 +136,7 @@ export default function Home() {
   const [dialogError, setDialogError] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    songLanguage: 'Telugu',
-    lyrics: '',
-    isChoirPractice: false
-  });
+  const [formData, setFormData] = useState<SongFormData>(getEmptyFormData('all-songs'));
   // Admin authentication state
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -175,14 +191,15 @@ export default function Home() {
       const params = new URLSearchParams({
         search: searchTerm,
         sortBy,
-        ...(activeTab === 'choir-practice' && { choirOnly: 'true' })
+        ...(activeTab === CHOIR_TAB && { choirOnly: 'true' }),
+        ...(activeTab === GOOD_FRIDAY_TAB && { tag: GOOD_FRIDAY_TAG }),
       });
       
       const response = await fetch(`/api/songs?${params.toString()}`);
       const result = await response.json();
       
       if (result.success) {
-        if (activeTab === 'choir-practice') {
+        if (activeTab === CHOIR_TAB) {
           setChoirSongs(result.songs || []);
         } else {
           setSongs(result.songs || []);
@@ -310,7 +327,7 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+        setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -343,7 +360,7 @@ export default function Home() {
       
       if (result.success) {
         setDialogError(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+        setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -376,7 +393,7 @@ export default function Home() {
       if (result.success) {
         setDialogError(null);
         setEditingSong(null);
-        setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+        setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
@@ -477,7 +494,8 @@ export default function Home() {
       title: song.title,
       songLanguage: song.songLanguage,
       lyrics: song.lyrics,
-      isChoirPractice: song.isChoirPractice
+      isChoirPractice: song.isChoirPractice,
+      isGoodFridaySong: Boolean(song.tags?.includes(GOOD_FRIDAY_TAG)),
     });
     setIsDialogOpen(true);
   };
@@ -538,7 +556,7 @@ export default function Home() {
   }, [siteTheme]);
 
   const isGoodFridayTheme = siteTheme === 'good-friday';
-  const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
+  const currentSongs = activeTab === CHOIR_TAB ? choirSongs : songs;
 
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8">
@@ -619,14 +637,14 @@ export default function Home() {
               if (!open) {
                 setDialogError(null);
                 setEditingSong(null);
-                setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+                setFormData(getEmptyFormData(activeTab));
               }
             }}>
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setDialogError(null);
                   setEditingSong(null);
-                  setFormData({ title: '', songLanguage: 'Telugu', lyrics: '', isChoirPractice: false });
+                  setFormData(getEmptyFormData(activeTab));
                 }} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="hidden xs:inline text-xs sm:text-sm">Add Song</span>
@@ -698,6 +716,16 @@ export default function Home() {
                         className="rounded"
                       />
                       <Label htmlFor="choir">Add to choir practice</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="good-friday"
+                        checked={formData.isGoodFridaySong}
+                        onChange={(e) => setFormData({ ...formData, isGoodFridaySong: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="good-friday">Tag as Good Friday</Label>
                     </div>
                   </div>
                 </ScrollArea>
@@ -822,7 +850,7 @@ export default function Home() {
               </div>
               <Input
                 ref={searchInputRef}
-                placeholder="Search songs by title or lyrics..."
+                placeholder="Search songs by title, lyrics, or tags..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="h-10 pl-10 pr-20 sm:h-11"
@@ -895,13 +923,20 @@ export default function Home() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-10 sm:h-11">
+        <TabsList className="grid w-full grid-cols-3 h-10 sm:h-11">
           <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <List className="h-4 w-4" />
             <span className="hidden xs:inline">All Songs</span>
             <span className="xs:hidden">Songs</span>
           </TabsTrigger>
-          <TabsTrigger value="choir-practice" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value={GOOD_FRIDAY_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Badge variant="secondary" className="hidden sm:inline-flex">
+              GF
+            </Badge>
+            <span className="hidden xs:inline">Good Friday</span>
+            <span className="xs:hidden">GF</span>
+          </TabsTrigger>
+          <TabsTrigger value={CHOIR_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Users className="h-4 w-4" />
             <span className="hidden xs:inline">Choir Practice</span>
             <span className="xs:hidden">Choir</span>
@@ -940,8 +975,49 @@ export default function Home() {
             )}
           </div>
         </TabsContent>
+
+        <TabsContent value={GOOD_FRIDAY_TAB} className="mt-4 sm:mt-6">
+          <div className="mb-4 rounded-2xl border border-border/70 bg-card/80 px-4 py-3 shadow-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">Good Friday Tag</Badge>
+              <p className="text-sm text-muted-foreground">
+                These songs are regular songs marked with the Good Friday tag, and they can still be added to choir practice.
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="space-y-3">
+                  <Skeleton className="h-48 w-full rounded-xl" />
+                </div>
+              ))
+            ) : currentSongs === undefined ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No Good Friday songs found yet.
+              </div>
+            ) : currentSongs.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No Good Friday songs found yet.
+              </div>
+            ) : (
+              currentSongs.map((song) => (
+                <div key={song._id}>
+                  <SongCard
+                    song={song}
+                    onEdit={handleEditSong}
+                    onDelete={handleDeleteSong}
+                    onToggleChoir={handleToggleChoir}
+                    onViewDetails={handleViewDetails}
+                    isAdmin={isAdmin}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
         
-        <TabsContent value="choir-practice" className="mt-4 sm:mt-6">
+        <TabsContent value={CHOIR_TAB} className="mt-4 sm:mt-6">
           <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (

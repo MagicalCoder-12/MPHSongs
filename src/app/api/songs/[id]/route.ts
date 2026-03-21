@@ -62,7 +62,7 @@ export async function PUT(
       );
     }
 
-    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong } = parsedPayload.data;
+    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
     
     const updatedSong = await Song.findByIdAndUpdate(
       params.id,
@@ -71,7 +71,8 @@ export async function PUT(
         songLanguage,
         lyrics, 
         isChoirPractice,
-        isChristmasSong 
+        isChristmasSong,
+        tags
       },
       { new: true, runValidators: true }
     );

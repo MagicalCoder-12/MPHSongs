@@ -1,3 +1,5 @@
+import { GOOD_FRIDAY_TAG } from '@/lib/song-tags';
+
 export const ALLOWED_LANGUAGES = ['Telugu', 'Hindi', 'English', 'Other'] as const;
 export type SongLanguage = typeof ALLOWED_LANGUAGES[number];
 
@@ -29,6 +31,7 @@ type SongPayload = {
   lyrics: string;
   isChoirPractice: boolean;
   isChristmasSong: boolean;
+  tags: string[];
 };
 
 type SongPayloadResult =
@@ -62,6 +65,22 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
     };
   }
 
+  const rawTags = Array.isArray(body.tags) ? body.tags : [];
+  const isGoodFridaySong = Boolean(body.isGoodFridaySong);
+
+  const normalizedTags = Array.from(
+    new Set(
+      rawTags
+        .filter((tag): tag is string => typeof tag === 'string')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    )
+  );
+
+  const tags = isGoodFridaySong
+    ? Array.from(new Set([...normalizedTags, GOOD_FRIDAY_TAG]))
+    : normalizedTags.filter((tag) => tag !== GOOD_FRIDAY_TAG);
+
   return {
     success: true,
     data: {
@@ -70,6 +89,7 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
       lyrics,
       isChoirPractice: Boolean(body.isChoirPractice),
       isChristmasSong: Boolean(body.isChristmasSong),
+      tags,
     },
   };
 }

@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Users, Edit, Trash2, TreePine } from "lucide-react";
+import { GOOD_FRIDAY_TAG } from "@/lib/song-tags";
 
 interface Song {
   _id: string;
@@ -16,6 +17,7 @@ interface Song {
   lyrics: string;
   isChoirPractice: boolean;
   isChristmasSong?: boolean;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -39,6 +41,7 @@ export function SongCard({
 }: SongCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const isGoodFridaySong = song.tags?.includes(GOOD_FRIDAY_TAG);
 
   const handleCardClick = () => {
     setIsExpanded(!isExpanded);
@@ -73,6 +76,11 @@ export function SongCard({
                       <TreePine className="h-3 w-3 text-green-700" />
                       Christmas
                     </span>
+                  )}
+                  {isGoodFridaySong && (
+                    <Badge variant="secondary" className="text-xs">
+                      Good Friday
+                    </Badge>
                   )}
                 </div>
               </CardDescription>
@@ -160,6 +168,9 @@ export function SongCard({
                 <TreePine className="h-3 w-3 text-green-700" />
                 Christmas Song
               </span>
+            )}
+            {isGoodFridaySong && (
+              <Badge variant="secondary">Good Friday</Badge>
             )}
           </div>
           <div className="mt-4">

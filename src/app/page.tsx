@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -124,6 +124,7 @@ export default function Home() {
   
   // Refs
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   // Check if app is installed and online status
   useEffect(() => {
@@ -392,6 +393,11 @@ export default function Home() {
     // This is handled in the dialog component
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    searchInputRef.current?.focus();
+  };
+
   // Fetch songs when component mounts or when dependencies change
   useEffect(() => {
     fetchSongs();
@@ -601,14 +607,27 @@ export default function Home() {
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              {isLoading && (
-                <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-muted-foreground" />
-              )}
+              <div className="absolute inset-y-0 right-3 flex items-center gap-2">
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+                {isLoading && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
               <Input
+                ref={searchInputRef}
                 placeholder="Search songs by title or lyrics..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 sm:h-11"
+                className="h-10 pl-10 pr-20 sm:h-11"
               />
             </div>
           </div>

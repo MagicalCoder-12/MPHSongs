@@ -1,22 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Song from '@/lib/models/Song';
-
-// Define allowed languages
-const ALLOWED_LANGUAGES = ['Telugu', 'Hindi', 'English', 'Other'] as const;
-type SongLanguage = typeof ALLOWED_LANGUAGES[number];
-
-// Helper to validate language input
-function isValidSongLanguage(lang: unknown): lang is SongLanguage {
-  return typeof lang === 'string' && ALLOWED_LANGUAGES.includes(lang as SongLanguage);
-}
+import {
+  escapeRegex,
+  parseSongPayload,
+  sanitizeSearchTerm,
+} from '@/lib/song-validation';
 
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
     
     const searchParams = request.nextUrl.searchParams;
-    const search = searchParams.get('search') || '';
+    const search = sanitizeSearchTerm(searchParams.get('search'));
     const choirOnly = searchParams.get('choirOnly') === 'true';
     const christmasOnly = searchParams.get('christmasOnly') === 'true';
     const sortBy = searchParams.get('sortBy') || 'recent'; // 'recent' or 'alphabetical'
@@ -35,9 +31,11 @@ export async function GET(request: NextRequest) {
     }
     
     if (search) {
+      const escapedSearch = escapeRegex(search);
+
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { lyrics: { $regex: search, $options: 'i' } }
+        { title: { $regex: escapedSearch, $options: 'i' } },
+        { lyrics: { $regex: escapedSearch, $options: 'i' } }
       ];
     }
     
@@ -73,30 +71,23 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
     const body = await request.json();
-  const { title, songLanguage, lyrics, isChoirPractice = false, isChristmasSong = false } = body;
-    // Validate required fields
-    if (!title || !lyrics) {
+    const parsedPayload = parseSongPayload(body);
+
+    if (!parsedPayload.success) {
       return NextResponse.json(
-        { success: false, error: 'Title and lyrics are required' },
+        { success: false, error: parsedPayload.error },
         { status: 400 }
       );
     }
-    // Validate language
-    if (!songLanguage || !isValidSongLanguage(songLanguage)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: `Invalid language. Must be one of: ${ALLOWED_LANGUAGES.join(', ')}` 
-        },
-        { status: 400 }
-      );
-    }
+
+    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong } = parsedPayload.data;
+
     const newSong = new Song({
-      title: title.trim(),
+      title,
       songLanguage,
-      lyrics: lyrics.trim(),
-      isChoirPractice: !!isChoirPractice,
-      isChristmasSong: !!isChristmasSong
+      lyrics,
+      isChoirPractice,
+      isChristmasSong
     });
     await newSong.save();
     return NextResponse.json({ success: true,  newSong }, { status: 201 });
@@ -120,31 +111,24 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     await connectDB();
     const { id } = params;
     const body = await request.json();
-    const { title, songLanguage, lyrics, isChoirPractice } = body;
-    // Validate required fields
-    if (!title || !lyrics) {
+    const parsedPayload = parseSongPayload(body);
+
+    if (!parsedPayload.success) {
       return NextResponse.json(
-        { success: false, error: 'Title and lyrics are required' },
+        { success: false, error: parsedPayload.error },
         { status: 400 }
       );
     }
-    // Validate language
-    if (!songLanguage || !isValidSongLanguage(songLanguage)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: `Invalid language. Must be one of: ${ALLOWED_LANGUAGES.join(', ')}` 
-        },
-        { status: 400 }
-      );
-    }
+
+    const { title, songLanguage, lyrics, isChoirPractice } = parsedPayload.data;
+
     const updatedSong = await Song.findByIdAndUpdate(
       id,
       {
-        title: title.trim(),
+        title,
         songLanguage,
-        lyrics: lyrics.trim(),
-        isChoirPractice: !!isChoirPractice
+        lyrics,
+        isChoirPractice
       },
       { new: true, runValidators: true }
     );

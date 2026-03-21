@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Song from '@/lib/models/Song';
+import { parseSongPayload } from '@/lib/song-validation';
 
 export async function GET(
   request: NextRequest,
@@ -45,13 +46,22 @@ export async function PUT(
     await connectDB();
     
     const body = await request.json();
-    const { title, language, songLanguage, lyrics, isChoirPractice, isChristmasSong } = body;
+    const parsedPayload = parseSongPayload(body);
+
+    if (!parsedPayload.success) {
+      return NextResponse.json(
+        { success: false, error: parsedPayload.error },
+        { status: 400 }
+      );
+    }
+
+    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong } = parsedPayload.data;
     
     const updatedSong = await Song.findByIdAndUpdate(
       params.id,
       { 
         title, 
-        songLanguage: songLanguage || language, 
+        songLanguage,
         lyrics, 
         isChoirPractice,
         isChristmasSong 

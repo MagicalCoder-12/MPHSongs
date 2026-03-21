@@ -26,6 +26,7 @@ A full-stack song lyric viewing and management web application built with Next.j
 - **Mobile-First** - Works perfectly on all device sizes
 - **Modern UI** - Clean, intuitive interface with Tailwind CSS
 - **Dark/Light Mode** - Theme support for comfortable viewing
+- **Protected Mobile Export API** - Sync lyrics to your Android app with a required secret header
 
 ### 📲 Progressive Web App (PWA)
 - **Install on Mobile** - Add to home screen for app-like experience
@@ -156,6 +157,7 @@ cp .env.local.example .env.local
 Edit `.env.local` with your MongoDB Atlas connection string:
 ```env
 MONGODB_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/song_lyrics?retryWrites=true&w=majority
+MOBILE_API_SECRET=replace-this-with-a-long-random-secret
 ```
 
 4. **Start the development server**
@@ -165,6 +167,23 @@ npm run dev
 
 5. **Open your browser**
 Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 📡 Android Lyrics Sync API
+
+Use the protected mobile endpoint below when your Android app needs to download lyrics for local storage:
+
+- **Endpoint:** `GET /api/mobile/lyrics`
+- **Required header:** `x-mobile-secret: <your MOBILE_API_SECRET value>`
+
+Example:
+```bash
+curl http://localhost:3000/api/mobile/lyrics \
+  -H "x-mobile-secret: replace-this-with-a-long-random-secret"
+```
+
+If the header is missing or wrong, the API returns `401 Unauthorized`.
+
+Keep in mind this is only a basic shared-secret check. If your public website still exposes lyrics through other browser-accessible endpoints, those routes can still be read by users.
 
 ## 🚀 Deployment to Vercel
 
@@ -189,6 +208,11 @@ git push origin main
      ```
      Key: MONGODB_URI
      Value: mongodb+srv://your_username:your_password@your_cluster.mongodb.net/song_lyrics?retryWrites=true&w=majority
+     ```
+   - Add your Android sync secret:
+     ```
+     Key: MOBILE_API_SECRET
+     Value: replace-this-with-a-long-random-secret
      ```
 
 3. **Deploy**

@@ -559,7 +559,7 @@ export default function Home() {
   const currentSongs = activeTab === CHOIR_TAB ? choirSongs : songs;
 
   return (
-    <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8">
+    <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage' : ''}`}>
       <div className="max-w-6xl mx-auto">
         {/* Offline Banner */}
         {!isOnline && (
@@ -583,7 +583,7 @@ export default function Home() {
               <h1
                 className={`text-xl font-bold sm:text-2xl md:text-3xl ${
                   isGoodFridayTheme ? 'font-[family:var(--font-playfair)] tracking-[0.03em]' : ''
-                }`}
+                } ${isGoodFridayTheme ? 'good-friday-title' : ''}`}
               >
                 Song Lyrics Manager
               </h1>
@@ -740,7 +740,7 @@ export default function Home() {
         </div>
 
         {isGoodFridayTheme && (
-          <div className="mb-4 overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-sm backdrop-blur-sm sm:mb-6">
+          <div className="good-friday-banner mb-4 overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-sm backdrop-blur-sm sm:mb-6">
             <div className="h-1 w-full bg-gradient-to-r from-transparent via-accent to-transparent" />
             <div className="px-4 py-4 sm:px-6">
               <p className="font-[family:var(--font-playfair)] text-lg font-semibold text-primary">
@@ -923,7 +923,7 @@ export default function Home() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 h-10 sm:h-11">
+        <TabsList className={`grid w-full grid-cols-3 h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''}`}>
           <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <List className="h-4 w-4" />
             <span className="hidden xs:inline">All Songs</span>

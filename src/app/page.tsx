@@ -189,19 +189,51 @@ export default function Home() {
     }
   };
 
-  const handleLogin = () => {
-    // Check credentials (Admin User: Aj, Pass: MPH)
-    if (loginForm.username === 'Aj' && loginForm.password === 'MPH') {
-      setIsAdmin(true);
-      setShowLoginDialog(false);
-      setLoginForm({ username: '', password: '' });
-    } else {
-      alert('Invalid credentials. Please try again.');
+  const loadAdminSession = async () => {
+    try {
+      const response = await fetch('/api/admin/session');
+      const result = await response.json();
+
+      if (result.success) {
+        setIsAdmin(Boolean(result.isAdmin));
+      }
+    } catch (error) {
+      console.error('Error checking admin session:', error);
     }
   };
 
-  const handleLogout = () => {
-    setIsAdmin(false);
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginForm)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsAdmin(true);
+        setShowLoginDialog(false);
+        setLoginForm({ username: '', password: '' });
+        return;
+      }
+
+      alert(result.error || 'Invalid credentials. Please try again.');
+    } catch (error) {
+      console.error('Error logging in:', error);
+      alert('Unable to log in right now. Please try again.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Error logging out:', error);
+    } finally {
+      setIsAdmin(false);
+    }
   };
 
   const handleCreateSong = async () => {
@@ -230,6 +262,9 @@ export default function Home() {
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
+        if (response.status === 401) {
+          setIsAdmin(false);
+        }
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
       }
@@ -260,6 +295,9 @@ export default function Home() {
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
+        if (response.status === 401) {
+          setIsAdmin(false);
+        }
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
       }
@@ -290,6 +328,9 @@ export default function Home() {
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
+        if (response.status === 401) {
+          setIsAdmin(false);
+        }
         setDialogError(result.error || 'Failed to update song');
         console.error('Update Error:', result.error);
       }
@@ -318,6 +359,9 @@ export default function Home() {
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
+        if (response.status === 401) {
+          setIsAdmin(false);
+        }
         console.error('Delete failed:', result.error);
       }
     } catch (error) {
@@ -343,6 +387,8 @@ export default function Home() {
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
+      } else if (response.status === 401) {
+        setIsAdmin(false);
       }
     } catch (error) {
       console.error('Error deleting all songs:', error);
@@ -363,6 +409,8 @@ export default function Home() {
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
+      } else if (response.status === 401) {
+        setIsAdmin(false);
       }
     } catch (error) {
       console.error('Error toggling choir status:', error);
@@ -402,6 +450,10 @@ export default function Home() {
   useEffect(() => {
     fetchSongs();
   }, [activeTab, searchTerm, sortBy]);
+
+  useEffect(() => {
+    loadAdminSession();
+  }, []);
 
   const currentSongs = activeTab === 'choir-practice' ? choirSongs : songs;
 

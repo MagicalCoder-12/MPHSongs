@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 import connectDB from '@/lib/mongodb';
 import Song from '@/lib/models/Song';
 
 export async function DELETE(request: NextRequest) {
+  const unauthorizedResponse = requireAdmin(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
   try {
     await connectDB();
     

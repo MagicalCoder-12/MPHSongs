@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 import connectDB from '@/lib/mongodb';
 import Song from '@/lib/models/Song';
 import { parseSongPayload } from '@/lib/song-validation';
@@ -42,6 +43,12 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const unauthorizedResponse = requireAdmin(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
   try {
     await connectDB();
     
@@ -99,6 +106,12 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const unauthorizedResponse = requireAdmin(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
   try {
     await connectDB();
     

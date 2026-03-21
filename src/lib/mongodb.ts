@@ -2,7 +2,6 @@
 import mongoose from 'mongoose';
 
 mongoose.set('strictQuery', true);
-mongoose.set('sanitizeFilter', true);
 
 const MONGODB_URI = process.env.MONGODB_URI;
 

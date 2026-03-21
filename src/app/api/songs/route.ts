@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 import connectDB from '@/lib/mongodb';
 import Song from '@/lib/models/Song';
 import {
@@ -68,6 +69,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const unauthorizedResponse = requireAdmin(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
   try {
     await connectDB();
     const body = await request.json();
@@ -93,20 +100,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true,  newSong }, { status: 201 });
   } catch (error) {
     console.error('Error creating song:', error);
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { success: false, error: `Failed to create song: ${error.message}`, stack: error.stack },
-        { status: 500 }
-      );
-    }
+
     return NextResponse.json(
-      { success: false, error: 'Failed to create song', raw: JSON.stringify(error) },
+      { success: false, error: 'Failed to create song' },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const unauthorizedResponse = requireAdmin(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
   try {
     await connectDB();
     const { id } = params;
@@ -141,20 +149,21 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ success: true, updatedSong }, { status: 200 });
   } catch (error) {
     console.error('Error updating song:', error);
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { success: false, error: `Failed to update song: ${error.message}`, stack: error.stack },
-        { status: 500 }
-      );
-    }
+
     return NextResponse.json(
-      { success: false, error: 'Failed to update song', raw: JSON.stringify(error) },
+      { success: false, error: 'Failed to update song' },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const unauthorizedResponse = requireAdmin(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
   try {
     await connectDB();
     

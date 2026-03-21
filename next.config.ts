@@ -52,9 +52,10 @@ const nextConfig: NextConfig = {
 
 export default withPWA({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development' ? false : false, // Enable PWA in development for testing
-  register: true,
+  disable: process.env.NODE_ENV === 'development',
+  register: false,
   skipWaiting: true,
+  buildExcludes: [/app-build-manifest\.json$/],
   // Add runtime caching for API routes
   runtimeCaching: [
     {

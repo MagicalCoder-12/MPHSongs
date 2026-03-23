@@ -120,6 +120,7 @@
 
 html[data-site-theme="good-friday"] {
   --gf-stage-image: url("/GF_light.png");
+  --gf-stage-tile-size: 320px;
   --gf-stage-dark: #121315;
   --gf-stage-light: #efe2c9;
   --gf-stage-dark-2: #20242a;
@@ -163,6 +164,7 @@ html[data-site-theme="good-friday"] {
 
 html.dark[data-site-theme="good-friday"] {
   --gf-stage-image: url("/GF_dark.png");
+  --gf-stage-tile-size: 320px;
   --gf-stage-dark: #11152b;
   --gf-stage-light: #141833;
   --gf-stage-dark-2: #0d1225;
@@ -264,11 +266,11 @@ html.dark[data-site-theme="good-friday"] {
     z-index: 0;
     pointer-events: none;
     background:
-      linear-gradient(180deg, rgba(18, 16, 15, 0.06), rgba(18, 16, 15, 0.14)),
+      linear-gradient(180deg, rgba(18, 16, 15, 0.16), rgba(18, 16, 15, 0.2)),
       var(--gf-stage-image);
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-position: top left;
+    background-repeat: repeat;
+    background-size: auto, var(--gf-stage-tile-size) auto;
   }
 
   html[data-site-theme="good-friday"] .good-friday-stage::after {
@@ -287,11 +289,11 @@ html.dark[data-site-theme="good-friday"] {
 
   html.dark[data-site-theme="good-friday"] .good-friday-stage::before {
     background:
-      linear-gradient(180deg, rgba(10, 12, 22, 0.14), rgba(10, 12, 22, 0.28)),
+      linear-gradient(180deg, rgba(10, 12, 22, 0.22), rgba(10, 12, 22, 0.3)),
       var(--gf-stage-image);
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-position: top left;
+    background-repeat: repeat;
+    background-size: auto, var(--gf-stage-tile-size) auto;
   }
 
   html.dark[data-site-theme="good-friday"] .good-friday-stage::after {
@@ -511,43 +513,20 @@ html.dark[data-site-theme="good-friday"] {
   html[data-site-theme="good-friday"] .leather-card {
     position: relative;
     min-height: 25rem;
-    border: 1px solid var(--gf-card-edge);
+    border: 1px solid rgba(142, 43, 57, 0.18);
     border-radius: 1.6rem;
-    background:
-      linear-gradient(90deg, rgba(18, 18, 20, 0.76) 0 49.8%, rgba(18, 18, 20, 0.06) 49.8% 100%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 18%),
-      linear-gradient(135deg, var(--gf-card-surface), var(--gf-card-surface-2));
+    background: transparent;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 18px 40px rgba(18, 11, 8, 0.26),
-      0 0 0 1px rgba(206, 174, 101, 0.07),
-      0 0 24px rgba(100, 15, 28, 0.16);
+      0 18px 40px rgba(18, 11, 8, 0.14),
+      0 0 0 1px rgba(206, 174, 101, 0.05);
   }
 
   html[data-site-theme="good-friday"] .leather-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 49.5%, rgba(0, 0, 0, 0.28) 49.85%, rgba(255, 255, 255, 0.08) 50.12%, transparent 50.45%),
-      radial-gradient(circle at 77% 68%, transparent 0 22%, rgba(181, 147, 77, 0.16) 22.6% 24.2%, transparent 24.8%),
-      repeating-conic-gradient(from 0deg at 77% 68%, rgba(181, 147, 77, 0.15) 0deg 3deg, transparent 3deg 17deg),
-      repeating-linear-gradient(14deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 8px);
-    opacity: 0.92;
+    display: none;
   }
 
   html[data-site-theme="good-friday"] .leather-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse at 74% 100%, rgba(0, 0, 0, 0.54) 0 24%, transparent 25%),
-      linear-gradient(rgba(8, 8, 8, 0.78), rgba(8, 8, 8, 0.78)) 75% 70% / 0.6rem 7.9rem no-repeat,
-      linear-gradient(rgba(8, 8, 8, 0.78), rgba(8, 8, 8, 0.78)) 69% 49% / 4.75rem 0.6rem no-repeat,
-      radial-gradient(circle at 76% 26%, rgba(255, 255, 255, 0.045) 0 16%, transparent 17%);
-    opacity: 0.95;
+    display: none;
   }
 
   html[data-site-theme="good-friday"] .song-card-shell [data-slot="card-header"],
@@ -594,35 +573,19 @@ html.dark[data-site-theme="good-friday"] {
   }
 
   html.dark[data-site-theme="good-friday"] .leather-card {
-    border-color: rgba(189, 154, 92, 0.38);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 18%),
-      linear-gradient(135deg, rgba(22, 28, 54, 0.98), rgba(13, 17, 37, 0.99));
+    border-color: rgba(189, 154, 92, 0.22);
+    background: transparent;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 18px 34px rgba(4, 7, 16, 0.34),
+      0 18px 34px rgba(4, 7, 16, 0.18),
       0 0 0 1px rgba(189, 154, 92, 0.08);
   }
 
   html.dark[data-site-theme="good-friday"] .leather-card::before {
-    background:
-      radial-gradient(circle at 54% 43%, transparent 0 17%, rgba(191, 155, 89, 0.24) 17.6% 19.2%, transparent 20%),
-      repeating-conic-gradient(from 0deg at 54% 43%, rgba(191, 155, 89, 0.22) 0deg 3deg, transparent 3deg 15deg),
-      linear-gradient(rgba(191, 155, 89, 0.32), rgba(191, 155, 89, 0.32)) 54% 29% / 0.5rem 8rem no-repeat,
-      linear-gradient(rgba(191, 155, 89, 0.32), rgba(191, 155, 89, 0.32)) 54% 43% / 5.3rem 0.5rem no-repeat,
-      radial-gradient(circle at 73% 64%, transparent 0 20%, rgba(191, 155, 89, 0.16) 20.6% 22.2%, transparent 23%),
-      repeating-conic-gradient(from 0deg at 73% 64%, rgba(191, 155, 89, 0.14) 0deg 3deg, transparent 3deg 16deg);
-    opacity: 0.78;
+    display: none;
   }
 
   html.dark[data-site-theme="good-friday"] .leather-card::after {
-    background:
-      radial-gradient(circle at 54% 43%, rgba(255, 255, 255, 0.035) 0 1.6%, transparent 2%),
-      radial-gradient(ellipse at 50% 50%, transparent 0 38%, rgba(193, 157, 92, 0.3) 38.4% 40.3%, transparent 41%),
-      repeating-conic-gradient(from 0deg at 50% 50%, rgba(193, 157, 92, 0.2) 0deg 3deg, transparent 3deg 16deg),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 32%),
-      repeating-linear-gradient(14deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 9px);
-    opacity: 0.44;
+    display: none;
   }
 
   html.dark[data-site-theme="good-friday"] .song-card-primary-action,
@@ -716,20 +679,20 @@ html.dark[data-site-theme="good-friday"] {
 
     html[data-site-theme="good-friday"] .good-friday-stage::before {
       background:
-        linear-gradient(180deg, rgba(18, 16, 15, 0.06), rgba(18, 16, 15, 0.14)),
+        linear-gradient(180deg, rgba(18, 16, 15, 0.16), rgba(18, 16, 15, 0.2)),
         var(--gf-stage-image);
-      background-position: center top;
-      background-repeat: no-repeat;
-      background-size: cover;
+      background-position: top left;
+      background-repeat: repeat;
+      background-size: auto, 240px auto;
     }
 
     html.dark[data-site-theme="good-friday"] .good-friday-stage::before {
       background:
-        linear-gradient(180deg, rgba(10, 12, 22, 0.14), rgba(10, 12, 22, 0.28)),
+        linear-gradient(180deg, rgba(10, 12, 22, 0.22), rgba(10, 12, 22, 0.3)),
         var(--gf-stage-image);
-      background-position: center top;
-      background-repeat: no-repeat;
-      background-size: cover;
+      background-position: top left;
+      background-repeat: repeat;
+      background-size: auto, 240px auto;
     }
 
     html[data-site-theme="good-friday"] .good-friday-stage::after {

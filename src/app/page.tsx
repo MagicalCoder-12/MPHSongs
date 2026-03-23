@@ -333,9 +333,6 @@ export default function Home() {
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
-        if (response.status === 401) {
-          setIsAdmin(false);
-        }
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
       }
@@ -366,9 +363,6 @@ export default function Home() {
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
-        if (response.status === 401) {
-          setIsAdmin(false);
-        }
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
       }
@@ -399,9 +393,6 @@ export default function Home() {
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
-        if (response.status === 401) {
-          setIsAdmin(false);
-        }
         setDialogError(result.error || 'Failed to update song');
         console.error('Update Error:', result.error);
       }
@@ -480,8 +471,8 @@ export default function Home() {
         // Force refresh the song list to ensure UI updates
         await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
-      } else if (response.status === 401) {
-        setIsAdmin(false);
+      } else {
+        console.error('Choir toggle failed:', result.error);
       }
     } catch (error) {
       console.error('Error toggling choir status:', error);

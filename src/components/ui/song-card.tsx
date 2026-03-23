@@ -95,7 +95,6 @@ export function SongCard({
               >
                 <Edit className="h-4 w-4" />
               </button>
-              {/* Only show delete button if user is admin */}
               {isAdmin && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

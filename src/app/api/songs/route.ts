@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin-auth';
 import connectDB from '@/lib/mongodb';
 import Song from '@/lib/models/Song';
 import {
@@ -75,12 +74,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const unauthorizedResponse = requireAdmin(request);
-
-  if (unauthorizedResponse) {
-    return unauthorizedResponse;
-  }
-
   try {
     await connectDB();
     const body = await request.json();
@@ -116,12 +109,6 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const unauthorizedResponse = requireAdmin(request);
-
-  if (unauthorizedResponse) {
-    return unauthorizedResponse;
-  }
-
   try {
     await connectDB();
     const { id } = params;

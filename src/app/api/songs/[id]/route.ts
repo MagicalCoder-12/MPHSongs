@@ -43,12 +43,6 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const unauthorizedResponse = requireAdmin(request);
-
-  if (unauthorizedResponse) {
-    return unauthorizedResponse;
-  }
-
   try {
     await connectDB();
     

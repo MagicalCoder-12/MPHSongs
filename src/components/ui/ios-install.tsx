@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Share, PlusSquare } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
-export function IOSInstall() {
+export function IOSInstall({ className, compact = false }: { className?: string; compact?: boolean }) {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
@@ -26,9 +27,9 @@ export function IOSInstall() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className={cn(className)}>
           <Download className="h-4 w-4 mr-2" />
-          Install App
+          <span className={compact ? 'sr-only' : ''}>Install App</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

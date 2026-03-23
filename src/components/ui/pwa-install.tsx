@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export function PWAInstall() {
+export function PWAInstall({ className, compact = false }: { className?: string; compact?: boolean }) {
   const [supportsPWA, setSupportsPWA] = useState(false);
   const [promptInstall, setPromptInstall] = useState<any>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -60,9 +61,9 @@ export function PWAInstall() {
   }
 
   return (
-    <Button onClick={onClick} variant="outline" size="sm">
+    <Button onClick={onClick} variant="outline" size="sm" className={cn(className)}>
       <Download className="h-4 w-4 mr-2" />
-      Install App
+      <span className={compact ? 'sr-only' : ''}>Install App</span>
     </Button>
   );
 }

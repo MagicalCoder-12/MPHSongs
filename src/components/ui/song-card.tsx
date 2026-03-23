@@ -39,12 +39,11 @@ export function SongCard({
   onViewDetails,
   isAdmin = false, // Default to false
 }: SongCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isGoodFridaySong = song.tags?.includes(GOOD_FRIDAY_TAG);
 
   const handleCardClick = () => {
-    setIsExpanded(!isExpanded);
+    handleViewDetails();
   };
 
   const handleViewDetails = () => {
@@ -55,13 +54,13 @@ export function SongCard({
   return (
     <>
       <Card 
-        className="leather-card cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
+        className="leather-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
         onClick={handleCardClick}
       >
-        <CardHeader className="pb-2 relative z-10">
+        <CardHeader className="song-card-header pb-2 relative z-10">
           <div className="flex justify-between items-start gap-1">
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base sm:text-lg truncate font-serif text-foreground">{song.title}</CardTitle>
+              <CardTitle className="text-base sm:text-lg truncate font-[family:var(--font-playfair)] text-foreground">{song.title}</CardTitle>
               <CardDescription>
                 <div className="flex flex-wrap gap-1 mt-1">
                   <span className="beige-chip text-xs">{song.songLanguage}</span>
@@ -85,7 +84,7 @@ export function SongCard({
                 </div>
               </CardDescription>
             </div>
-            <div className="flex gap-0.5 sm:gap-1">
+            <div className="song-card-edit-actions flex gap-0.5 sm:gap-1">
               <button
                 className="gold-icon-btn !w-8 !h-8 sm:!w-9 sm:!h-9"
                 onClick={(e) => {
@@ -123,17 +122,17 @@ export function SongCard({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-2 relative z-10">
+        <CardContent className="song-card-content pt-2 relative z-10">
           <ScrollArea className="h-32 sm:h-40 w-full">
-            <p className="text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">{song.lyrics}</p>
+            <p className="song-card-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">{song.lyrics}</p>
           </ScrollArea>
-          <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
+          <div className="song-card-actions flex flex-wrap gap-2 mt-3 sm:mt-4">
             <Button
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleChoir(song);
               }}
-              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+              className="neomorph-button song-card-primary-action flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {song.isChoirPractice ? 'Remove Choir' : 'Add Choir'}
             </Button>
@@ -142,7 +141,7 @@ export function SongCard({
                 e.stopPropagation();
                 handleViewDetails();
               }}
-              className="neomorph-button flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              className="neomorph-button song-card-secondary-action flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
             >
               View Details
             </Button>

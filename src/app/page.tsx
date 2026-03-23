@@ -557,10 +557,13 @@ export default function Home() {
 
   const isGoodFridayTheme = siteTheme === 'good-friday';
   const currentSongs = activeTab === CHOIR_TAB ? choirSongs : songs;
+  const searchPlaceholder = isGoodFridayTheme
+    ? 'Search a mood by title or lyrics...'
+    : 'Search songs by title, lyrics, or tags...';
 
   return (
-    <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage' : ''}`}>
-      <div className="max-w-6xl mx-auto">
+    <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''}`}>
+      <div className={`mx-auto ${isGoodFridayTheme ? 'max-w-5xl' : 'max-w-6xl'}`}>
         {/* Offline Banner */}
         {!isOnline && (
           <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg">
@@ -576,25 +579,32 @@ export default function Home() {
           </div>
         )}
         
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+        <div className={`mb-4 gap-3 sm:mb-6 md:mb-8 ${isGoodFridayTheme ? 'good-friday-header' : 'flex flex-col sm:flex-row justify-between items-center sm:gap-4'}`}>
+          <div className={`flex items-center gap-2 sm:gap-3 ${isGoodFridayTheme ? 'good-friday-brand' : ''}`}>
+            {!isGoodFridayTheme && <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />}
             <div>
               <h1
                 className={`text-xl font-bold sm:text-2xl md:text-3xl ${
-                  isGoodFridayTheme ? 'font-[family:var(--font-playfair)] tracking-[0.03em]' : ''
-                } ${isGoodFridayTheme ? 'good-friday-title' : ''}`}
+                  isGoodFridayTheme ? 'good-friday-title font-[family:var(--font-playfair)] tracking-[0.03em]' : ''
+                }`}
               >
-                Song Lyrics Manager
+                {isGoodFridayTheme ? (
+                  <>
+                    <span className="good-friday-title-song">Song Lyrics</span>{' '}
+                    <span className="good-friday-title-manager">Manager</span>
+                  </>
+                ) : (
+                  'Song Lyrics Manager'
+                )}
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <p className={`text-xs sm:text-sm text-muted-foreground ${isGoodFridayTheme ? 'good-friday-subtitle' : ''}`}>
                 Site theme: {SITE_THEME_LABELS[siteTheme]}
               </p>
             </div>
           </div>
-          
-          <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
-            <ThemeToggle />
+
+          <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${isGoodFridayTheme ? 'good-friday-toolbar' : ''}`}>
+            <ThemeToggle className={isGoodFridayTheme ? 'good-friday-action-button' : ''} />
             {isAdmin && (
               <div className="w-[150px] sm:w-[170px]">
                 <Select
@@ -616,19 +626,29 @@ export default function Home() {
             )}
             {!isAppInstalled && (
               <>
-                <PWAInstall />
-                <IOSInstall />
+                <PWAInstall className={isGoodFridayTheme ? 'good-friday-action-button' : ''} compact={isGoodFridayTheme} />
+                <IOSInstall className={isGoodFridayTheme ? 'good-friday-action-button' : ''} compact={isGoodFridayTheme} />
               </>
             )}
             {isAdmin ? (
-              <Button onClick={handleLogout} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''}`}
+              >
                 <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline text-xs sm:text-sm">Logout</span>
+                <span className={`${isGoodFridayTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Logout</span>
               </Button>
             ) : (
-              <Button onClick={() => setShowLoginDialog(true)} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+              <Button
+                onClick={() => setShowLoginDialog(true)}
+                variant="outline"
+                size="sm"
+                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''}`}
+              >
                 <LogIn className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline text-xs sm:text-sm">Admin Login</span>
+                <span className={`${isGoodFridayTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Admin Login</span>
               </Button>
             )}
             
@@ -641,13 +661,16 @@ export default function Home() {
               }
             }}>
               <DialogTrigger asChild>
-                <Button onClick={() => {
-                  setDialogError(null);
-                  setEditingSong(null);
-                  setFormData(getEmptyFormData(activeTab));
-                }} className="h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4">
+                <Button
+                  onClick={() => {
+                    setDialogError(null);
+                    setEditingSong(null);
+                    setFormData(getEmptyFormData(activeTab));
+                  }}
+                  className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-add-button' : ''}`}
+                >
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  <span className="hidden xs:inline text-xs sm:text-sm">Add Song</span>
+                  <span className={`${isGoodFridayTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Add Song</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
@@ -739,21 +762,6 @@ export default function Home() {
           </div>
         </div>
 
-        {isGoodFridayTheme && (
-          <div className="good-friday-banner mb-4 overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-sm backdrop-blur-sm sm:mb-6">
-            <div className="h-1 w-full bg-gradient-to-r from-transparent via-accent to-transparent" />
-            <div className="px-4 py-4 sm:px-6">
-              <p className="font-[family:var(--font-playfair)] text-lg font-semibold text-primary">
-                Good Friday
-              </p>
-              <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-                Ash and gold brings a quieter, reverent tone to the app in both light and dark mode,
-                while keeping the same familiar layout for song browsing.
-              </p>
-            </div>
-          </div>
-        )}
-
         {siteTheme !== 'normal' && siteTheme !== 'good-friday' && (
           <div className="mb-4 sm:mb-6 rounded-2xl border border-border/70 bg-card/85 px-4 py-4 shadow-sm backdrop-blur-sm">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -829,7 +837,7 @@ export default function Home() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className={`mb-4 flex flex-col gap-3 sm:mb-6 ${isGoodFridayTheme ? 'good-friday-controls' : 'sm:flex-row sm:gap-4'}`}>
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -850,16 +858,16 @@ export default function Home() {
               </div>
               <Input
                 ref={searchInputRef}
-                placeholder="Search songs by title, lyrics, or tags..."
+                placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-10 pl-10 pr-20 sm:h-11"
+                className={`h-10 pl-10 pr-20 sm:h-11 ${isGoodFridayTheme ? 'good-friday-search-input' : ''}`}
               />
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className={`flex gap-2 ${isGoodFridayTheme ? 'good-friday-filter-row' : ''}`}>
             <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
-              <SelectTrigger className="w-[140px] sm:w-[180px] h-10 sm:h-11">
+              <SelectTrigger className={`w-[140px] sm:w-[180px] h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-sort-trigger' : ''}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -884,7 +892,7 @@ export default function Home() {
             {isAdmin && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="h-10 sm:h-11 px-2 sm:px-4">
+                  <Button variant="destructive" className={`h-10 px-2 sm:h-11 sm:px-4 ${isGoodFridayTheme ? 'good-friday-delete-button' : ''}`}>
                     <Trash2 className="h-4 w-4 sm:mr-2" />
                     <span className="hidden xs:inline text-xs sm:text-sm">Delete All</span>
                   </Button>
@@ -922,29 +930,29 @@ export default function Home() {
           </div>
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''}`}>
         <TabsList className={`grid w-full grid-cols-3 h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''}`}>
-          <TabsTrigger value="all-songs" className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="all-songs" className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <List className="h-4 w-4" />
-            <span className="hidden xs:inline">All Songs</span>
+            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Songs' : 'All Songs'}</span>
             <span className="xs:hidden">Songs</span>
           </TabsTrigger>
-          <TabsTrigger value={GOOD_FRIDAY_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value={CHOIR_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+            <Users className="h-4 w-4" />
+            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Choir' : 'Choir Practice'}</span>
+            <span className="xs:hidden">Choir</span>
+          </TabsTrigger>
+          <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <Badge variant="secondary" className="hidden sm:inline-flex">
               GF
             </Badge>
-            <span className="hidden xs:inline">Good Friday</span>
-            <span className="xs:hidden">GF</span>
-          </TabsTrigger>
-          <TabsTrigger value={CHOIR_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Users className="h-4 w-4" />
-            <span className="hidden xs:inline">Choir Practice</span>
-            <span className="xs:hidden">Choir</span>
+            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Passion Hymns' : 'Good Friday'}</span>
+            <span className="xs:hidden">{isGoodFridayTheme ? 'Hymns' : 'GF'}</span>
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="all-songs" className="mt-4 sm:mt-6">
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''}`}>
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={`skeleton-${index}`} className="space-y-3">
@@ -977,7 +985,7 @@ export default function Home() {
         </TabsContent>
 
         <TabsContent value={GOOD_FRIDAY_TAB} className="mt-4 sm:mt-6">
-          <div className="mb-4 rounded-2xl border border-border/70 bg-card/80 px-4 py-3 shadow-sm">
+          <div className={`mb-4 rounded-2xl border border-border/70 bg-card/80 px-4 py-3 shadow-sm ${isGoodFridayTheme ? 'hidden' : ''}`}>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">Good Friday Tag</Badge>
               <p className="text-sm text-muted-foreground">
@@ -985,7 +993,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''}`}>
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={`skeleton-${index}`} className="space-y-3">
@@ -1018,7 +1026,7 @@ export default function Home() {
         </TabsContent>
         
         <TabsContent value={CHOIR_TAB} className="mt-4 sm:mt-6">
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''}`}>
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={`skeleton-${index}`} className="space-y-3">

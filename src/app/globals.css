@@ -44,6 +44,10 @@
 }
 
 :root {
+  --font-geist-sans: "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: "Consolas", "SFMono-Regular", "Liberation Mono", monospace;
+  --font-playfair: Georgia, "Times New Roman", serif;
+  --font-inter: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --radius: 0.625rem;
   --page-background: radial-gradient(circle at top, oklch(0.98 0.01 240), transparent 50%), linear-gradient(180deg, oklch(1 0 0), oklch(0.97 0.004 240));
   --background: oklch(1 0 0);
@@ -115,6 +119,7 @@
 }
 
 html[data-site-theme="good-friday"] {
+  --gf-stage-image: url("/GF_light.png");
   --gf-stage-dark: #121315;
   --gf-stage-light: #efe2c9;
   --gf-stage-dark-2: #20242a;
@@ -157,6 +162,7 @@ html[data-site-theme="good-friday"] {
 }
 
 html.dark[data-site-theme="good-friday"] {
+  --gf-stage-image: url("/GF_dark.png");
   --gf-stage-dark: #11152b;
   --gf-stage-light: #141833;
   --gf-stage-dark-2: #0d1225;
@@ -258,31 +264,15 @@ html.dark[data-site-theme="good-friday"] {
     z-index: 0;
     pointer-events: none;
     background:
-      linear-gradient(90deg, var(--gf-stage-dark) 0 49.75%, var(--gf-stage-light) 49.75% 100%),
-      radial-gradient(circle at 17% 12%, rgba(119, 27, 39, 0.24), transparent 20%),
-      radial-gradient(circle at 82% 18%, rgba(196, 157, 77, 0.18), transparent 22%),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 49.55%, rgba(0, 0, 0, 0.16) 49.95%, rgba(255, 255, 255, 0.05) 50.15%, transparent 50.45%),
-      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.017) 0 2px, transparent 2px 10px),
-      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.025) 0 3px, transparent 3px 11px);
+      linear-gradient(180deg, rgba(18, 16, 15, 0.06), rgba(18, 16, 15, 0.14)),
+      var(--gf-stage-image);
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 
   html[data-site-theme="good-friday"] .good-friday-stage::after {
-    content: "";
-    position: absolute;
-    right: clamp(-2rem, 2vw, 2rem);
-    top: 8.5rem;
-    width: min(44vw, 20rem);
-    height: min(44vw, 20rem);
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.42;
-    background:
-      radial-gradient(circle at 50% 50%, transparent 0 31%, var(--gf-art-gold) 31.5% 34.5%, transparent 35%),
-      repeating-conic-gradient(from 0deg at 50% 50%, var(--gf-art-gold) 0deg 3deg, transparent 3deg 16deg),
-      linear-gradient(var(--gf-art-gold), var(--gf-art-gold)) 50% 33% / 0.35rem 7.2rem no-repeat,
-      linear-gradient(var(--gf-art-gold), var(--gf-art-gold)) 50% 45% / 4.5rem 0.35rem no-repeat,
-      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0 2%, transparent 2.5%);
-    transform: rotate(-18deg);
+    display: none;
   }
 
   html[data-site-theme="good-friday"] .good-friday-title {
@@ -297,25 +287,15 @@ html.dark[data-site-theme="good-friday"] {
 
   html.dark[data-site-theme="good-friday"] .good-friday-stage::before {
     background:
-      radial-gradient(circle at 50% -8%, rgba(196, 157, 92, 0.1), transparent 24%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
-      linear-gradient(180deg, #161a31 0%, #0c1124 100%),
-      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 11px),
-      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.025) 0 3px, transparent 3px 12px);
+      linear-gradient(180deg, rgba(10, 12, 22, 0.14), rgba(10, 12, 22, 0.28)),
+      var(--gf-stage-image);
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 
   html.dark[data-site-theme="good-friday"] .good-friday-stage::after {
-    top: 19rem;
-    right: -3rem;
-    width: min(56vw, 27rem);
-    height: min(56vw, 27rem);
-    opacity: 0.18;
-    background:
-      radial-gradient(circle at 50% 50%, transparent 0 31%, rgba(190, 154, 89, 0.32) 31.5% 34.2%, transparent 35%),
-      repeating-conic-gradient(from 0deg at 50% 50%, rgba(190, 154, 89, 0.28) 0deg 3deg, transparent 3deg 16deg),
-      linear-gradient(rgba(190, 154, 89, 0.25), rgba(190, 154, 89, 0.25)) 50% 32% / 0.35rem 7rem no-repeat,
-      linear-gradient(rgba(190, 154, 89, 0.25), rgba(190, 154, 89, 0.25)) 50% 45% / 4.2rem 0.35rem no-repeat;
-    transform: rotate(-12deg);
+    display: none;
   }
 
   html[data-site-theme="good-friday"] .good-friday-title-song {
@@ -736,35 +716,28 @@ html.dark[data-site-theme="good-friday"] {
 
     html[data-site-theme="good-friday"] .good-friday-stage::before {
       background:
-        linear-gradient(90deg, var(--gf-stage-dark) 0 49.7%, var(--gf-stage-light) 49.7% 100%),
-        radial-gradient(circle at 17% 10%, rgba(119, 27, 39, 0.22), transparent 24%),
-        radial-gradient(circle at 82% 18%, rgba(196, 157, 77, 0.16), transparent 26%),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 49.45%, rgba(0, 0, 0, 0.16) 49.85%, rgba(255, 255, 255, 0.05) 50.1%, transparent 50.35%);
+        linear-gradient(180deg, rgba(18, 16, 15, 0.06), rgba(18, 16, 15, 0.14)),
+        var(--gf-stage-image);
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-size: cover;
     }
 
     html.dark[data-site-theme="good-friday"] .good-friday-stage::before {
       background:
-        radial-gradient(circle at 50% -8%, rgba(196, 157, 92, 0.1), transparent 26%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 20%),
-        linear-gradient(180deg, #151930 0%, #0b1022 100%),
-        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 11px),
-        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.025) 0 3px, transparent 3px 12px);
+        linear-gradient(180deg, rgba(10, 12, 22, 0.14), rgba(10, 12, 22, 0.28)),
+        var(--gf-stage-image);
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-size: cover;
     }
 
     html[data-site-theme="good-friday"] .good-friday-stage::after {
-      top: 13.75rem;
-      right: -3.5rem;
-      width: 13rem;
-      height: 13rem;
-      opacity: 0.3;
+      display: none;
     }
 
     html.dark[data-site-theme="good-friday"] .good-friday-stage::after {
-      top: 13rem;
-      right: -3rem;
-      width: 13.5rem;
-      height: 13.5rem;
-      opacity: 0.14;
+      display: none;
     }
 
     html[data-site-theme="good-friday"] .good-friday-header {

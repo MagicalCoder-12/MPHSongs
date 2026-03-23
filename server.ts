@@ -11,19 +11,24 @@ const dev = process.env.NODE_ENV !== 'production';
 const currentPort = 3000;
 const hostname = '0.0.0.0';
 const PUBLIC_DIR = join(process.cwd(), 'public');
+const DIST_DIR = dev ? '.next-dev' : '.next';
 
 // Custom server with Socket.IO integration
 async function createCustomServer() {
   try {
+    console.log(`> Booting Next.js in ${dev ? 'development' : 'production'} mode using ${DIST_DIR}`);
+
     // Create Next.js app
     const nextApp = next({ 
       dev,
       dir: process.cwd(),
-      // In production, use the current directory where .next is located
-      conf: dev ? undefined : { distDir: './.next' }
+      // Keep dev output isolated so stale Windows locks on .next/trace do not crash the server.
+      conf: { distDir: DIST_DIR }
     });
 
+    console.log('> Preparing Next.js app...');
     await nextApp.prepare();
+    console.log('> Next.js app prepared');
     const handle = nextApp.getRequestHandler();
 
     // Create HTTP server that will handle both Next.js and Socket.IO

@@ -269,7 +269,7 @@ html.dark[data-site-theme="good-friday"] {
       linear-gradient(180deg, rgba(18, 16, 15, 0.16), rgba(18, 16, 15, 0.2)),
       var(--gf-stage-image);
     background-position: top left;
-    background-repeat: repeat;
+    background-repeat: repeat-x;
     background-size: auto, var(--gf-stage-tile-size) auto;
   }
 
@@ -574,7 +574,8 @@ html.dark[data-site-theme="good-friday"] {
 
   html.dark[data-site-theme="good-friday"] .leather-card {
     border-color: rgba(189, 154, 92, 0.22);
-    background: transparent;
+    background: rgba(10, 12, 22, 0.28);
+    backdrop-filter: blur(1.5px);
     box-shadow:
       0 18px 34px rgba(4, 7, 16, 0.18),
       0 0 0 1px rgba(189, 154, 92, 0.08);
@@ -598,9 +599,20 @@ html.dark[data-site-theme="good-friday"] {
       0 12px 20px rgba(4, 7, 16, 0.24);
   }
 
+  html.dark[data-site-theme="good-friday"] .song-card-primary-action {
+    border-color: rgba(196, 157, 92, 0.42);
+    background: linear-gradient(180deg, rgba(124, 42, 56, 0.92), rgba(58, 18, 29, 0.92));
+    color: #fff2cf;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  }
+
   html.dark[data-site-theme="good-friday"] .song-card-primary-action:hover,
   html.dark[data-site-theme="good-friday"] .song-card-secondary-action:hover {
     background: linear-gradient(180deg, rgba(44, 54, 86, 1), rgba(27, 34, 61, 1));
+  }
+
+  html.dark[data-site-theme="good-friday"] .song-card-primary-action:hover {
+    background: linear-gradient(180deg, rgba(142, 48, 64, 0.96), rgba(72, 24, 37, 0.96));
   }
 
   html.dark[data-site-theme="good-friday"] .song-card-lyrics {
@@ -682,7 +694,7 @@ html.dark[data-site-theme="good-friday"] {
         linear-gradient(180deg, rgba(18, 16, 15, 0.16), rgba(18, 16, 15, 0.2)),
         var(--gf-stage-image);
       background-position: top left;
-      background-repeat: repeat;
+      background-repeat: repeat-x;
       background-size: auto, 240px auto;
     }
 

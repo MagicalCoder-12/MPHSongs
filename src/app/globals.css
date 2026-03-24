@@ -305,7 +305,7 @@ html.dark[data-site-theme="good-friday"] {
   }
 
   html[data-site-theme="good-friday"] .good-friday-title-manager {
-    color: #7e2233;
+    color: #ad1c36;
   }
 
   html.dark[data-site-theme="good-friday"] .good-friday-title-manager {
@@ -515,7 +515,7 @@ html.dark[data-site-theme="good-friday"] {
     min-height: 25rem;
     border: 1px solid rgba(142, 43, 57, 0.18);
     border-radius: 1.6rem;
-    background: rgba(255, 247, 235, 0.14);
+    background: rgba(255, 247, 235, 0.036);
     backdrop-filter: blur(1px);
     box-shadow:
       0 18px 40px rgba(18, 11, 8, 0.14),
@@ -575,7 +575,7 @@ html.dark[data-site-theme="good-friday"] {
 
   html.dark[data-site-theme="good-friday"] .leather-card {
     border-color: rgba(189, 154, 92, 0.22);
-    background: rgba(10, 12, 22, 0.28);
+    background: rgba(10, 12, 22, 0.044);
     backdrop-filter: blur(1.5px);
     box-shadow:
       0 18px 34px rgba(4, 7, 16, 0.18),

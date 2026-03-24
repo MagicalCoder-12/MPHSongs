@@ -305,7 +305,7 @@ html.dark[data-site-theme="good-friday"] {
   }
 
   html[data-site-theme="good-friday"] .good-friday-title-manager {
-    color: #2a170f;
+    color: #7e2233;
   }
 
   html.dark[data-site-theme="good-friday"] .good-friday-title-manager {
@@ -515,7 +515,8 @@ html.dark[data-site-theme="good-friday"] {
     min-height: 25rem;
     border: 1px solid rgba(142, 43, 57, 0.18);
     border-radius: 1.6rem;
-    background: transparent;
+    background: rgba(255, 247, 235, 0.14);
+    backdrop-filter: blur(1px);
     box-shadow:
       0 18px 40px rgba(18, 11, 8, 0.14),
       0 0 0 1px rgba(206, 174, 101, 0.05);
@@ -618,6 +619,19 @@ html.dark[data-site-theme="good-friday"] {
   html.dark[data-site-theme="good-friday"] .song-card-lyrics {
     color: rgba(236, 224, 196, 0.92);
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
+  }
+
+  html[data-site-theme="good-friday"] .good-friday-scroll-top {
+    border: 1px solid rgba(159, 40, 58, 0.42);
+    background: linear-gradient(180deg, rgba(124, 42, 56, 0.95), rgba(70, 22, 32, 0.95));
+    color: #fff2dd;
+    box-shadow:
+      0 12px 24px rgba(42, 4, 10, 0.24),
+      0 0 18px rgba(146, 16, 32, 0.18);
+  }
+
+  html[data-site-theme="good-friday"] .good-friday-scroll-top:hover {
+    background: linear-gradient(180deg, rgba(142, 48, 64, 0.98), rgba(84, 26, 39, 0.98));
   }
 
   html[data-site-theme="good-friday"] .gold-icon-btn {

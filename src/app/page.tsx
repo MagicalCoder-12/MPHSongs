@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -147,6 +147,7 @@ export default function Home() {
   const [isAppInstalled, setIsAppInstalled] = useState(false);
   // Offline state
   const [isOnline, setIsOnline] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   
   // Refs
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -170,13 +171,17 @@ export default function Home() {
     // Listen for online/offline events
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+    const handleScroll = () => setShowScrollTop(window.scrollY > 320);
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
     
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('scroll', handleScroll);
       // Clean up debounce timer
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
@@ -509,6 +514,10 @@ export default function Home() {
     searchInputRef.current?.focus();
   };
 
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Fetch songs when component mounts or when dependencies change
   useEffect(() => {
     fetchSongs();
@@ -548,9 +557,7 @@ export default function Home() {
 
   const isGoodFridayTheme = siteTheme === 'good-friday';
   const currentSongs = activeTab === CHOIR_TAB ? choirSongs : songs;
-  const searchPlaceholder = isGoodFridayTheme
-    ? 'Search a mood by title or lyrics...'
-    : 'Search songs by title, lyrics, or tags...';
+  const searchPlaceholder = 'Search Songs by lyrics';
 
   return (
     <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''}`}>
@@ -937,8 +944,8 @@ export default function Home() {
             <Badge variant="secondary" className="hidden sm:inline-flex">
               GF
             </Badge>
-            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Passion Hymns' : 'Good Friday'}</span>
-            <span className="xs:hidden">{isGoodFridayTheme ? 'Hymns' : 'GF'}</span>
+            <span className="hidden xs:inline">{isGoodFridayTheme ? 'GF' : 'Good Friday'}</span>
+            <span className="xs:hidden">GF</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1049,6 +1056,20 @@ export default function Home() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {showScrollTop && (
+        <Button
+          type="button"
+          onClick={handleScrollToTop}
+          size="icon"
+          className={`fixed bottom-4 right-4 z-50 h-11 w-11 rounded-full shadow-lg sm:bottom-6 sm:right-6 ${
+            isGoodFridayTheme ? 'good-friday-scroll-top' : ''
+          }`}
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </Button>
+      )}
       </div>
     </div>
   );

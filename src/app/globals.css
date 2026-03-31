@@ -50,6 +50,9 @@
   --font-inter: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --radius: 0.625rem;
   --page-background: radial-gradient(circle at top, oklch(0.98 0.01 240), transparent 50%), linear-gradient(180deg, oklch(1 0 0), oklch(0.97 0.004 240));
+  --page-background-size: auto;
+  --page-background-position: center;
+  --page-background-repeat: repeat;
   --background: oklch(1 0 0);
   --foreground: oklch(0.2 0 0);
   --card: oklch(0.99 0.002 240);
@@ -208,90 +211,82 @@ html.dark[data-site-theme="good-friday"] {
 html[data-site-theme="easter"] {
   --easter-stage-image: url("/Resurrection_light.png");
   --easter-stage-tile-size: 320px;
-  --easter-card-border: rgba(199, 161, 83, 0.6);
-  --easter-card-glow: rgba(199, 161, 83, 0.15);
-  --easter-button-bg: linear-gradient(180deg, #c7a153, #9b7a3a);
-  --easter-button-hover: linear-gradient(180deg, #d4b05e, #a88542);
+  --easter-card-border: rgba(212, 180, 90, 0.6);
+  --easter-card-glow: rgba(212, 180, 90, 0.2);
+  --easter-button-bg: rgba(255, 255, 255, 0.18);
+  --easter-button-hover: rgba(255, 255, 255, 0.24);
   --easter-button-text: #1a1205;
-  --easter-input-bg: rgba(244, 235, 218, 0.95);
-  --easter-input-border: rgba(180, 150, 80, 0.4);
+  --easter-input-bg: rgba(255, 245, 220, 0.85);
+  --easter-input-border: rgba(180, 150, 80, 0.45);
   --easter-input-text: #2a1f0f;
   --easter-input-placeholder: rgba(90, 70, 35, 0.6);
-  --easter-chip-bg: linear-gradient(180deg, rgba(210, 180, 100, 0.95), rgba(165, 138, 65, 0.95));
+  --easter-chip-bg: rgba(255, 255, 255, 0.18);
   --easter-chip-text: #1a1205;
-  --easter-delete-bg: rgba(130, 20, 25, 0.95);
-  --easter-delete-hover: rgba(155, 28, 32, 0.98);
+  --easter-delete-bg: rgba(146, 52, 54, 0.22);
+  --easter-delete-hover: rgba(146, 52, 54, 0.28);
 
-  --page-background:
-    radial-gradient(ellipse at 50% 15%, rgba(255, 235, 180, 0.55), transparent 55%),
-    radial-gradient(circle at 20% 70%, rgba(255, 220, 140, 0.25), transparent 35%),
-    var(--easter-stage-image);
-  --page-background-size: auto, auto, cover;
-  --page-background-position: center, center, center;
-  --page-background-repeat: no-repeat, no-repeat, no-repeat;
+  --page-background: var(--easter-stage-image);
+  --page-background-size: cover;
+  --page-background-position: center;
+  --page-background-repeat: no-repeat;
 
-  --background: rgba(252, 248, 238, 0.92);
+  --background: transparent;
   --foreground: #2a1f0f;
-  --card: rgba(255, 252, 244, 0.94);
+  --card: rgba(255, 255, 255, 0.2);
   --card-foreground: #2a1f0f;
-  --popover: rgba(255, 252, 244, 0.98);
+  --popover: rgba(255, 255, 255, 0.2);
   --popover-foreground: #2a1f0f;
   --primary: #8b5e2a;
   --primary-foreground: #fff8e8;
-  --secondary: #e8dcc4;
+  --secondary: rgba(255, 255, 255, 0.18);
   --secondary-foreground: #2a1f0f;
-  --muted: rgba(235, 225, 200, 0.9);
+  --muted: rgba(255, 255, 255, 0.18);
   --muted-foreground: #6b5a3a;
   --accent: #d4b05e;
   --accent-foreground: #1a1205;
-  --border: rgba(180, 150, 80, 0.35);
-  --input: rgba(244, 235, 218, 0.95);
+  --border: rgba(255, 255, 255, 0.35);
+  --input: rgba(255, 245, 220, 0.85);
   --ring: #b89445;
 }
 
 html.dark[data-site-theme="easter"] {
   --easter-stage-image: url("/Resurrection_dark.png");
   --easter-stage-tile-size: 320px;
-  --easter-card-border: rgba(208, 188, 138, 0.58);
-  --easter-card-glow: rgba(120, 180, 255, 0.18);
-  --easter-button-bg: linear-gradient(180deg, rgba(45, 92, 164, 0.96), rgba(28, 62, 117, 0.96));
-  --easter-button-hover: linear-gradient(180deg, rgba(60, 112, 192, 0.98), rgba(38, 77, 142, 0.98));
+  --easter-card-border: rgba(150, 180, 255, 0.35);
+  --easter-card-glow: rgba(150, 180, 255, 0.18);
+  --easter-button-bg: rgba(20, 30, 60, 0.35);
+  --easter-button-hover: rgba(28, 40, 72, 0.35);
   --easter-button-text: #eef6ff;
-  --easter-input-bg: linear-gradient(180deg, rgba(41, 37, 84, 0.94), rgba(28, 24, 65, 0.94));
-  --easter-input-border: rgba(171, 184, 232, 0.34);
+  --easter-input-bg: rgba(20, 30, 60, 0.35);
+  --easter-input-border: rgba(150, 180, 255, 0.35);
   --easter-input-text: #eef2ff;
   --easter-input-placeholder: rgba(205, 213, 242, 0.62);
-  --easter-chip-bg: linear-gradient(180deg, rgba(54, 84, 135, 0.78), rgba(35, 53, 92, 0.78));
+  --easter-chip-bg: rgba(20, 30, 60, 0.26);
   --easter-chip-text: #f1f5ff;
-  --easter-delete-bg: linear-gradient(180deg, rgba(178, 87, 78, 0.96), rgba(132, 58, 56, 0.96));
-  --easter-delete-hover: linear-gradient(180deg, rgba(192, 96, 86, 0.98), rgba(144, 64, 62, 0.98));
+  --easter-delete-bg: rgba(128, 54, 56, 0.32);
+  --easter-delete-hover: rgba(144, 62, 64, 0.35);
 
-  --page-background:
-    radial-gradient(circle at 50% 82%, rgba(92, 142, 255, 0.18), transparent 26%),
-    radial-gradient(circle at 16% 68%, rgba(176, 118, 255, 0.16), transparent 24%),
-    radial-gradient(circle at 84% 34%, rgba(152, 255, 226, 0.1), transparent 18%),
-    linear-gradient(180deg, rgba(9, 12, 32, 0.5), rgba(8, 12, 28, 0.68)),
-    var(--easter-stage-image);
-  --page-background-size: auto, auto, auto, auto, cover;
-  --page-background-position: center, center, center, center, center;
-  --page-background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  --page-background: var(--easter-stage-image);
+  --page-background-size: cover;
+  --page-background-position: center;
+  --page-background-repeat: no-repeat;
 
-  --background: rgba(11, 13, 32, 0.92);
+  --background: transparent;
   --foreground: #e8eeff;
-  --card: rgba(19, 26, 54, 0.92);
+  --card: rgba(20, 30, 60, 0.35);
   --card-foreground: #eef3ff;
-  --popover: rgba(15, 20, 44, 0.98);
+  --popover: rgba(20, 30, 60, 0.35);
   --popover-foreground: #eef3ff;
   --primary: #5fa0f4;
   --primary-foreground: #081325;
-  --secondary: rgba(45, 50, 98, 0.92);
+  --secondary: rgba(20, 30, 60, 0.3);
   --secondary-foreground: #edf2ff;
-  --muted: rgba(31, 37, 72, 0.92);
+  --muted: rgba(20, 30, 60, 0.28);
   --muted-foreground: rgba(207, 214, 239, 0.84);
   --accent: #88b6ff;
   --accent-foreground: #0a1630;
-  --border: rgba(144, 158, 212, 0.32);
-  --input: rgba(28, 34, 68, 0.95);
+  --border: rgba(150, 180, 255, 0.35);
+  --input: rgba(20, 30, 60, 0.35);
   --ring: rgba(122, 173, 255, 0.65);
 }
 
@@ -888,34 +883,27 @@ html.dark[data-site-theme="easter"] {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    padding: 1rem 1rem 1.1rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
   }
 
   html.dark[data-site-theme="easter"] .easter-header {
-    position: relative;
-    gap: 1.1rem;
-    margin-inline: auto;
-    border: 1px solid rgba(173, 190, 240, 0.26);
-    border-radius: 1.7rem;
-    background:
-      linear-gradient(180deg, rgba(112, 126, 178, 0.12), rgba(22, 28, 66, 0.58)),
-      rgba(18, 23, 55, 0.62);
-    padding: 1rem 1rem 1.1rem;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 24px 54px rgba(7, 10, 27, 0.34),
-      0 0 0 1px rgba(102, 122, 190, 0.14);
-    backdrop-filter: blur(16px) saturate(1.1);
-    overflow: hidden;
+    gap: 1rem;
+    background: rgba(20, 30, 60, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 20px;
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
   }
 
   html.dark[data-site-theme="easter"] .easter-header::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.15), transparent 30%),
-      radial-gradient(circle at 80% 100%, rgba(130, 170, 255, 0.14), transparent 28%);
-    pointer-events: none;
+    display: none;
   }
 
   html[data-site-theme="easter"] .easter-brand {
@@ -942,42 +930,36 @@ html.dark[data-site-theme="easter"] {
     min-width: 3rem;
     height: 3rem;
     border-radius: 1rem;
-    border: 1px solid var(--easter-input-border);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     background: var(--easter-button-bg);
     color: var(--easter-button-text);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      0 8px 18px rgba(140, 110, 50, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
     font-weight: 600;
   }
 
   html.dark[data-site-theme="easter"] .easter-action-button,
   html.dark[data-site-theme="easter"] .easter-add-button {
-    border: 1px solid rgba(159, 179, 237, 0.28);
-    background:
-      linear-gradient(180deg, rgba(79, 96, 160, 0.14), rgba(18, 26, 62, 0.26)),
-      rgba(22, 29, 68, 0.72);
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    background: var(--easter-button-bg);
     color: #eaf1ff;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 12px 24px rgba(8, 12, 30, 0.32),
-      0 0 18px rgba(112, 154, 255, 0.1);
-    font-weight: 600;
-    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.26);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
 
   html[data-site-theme="easter"] .easter-action-button:hover,
   html[data-site-theme="easter"] .easter-add-button:hover {
     background: var(--easter-button-hover);
+    border-color: rgba(255, 255, 255, 0.45);
     transform: translateY(-1px);
   }
 
   html.dark[data-site-theme="easter"] .easter-action-button:hover,
   html.dark[data-site-theme="easter"] .easter-add-button:hover {
-    border-color: rgba(185, 204, 248, 0.4);
-    background:
-      linear-gradient(180deg, rgba(93, 112, 182, 0.22), rgba(28, 41, 90, 0.34)),
-      rgba(26, 35, 82, 0.8);
+    border-color: rgba(170, 198, 255, 0.45);
+    background: rgba(28, 40, 72, 0.35);
     transform: translateY(-1px);
   }
 
@@ -1002,12 +984,12 @@ html.dark[data-site-theme="easter"] {
   }
 
   html[data-site-theme="easter"] .easter-delete-button {
-    border-color: rgba(155, 30, 35, 0.5);
+    border-color: rgba(255, 255, 255, 0.35);
     background: var(--easter-delete-bg);
     color: #ffeded;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 8px 18px rgba(130, 20, 25, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 20px rgba(86, 22, 24, 0.24);
   }
 
   html[data-site-theme="easter"] .easter-delete-button:hover {
@@ -1015,12 +997,12 @@ html.dark[data-site-theme="easter"] {
   }
 
   html.dark[data-site-theme="easter"] .easter-delete-button {
-    border-color: rgba(228, 190, 181, 0.4);
+    border-color: rgba(150, 180, 255, 0.35);
     background: var(--easter-delete-bg);
     color: #fff0ee;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 10px 20px rgba(74, 24, 28, 0.34);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 20px rgba(60, 20, 24, 0.3);
   }
 
   html[data-site-theme="easter"] .easter-controls {
@@ -1040,9 +1022,7 @@ html.dark[data-site-theme="easter"] {
     border: 1px solid var(--easter-input-border);
     background: var(--easter-input-bg);
     color: var(--easter-input-text);
-    box-shadow:
-      inset 0 1px 2px rgba(0, 0, 0, 0.06),
-      0 6px 14px rgba(160, 130, 60, 0.12);
+    box-shadow: 0 8px 18px rgba(80, 58, 22, 0.12);
     border-radius: 0.75rem;
     font-weight: 500;
   }
@@ -1056,15 +1036,14 @@ html.dark[data-site-theme="easter"] {
   html.dark[data-site-theme="easter"] .easter-stage [data-slot="input"],
   html.dark[data-site-theme="easter"] .easter-stage [data-slot="select-trigger"],
   html.dark[data-site-theme="easter"] .easter-stage textarea {
-    border: 1px solid rgba(169, 182, 232, 0.32);
+    border: 1px solid rgba(150, 180, 255, 0.35);
     background: var(--easter-input-bg);
     color: var(--easter-input-text);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 10px 18px rgba(7, 10, 28, 0.28);
+    box-shadow: 0 10px 18px rgba(6, 10, 22, 0.24);
     border-radius: 1rem;
     font-weight: 500;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
 
   html.dark[data-site-theme="easter"] .easter-search-input::placeholder {
@@ -1078,22 +1057,21 @@ html.dark[data-site-theme="easter"] {
   html[data-site-theme="easter"] .easter-tabs {
     width: 100%;
     border-radius: 1.25rem;
-    border: 1px solid rgba(180, 150, 80, 0.4);
-    background: rgba(244, 235, 218, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.18);
     padding: 0.3rem;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      0 10px 22px rgba(160, 130, 60, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
   }
 
   html.dark[data-site-theme="easter"] .easter-tabs {
-    border: 1px solid rgba(158, 171, 228, 0.22);
-    background: rgba(31, 34, 80, 0.82);
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    background: rgba(20, 30, 60, 0.35);
     padding: 0.3rem;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 14px 26px rgba(7, 10, 28, 0.28);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
   }
 
   html[data-site-theme="easter"] .easter-tab-trigger {
@@ -1109,23 +1087,16 @@ html.dark[data-site-theme="easter"] {
   }
 
   html[data-site-theme="easter"] .easter-tabs [data-state="active"] {
-    background: linear-gradient(180deg, #8b5e2a, #6b4820);
-    color: #fff8e8;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      0 0 0 1px rgba(180, 140, 60, 0.3),
-      0 8px 16px rgba(120, 80, 30, 0.2);
+    background: linear-gradient(#c7a153, #9b7a3a);
+    color: #1a1205;
+    box-shadow: 0 0 12px rgba(199, 161, 83, 0.6);
     font-weight: 600;
   }
 
   html.dark[data-site-theme="easter"] .easter-tabs [data-state="active"] {
-    background: linear-gradient(180deg, rgba(68, 126, 219, 0.96), rgba(28, 86, 173, 0.96));
-    color: #f6fbff;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.18),
-      0 0 0 1px rgba(131, 182, 255, 0.42),
-      0 10px 20px rgba(22, 64, 136, 0.4),
-      0 0 28px rgba(87, 158, 255, 0.24);
+    background: linear-gradient(#c7a153, #9b7a3a);
+    color: #1a1205;
+    box-shadow: 0 0 12px rgba(199, 161, 83, 0.6);
     font-weight: 600;
   }
 
@@ -1137,47 +1108,37 @@ html.dark[data-site-theme="easter"] {
   html[data-site-theme="easter"] .easter-card {
     position: relative;
     min-height: 20rem;
-    border: 2px solid var(--easter-card-border);
-    border-radius: 1.25rem;
-    background: rgba(255, 252, 244, 0.88);
-    backdrop-filter: blur(8px);
+    border: 1px solid rgba(212, 180, 90, 0.6);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     box-shadow:
-      0 14px 32px rgba(160, 130, 60, 0.15),
-      0 0 0 1px rgba(199, 161, 83, 0.2),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+      0 12px 32px rgba(0, 0, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.3);
     overflow: hidden;
   }
 
   html[data-site-theme="easter"] .easter-card::before {
-    content: "";
-    position: absolute;
-    inset: 6px;
-    border: 1px solid rgba(199, 161, 83, 0.25);
-    border-radius: 1rem;
-    pointer-events: none;
+    display: none;
   }
 
   html.dark[data-site-theme="easter"] .easter-card {
     position: relative;
     min-height: 20rem;
-    border: 2px solid var(--easter-card-border);
-    border-radius: 1.25rem;
-    background: rgba(20, 28, 45, 0.92);
-    backdrop-filter: blur(10px);
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    border-radius: 18px;
+    background: rgba(20, 30, 60, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow:
-      0 14px 32px rgba(20, 40, 80, 0.25),
-      0 0 0 1px rgba(100, 150, 220, 0.15),
-      inset 0 0 0 1px rgba(100, 150, 220, 0.08);
+      0 12px 32px rgba(0, 0, 0, 0.28),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12);
     overflow: hidden;
   }
 
   html.dark[data-site-theme="easter"] .easter-card::before {
-    content: "";
-    position: absolute;
-    inset: 6px;
-    border: 1px solid rgba(100, 150, 220, 0.18);
-    border-radius: 1rem;
-    pointer-events: none;
+    display: none;
   }
 
   html[data-site-theme="easter"] .easter-card-header {
@@ -1248,63 +1209,66 @@ html.dark[data-site-theme="easter"] {
   }
 
   html[data-site-theme="easter"] .song-card-primary-action {
-    border: 1px solid rgba(139, 94, 42, 0.5);
-    background: linear-gradient(180deg, #c7a153, #9b7a3a);
-    color: #1a1205;
+    border: 1px solid rgba(212, 180, 90, 0.6);
+    background: rgba(255, 255, 255, 0.18);
+    color: #5f4517;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      0 10px 18px rgba(160, 130, 60, 0.22);
+      0 10px 18px rgba(0, 0, 0, 0.14),
+      0 0 10px rgba(199, 161, 83, 0.16);
     font-weight: 600;
   }
 
   html[data-site-theme="easter"] .song-card-primary-action:hover {
-    background: linear-gradient(180deg, #d4b05e, #a88542);
+    background: rgba(255, 255, 255, 0.24);
     transform: translateY(-1px);
   }
 
   html[data-site-theme="easter"] .song-card-secondary-action {
-    border: 1px solid var(--easter-input-border);
-    background: rgba(244, 235, 218, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.18);
     color: #3a2a10;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      0 10px 18px rgba(160, 130, 60, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.14);
     font-weight: 600;
   }
 
   html[data-site-theme="easter"] .song-card-secondary-action:hover {
-    background: rgba(255, 252, 244, 1);
+    background: rgba(255, 255, 255, 0.24);
     transform: translateY(-1px);
   }
 
   html.dark[data-site-theme="easter"] .song-card-primary-action {
-    border: 1px solid rgba(116, 175, 255, 0.4);
-    background: linear-gradient(180deg, rgba(36, 104, 196, 0.96), rgba(21, 72, 148, 0.96));
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    background: rgba(20, 30, 60, 0.35);
     color: #edf6ff;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 12px 24px rgba(9, 35, 83, 0.42),
-      0 0 22px rgba(88, 148, 255, 0.18);
+      0 12px 24px rgba(0, 0, 0, 0.24),
+      0 0 16px rgba(88, 148, 255, 0.14);
     font-weight: 600;
   }
 
   html.dark[data-site-theme="easter"] .song-card-primary-action:hover {
-    background: linear-gradient(180deg, rgba(47, 121, 219, 0.98), rgba(26, 84, 170, 0.98));
+    background: rgba(28, 40, 72, 0.35);
     transform: translateY(-1px);
   }
 
   html.dark[data-site-theme="easter"] .song-card-secondary-action {
-    border: 1px solid rgba(220, 226, 247, 0.28);
-    background: linear-gradient(180deg, rgba(243, 246, 252, 0.96), rgba(208, 216, 238, 0.94));
-    color: #1d2649;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.6),
-      0 10px 24px rgba(10, 15, 34, 0.22);
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    background: rgba(20, 30, 60, 0.35);
+    color: #edf2ff;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
     font-weight: 600;
   }
 
   html.dark[data-site-theme="easter"] .song-card-secondary-action:hover {
-    background: linear-gradient(180deg, rgba(250, 252, 255, 1), rgba(220, 226, 244, 1));
+    background: rgba(28, 40, 72, 0.35);
     transform: translateY(-1px);
   }
 
@@ -1333,32 +1297,32 @@ html.dark[data-site-theme="easter"] {
   }
 
   html[data-site-theme="easter"] .easter-scroll-top {
-    border: 1px solid rgba(139, 94, 42, 0.5);
-    background: linear-gradient(180deg, #c7a153, #9b7a3a);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.18);
     color: #1a1205;
-    box-shadow:
-      0 10px 20px rgba(160, 130, 60, 0.25),
-      0 0 12px rgba(199, 161, 83, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.14);
     font-weight: 600;
   }
 
   html[data-site-theme="easter"] .easter-scroll-top:hover {
-    background: linear-gradient(180deg, #d4b05e, #a88542);
+    background: rgba(255, 255, 255, 0.24);
     transform: translateY(-1px);
   }
 
   html.dark[data-site-theme="easter"] .easter-scroll-top {
-    border: 1px solid rgba(122, 176, 255, 0.4);
-    background: linear-gradient(180deg, rgba(52, 117, 211, 0.96), rgba(28, 78, 160, 0.96));
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    background: rgba(20, 30, 60, 0.35);
     color: #eef6ff;
-    box-shadow:
-      0 12px 24px rgba(8, 30, 70, 0.4),
-      0 0 16px rgba(87, 153, 255, 0.18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
     font-weight: 600;
   }
 
   html.dark[data-site-theme="easter"] .easter-scroll-top:hover {
-    background: linear-gradient(180deg, rgba(63, 131, 228, 0.98), rgba(35, 91, 183, 0.98));
+    background: rgba(28, 40, 72, 0.35);
     transform: translateY(-1px);
   }
 
@@ -1378,73 +1342,43 @@ html.dark[data-site-theme="easter"] {
   html[data-site-theme="easter"] .leather-card {
     position: relative;
     min-height: 20rem;
-    border: 2px solid rgba(199, 161, 83, 0.45);
-    border-radius: 1.25rem;
-    background:
-      radial-gradient(circle at 50% 20%, rgba(255, 252, 244, 0.42), rgba(255, 252, 244, 0.12) 34%, rgba(255, 252, 244, 0.03) 58%, transparent 78%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 248, 236, 0.06));
-    backdrop-filter: blur(2px) saturate(1.06);
+    border: 1px solid rgba(212, 180, 90, 0.6);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     box-shadow:
-      0 18px 36px rgba(160, 130, 60, 0.12),
-      0 0 0 1px rgba(199, 161, 83, 0.12),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+      0 12px 32px rgba(0, 0, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.3);
   }
 
   html[data-site-theme="easter"] .leather-card::before {
-    content: "";
-    position: absolute;
-    inset: 6px;
-    border: 1px solid rgba(199, 161, 83, 0.3);
-    border-radius: 1rem;
-    pointer-events: none;
+    display: none;
   }
 
   html[data-site-theme="easter"] .leather-card::after {
-    content: "";
-    position: absolute;
-    inset: auto 12% 8%;
-    height: 38%;
-    border-radius: 999px;
-    background: radial-gradient(circle, rgba(255, 246, 221, 0.34), transparent 72%);
-    pointer-events: none;
-    filter: blur(14px);
+    display: none;
   }
 
   html.dark[data-site-theme="easter"] .leather-card {
     position: relative;
     min-height: 20rem;
-    border: 2px solid rgba(213, 193, 145, 0.52);
-    border-radius: 1.35rem;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-      radial-gradient(circle at 30% 16%, rgba(116, 154, 255, 0.18), transparent 28%),
-      radial-gradient(circle at 74% 72%, rgba(169, 118, 255, 0.18), transparent 24%),
-      rgba(16, 19, 50, 0.56);
-    backdrop-filter: blur(10px) saturate(1.15);
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    border-radius: 18px;
+    background: rgba(20, 30, 60, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow:
-      0 18px 42px rgba(5, 9, 25, 0.42),
-      0 0 0 1px rgba(223, 207, 164, 0.12),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      0 12px 32px rgba(0, 0, 0, 0.28),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   }
 
   html.dark[data-site-theme="easter"] .leather-card::before {
-    content: "";
-    position: absolute;
-    inset: 6px;
-    border: 1px solid rgba(220, 228, 255, 0.24);
-    border-radius: 1rem;
-    pointer-events: none;
+    display: none;
   }
 
   html.dark[data-site-theme="easter"] .leather-card::after {
-    content: "";
-    position: absolute;
-    inset: auto 12% 10%;
-    height: 42%;
-    border-radius: 999px;
-    background: radial-gradient(circle, rgba(108, 155, 255, 0.18), transparent 72%);
-    pointer-events: none;
-    filter: blur(18px);
+    display: none;
   }
 
   html[data-site-theme="easter"] .gold-icon-btn {
@@ -1452,57 +1386,55 @@ html.dark[data-site-theme="easter"] {
     align-items: center;
     justify-content: center;
     border-radius: 0.75rem;
-    border: 1px solid rgba(180, 145, 60, 0.4);
-    background: linear-gradient(180deg, rgba(210, 180, 100, 0.95), rgba(165, 135, 60, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.18);
     color: #2a1a05;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      0 8px 16px rgba(160, 130, 60, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
     transition: transform 180ms ease, box-shadow 180ms ease;
   }
 
   html[data-site-theme="easter"] .gold-icon-btn:hover {
     transform: translateY(-1px);
-    border-color: rgba(200, 165, 80, 0.5);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.35),
-      0 10px 20px rgba(160, 130, 60, 0.25);
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
   }
 
   html.dark[data-site-theme="easter"] .gold-icon-btn {
-    border: 1px solid rgba(214, 194, 144, 0.3);
-    background: linear-gradient(180deg, rgba(28, 39, 81, 0.88), rgba(17, 24, 56, 0.88));
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    background: rgba(20, 30, 60, 0.35);
     color: #e4c983;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 8px 18px rgba(6, 11, 30, 0.28);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
   }
 
   html.dark[data-site-theme="easter"] .gold-icon-btn:hover {
     transform: translateY(-1px);
-    border-color: rgba(228, 208, 161, 0.45);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 10px 20px rgba(6, 11, 30, 0.34);
+    border-color: rgba(170, 198, 255, 0.45);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.28);
   }
 
   html[data-site-theme="easter"] .beige-chip {
     display: inline-flex;
     align-items: center;
     border-radius: 9999px;
-    border: 1px solid rgba(180, 150, 80, 0.3);
-    background: linear-gradient(180deg, rgba(220, 195, 130, 0.95), rgba(185, 155, 80, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.18);
     padding: 0.2rem 0.5rem;
     color: #2a1a05;
     font-weight: 600;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   html.dark[data-site-theme="easter"] .beige-chip {
-    border-color: rgba(166, 179, 228, 0.18);
-    background: rgba(34, 41, 83, 0.5);
+    border-color: rgba(150, 180, 255, 0.35);
+    background: rgba(20, 30, 60, 0.24);
     color: #d8dff6;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
 
   html[data-site-theme="easter"] .neomorph-button {
@@ -1534,7 +1466,10 @@ html.dark[data-site-theme="easter"] {
   html[data-site-theme="easter"] .song-dialog-lyrics {
     color: #2e2211;
     font-family: var(--font-playfair);
-    background: rgba(255, 250, 240, 0.82);
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     text-shadow: 0 1px 0 rgba(255, 252, 246, 0.9);
   }
 
@@ -1563,7 +1498,10 @@ html.dark[data-site-theme="easter"] {
   html.dark[data-site-theme="easter"] .song-dialog-lyrics {
     color: #edf2ff;
     font-family: var(--font-playfair);
-    background: rgba(24, 30, 62, 0.82);
+    background: rgba(20, 30, 60, 0.35);
+    border: 1px solid rgba(150, 180, 255, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     text-shadow: 0 2px 8px rgba(6, 9, 24, 0.74);
   }
 
@@ -1618,6 +1556,9 @@ html.dark[data-site-theme="easter"] {
   body {
     @apply bg-background text-foreground;
     background-image: var(--page-background);
+    background-size: var(--page-background-size);
+    background-position: var(--page-background-position);
+    background-repeat: var(--page-background-repeat);
     background-attachment: fixed;
   }
 }

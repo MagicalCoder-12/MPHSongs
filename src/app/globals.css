@@ -206,7 +206,7 @@ html.dark[data-site-theme="good-friday"] {
 }
 
 html[data-site-theme="easter"] {
-  --easter-stage-image: url("/easter_light.png");
+  --easter-stage-image: url("/Resurrection_light.png");
   --easter-stage-tile-size: 320px;
   --easter-card-border: rgba(199, 161, 83, 0.6);
   --easter-card-glow: rgba(199, 161, 83, 0.15);
@@ -250,7 +250,7 @@ html[data-site-theme="easter"] {
 }
 
 html.dark[data-site-theme="easter"] {
-  --easter-stage-image: url("/easter_dark.png");
+  --easter-stage-image: url("/Resurrection_dark.png");
   --easter-stage-tile-size: 320px;
   --easter-card-border: rgba(120, 170, 230, 0.55);
   --easter-card-glow: rgba(100, 150, 220, 0.2);

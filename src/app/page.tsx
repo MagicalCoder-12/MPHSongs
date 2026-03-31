@@ -770,7 +770,7 @@ export default function Home() {
           </div>
         </div>
 
-        {siteTheme !== 'normal' && siteTheme !== 'good-friday' && (
+        {siteTheme !== 'normal' && siteTheme !== 'good-friday' && siteTheme !== 'easter' && (
           <div className="mb-4 sm:mb-6 rounded-2xl border border-border/70 bg-card/85 px-4 py-4 shadow-sm backdrop-blur-sm">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>

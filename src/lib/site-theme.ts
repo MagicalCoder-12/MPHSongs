@@ -11,7 +11,7 @@ export const SITE_THEME_LABELS: Record<SiteTheme, string> = {
 
 export const SITE_THEME_PLACEHOLDERS: Record<Exclude<SiteTheme, 'normal'>, string> = {
   'good-friday': 'Good Friday theme placeholder. We can add a fuller worship-focused layout next.',
-  easter: 'Easter theme placeholder. We can add a brighter resurrection-season look next.',
+  easter: 'Easter theme - celebrating the glory of Christ rising.',
   christmas: 'Christmas theme placeholder. We can add festive artwork and holiday styling next.',
 };
 

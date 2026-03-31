@@ -612,7 +612,7 @@ export default function Home() {
           </div>
 
           <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${isGoodFridayTheme ? 'good-friday-toolbar' : ''} ${isResurrectionTheme ? 'easter-toolbar' : ''}`}>
-            <ThemeToggle className={isGoodFridayTheme ? 'good-friday-action-button' : ''} />
+            <ThemeToggle className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} />
             {isAdmin && (
               <div className="w-[150px] sm:w-[170px]">
                 <Select
@@ -620,7 +620,7 @@ export default function Home() {
                   onValueChange={(value: SiteTheme) => handleSiteThemeChange(value)}
                   disabled={isSavingSiteTheme}
                 >
-                  <SelectTrigger className="h-8 sm:h-9 md:h-10">
+                <SelectTrigger className={`h-8 sm:h-9 md:h-10 ${isResurrectionTheme ? 'easter-toolbar-trigger' : ''}`}>
                     <SelectValue placeholder="Site theme" />
                   </SelectTrigger>
                   <SelectContent>
@@ -634,8 +634,8 @@ export default function Home() {
             )}
             {!isAppInstalled && (
               <>
-                <PWAInstall className={isGoodFridayTheme ? 'good-friday-action-button' : ''} compact={isGoodFridayTheme} />
-                <IOSInstall className={isGoodFridayTheme ? 'good-friday-action-button' : ''} compact={isGoodFridayTheme} />
+                <PWAInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} compact={isSpecialTheme} />
+                <IOSInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} compact={isSpecialTheme} />
               </>
             )}
             {isAdmin ? (
@@ -643,7 +643,7 @@ export default function Home() {
                 onClick={handleLogout}
                 variant="outline"
                 size="sm"
-                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''}`}
+                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
               >
                 <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className={`${isSpecialTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Logout</span>
@@ -653,7 +653,7 @@ export default function Home() {
                 onClick={() => setShowLoginDialog(true)}
                 variant="outline"
                 size="sm"
-                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''}`}
+                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
               >
                 <LogIn className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className={`${isSpecialTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Admin Login</span>

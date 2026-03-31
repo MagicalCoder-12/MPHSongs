@@ -60,8 +60,8 @@ export function SongCard({
         <CardHeader className="song-card-header pb-2 relative z-10">
           <div className="flex justify-between items-start gap-1">
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base sm:text-lg truncate font-[family:var(--font-playfair)] text-foreground">{song.title}</CardTitle>
-              <CardDescription>
+              <CardTitle className="song-card-title text-base sm:text-lg truncate font-[family:var(--font-playfair)] text-foreground">{song.title}</CardTitle>
+              <CardDescription className="song-card-meta">
                 <div className="flex flex-wrap gap-1 mt-1">
                   <span className="beige-chip text-xs">{song.songLanguage}</span>
                   {song.isChoirPractice && (
@@ -151,7 +151,7 @@ export function SongCard({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
+            <DialogTitle className="song-dialog-title text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="beige-chip">{song.songLanguage}</span>
@@ -172,7 +172,7 @@ export function SongCard({
             )}
           </div>
           <div className="mt-4">
-            <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted">{song.lyrics}</p>
+            <p className="song-dialog-lyrics whitespace-pre-wrap text-base sm:text-lg leading-relaxed font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted">{song.lyrics}</p>
           </div>
         </DialogContent>
       </Dialog>

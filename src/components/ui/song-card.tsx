@@ -149,7 +149,7 @@ export function SongCard({
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="easter-card easter-card-expanded max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" aria-describedby={undefined}>
+        <DialogContent className="easter-card easter-card-expanded max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" closeButtonClassName="easter-close-button" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
           </DialogHeader>
@@ -171,7 +171,7 @@ export function SongCard({
               <Badge variant="secondary">Good Friday</Badge>
             )}
           </div>
-          <div className="mt-4">
+          <div className="song-content mt-4">
             <p className="song-dialog-lyrics song-lyrics whitespace-pre-wrap text-base sm:text-lg leading-relaxed font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted">{song.lyrics}</p>
           </div>
         </DialogContent>

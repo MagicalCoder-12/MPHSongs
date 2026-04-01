@@ -837,9 +837,22 @@ html.dark[data-site-theme="easter"] {
     background: transparent;
   }
 
+  html[data-site-theme="easter"] .easter-stage::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: rgba(54, 40, 14, 0.1);
+  }
+
   html[data-site-theme="easter"] .easter-stage > div {
     position: relative;
     z-index: 1;
+  }
+
+  html.dark[data-site-theme="easter"] .easter-stage::before {
+    display: none;
   }
 
   html.dark[data-site-theme="easter"] .easter-stage > div {
@@ -1524,56 +1537,31 @@ html.dark[data-site-theme="easter"] {
   html[data-site-theme="easter"] .easter-card-expanded {
     background: linear-gradient(
       180deg,
-      #fff3c4 0%,
-      #f3d992 35%,
-      #e2bf6a 65%,
-      #cfa64e 100%
+      #f8f5ea 0%,
+      #f1ead7 100%
     );
-    border: 1px solid #caa552;
+    border: 2px solid #caa552;
     color: #3a2a10;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     isolation: isolate;
     box-shadow:
-      0 25px 60px rgba(0, 0, 0, 0.35),
-      0 0 40px rgba(212, 180, 90, 0.35),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+      0 25px 60px rgba(0, 0, 0, 0.25),
+      0 0 18px rgba(212, 180, 90, 0.35);
   }
 
   html[data-site-theme="easter"] .easter-card-expanded::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: -1px;
     z-index: 0;
     border-radius: inherit;
     pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.65) 0%,
-      rgba(255, 255, 255, 0.25) 18%,
-      rgba(255, 255, 255, 0.08) 40%,
-      rgba(255, 255, 255, 0) 65%
-    );
+    box-shadow: 0 0 18px rgba(212, 180, 90, 0.35);
   }
 
   html[data-site-theme="easter"] .easter-card-expanded::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    background:
-      radial-gradient(
-        circle at 20% 15%,
-        rgba(255, 255, 255, 0.35),
-        transparent 35%
-      ),
-      radial-gradient(
-        circle at 80% 10%,
-        rgba(255, 255, 255, 0.25),
-        transparent 40%
-      );
+    display: none;
   }
 
   html[data-site-theme="easter"] .easter-card-expanded [data-slot="dialog-header"],
@@ -1584,6 +1572,18 @@ html.dark[data-site-theme="easter"] {
 
   html[data-site-theme="easter"] .easter-card-expanded [data-slot="dialog-close"] {
     z-index: 2;
+  }
+
+  html[data-site-theme="easter"] .easter-close-button {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    color: #5a4a2a;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  }
+
+  html[data-site-theme="easter"] .easter-close-button:hover {
+    background: #ffffff;
   }
 
   html[data-site-theme="easter"] .login-dialog {
@@ -1602,7 +1602,6 @@ html.dark[data-site-theme="easter"] {
     -webkit-backdrop-filter: blur(4px);
   }
 
-  html[data-site-theme="easter"] .easter-card-expanded [data-slot="dialog-close"],
   html[data-site-theme="easter"] .login-dialog [data-slot="dialog-close"] {
     color: #2d1d05;
     background: #e0bf74;
@@ -1636,23 +1635,33 @@ html.dark[data-site-theme="easter"] {
   html[data-site-theme="easter"] .easter-card-expanded .song-card-lyrics,
   html[data-site-theme="easter"] .easter-card-expanded .song-dialog-lyrics,
   html[data-site-theme="easter"] .easter-card-expanded .song-lyrics {
-    color: #3a2a10;
+    color: #2c2416;
     font-weight: 500;
-    line-height: 1.75;
+    line-height: 1.8;
     letter-spacing: 0.02em;
-    text-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.85),
-      0 2px 4px rgba(0, 0, 0, 0.15);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   html[data-site-theme="easter"] .easter-card-expanded .song-dialog-lyrics,
   html[data-site-theme="easter"] .easter-card-expanded .song-content {
-    background: rgba(255, 255, 255, 0.22);
-    border-radius: 10px;
-    padding: 10px 14px;
+    background: linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #f5efe0 100%
+    );
+    border: 1px solid rgba(200, 170, 100, 0.45);
+    border-radius: 12px;
+    padding: 14px 16px;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.6),
-      0 4px 12px rgba(0, 0, 0, 0.12);
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 6px 14px rgba(0, 0, 0, 0.08);
+  }
+
+  html[data-site-theme="easter"] .easter-card-expanded .song-dialog-lyrics {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    box-shadow: none;
   }
 
   html[data-site-theme="easter"] .easter-card-expanded .song-title,
@@ -1661,7 +1670,7 @@ html.dark[data-site-theme="easter"] {
     font-weight: 700;
     text-shadow:
       0 1px 0 rgba(255, 255, 255, 0.9),
-      0 4px 12px rgba(0, 0, 0, 0.18);
+      0 3px 10px rgba(0, 0, 0, 0.12);
   }
 
   html.dark[data-site-theme="easter"] .song-card-shell [data-slot="card-header"],
@@ -1706,7 +1715,6 @@ html.dark[data-site-theme="easter"] {
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  html.dark[data-site-theme="easter"] .easter-card-expanded [data-slot="dialog-close"],
   html.dark[data-site-theme="easter"] .login-dialog [data-slot="dialog-close"] {
     color: #f3eeff;
     background: #67479a;

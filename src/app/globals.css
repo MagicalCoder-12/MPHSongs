@@ -1521,6 +1521,21 @@ html.dark[data-site-theme="easter"] {
       0 2px 10px rgba(187, 150, 71, 0.18);
   }
 
+  html[data-site-theme="easter"] .song-dialog-surface {
+    background: rgba(251, 245, 232, 0.96);
+    border: 1px solid rgba(199, 161, 83, 0.45);
+    color: #2b1e0c;
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+
+  html[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"] {
+    color: #5a4220;
+    background: rgba(255, 248, 236, 0.92);
+    border: 1px solid rgba(199, 161, 83, 0.28);
+  }
+
   html[data-site-theme="easter"] .song-card-meta {
     color: #5d4827;
     font-family: var(--font-playfair);
@@ -1528,13 +1543,13 @@ html.dark[data-site-theme="easter"] {
   }
 
   html[data-site-theme="easter"] .song-dialog-lyrics {
-    color: #2e2211;
+    color: #2b1f10;
     font-family: var(--font-playfair);
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    text-shadow: 0 1px 0 rgba(255, 252, 246, 0.9);
+    background: rgba(246, 237, 216, 0.96);
+    border: 1px solid rgba(199, 161, 83, 0.24);
+    text-shadow:
+      0 1px 0 rgba(255, 252, 246, 0.96),
+      0 1px 3px rgba(0, 0, 0, 0.08);
   }
 
   html.dark[data-site-theme="easter"] .song-card-shell [data-slot="card-header"],
@@ -1553,6 +1568,21 @@ html.dark[data-site-theme="easter"] {
       0 0 22px rgba(121, 169, 255, 0.18);
   }
 
+  html.dark[data-site-theme="easter"] .song-dialog-surface {
+    background: rgba(19, 26, 54, 0.98);
+    border: 1px solid rgba(150, 180, 255, 0.28);
+    color: #edf2ff;
+    box-shadow:
+      0 22px 46px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  html.dark[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"] {
+    color: #dce8ff;
+    background: rgba(34, 44, 79, 0.96);
+    border: 1px solid rgba(150, 180, 255, 0.22);
+  }
+
   html.dark[data-site-theme="easter"] .song-card-meta {
     color: rgba(221, 228, 247, 0.82);
     font-family: var(--font-playfair);
@@ -1560,13 +1590,13 @@ html.dark[data-site-theme="easter"] {
   }
 
   html.dark[data-site-theme="easter"] .song-dialog-lyrics {
-    color: #edf2ff;
+    color: #f1f5ff;
     font-family: var(--font-playfair);
-    background: rgba(20, 30, 60, 0.35);
-    border: 1px solid rgba(150, 180, 255, 0.35);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    text-shadow: 0 2px 8px rgba(6, 9, 24, 0.74);
+    background: rgba(30, 40, 72, 0.96);
+    border: 1px solid rgba(150, 180, 255, 0.2);
+    text-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06),
+      0 2px 8px rgba(6, 9, 24, 0.74);
   }
 
   @media (max-width: 640px) {

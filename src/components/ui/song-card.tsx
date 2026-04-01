@@ -54,24 +54,24 @@ export function SongCard({
   return (
     <>
       <Card 
-        className="leather-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
+        className="leather-card easter-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
         onClick={handleCardClick}
       >
         <CardHeader className="song-card-header pb-2 relative z-10">
           <div className="flex justify-between items-start gap-1">
             <div className="min-w-0 flex-1">
-              <CardTitle className="song-card-title text-base sm:text-lg truncate font-[family:var(--font-playfair)] text-foreground">{song.title}</CardTitle>
+              <CardTitle className="song-card-title song-title text-base sm:text-lg truncate font-[family:var(--font-playfair)] text-foreground">{song.title}</CardTitle>
               <CardDescription className="song-card-meta">
                 <div className="flex flex-wrap gap-1 mt-1">
-                  <span className="beige-chip text-xs">{song.songLanguage}</span>
+                  <span className="beige-chip easter-chip text-xs">{song.songLanguage}</span>
                   {song.isChoirPractice && (
-                    <span className="beige-chip text-xs flex items-center gap-1">
+                    <span className="beige-chip easter-chip text-xs flex items-center gap-1">
                       <Users className="h-3 w-3" />
                       Choir
                     </span>
                   )}
                   {song.isChristmasSong && (
-                    <span className="beige-chip text-xs flex items-center gap-1">
+                    <span className="beige-chip easter-chip text-xs flex items-center gap-1">
                       <TreePine className="h-3 w-3 text-green-700" />
                       Christmas
                     </span>
@@ -122,8 +122,8 @@ export function SongCard({
           </div>
         </CardHeader>
         <CardContent className="song-card-content pt-2 relative z-10">
-          <ScrollArea className="h-32 sm:h-40 w-full">
-            <p className="song-card-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">{song.lyrics}</p>
+          <ScrollArea className="song-card-content song-content h-32 sm:h-40 w-full">
+            <p className="song-card-lyrics song-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">{song.lyrics}</p>
           </ScrollArea>
           <div className="song-card-actions flex flex-wrap gap-2 mt-3 sm:mt-4">
             <Button
@@ -151,18 +151,18 @@ export function SongCard({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="song-dialog-title text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
+            <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="beige-chip">{song.songLanguage}</span>
+            <span className="beige-chip easter-chip">{song.songLanguage}</span>
             {song.isChoirPractice && (
-              <span className="beige-chip flex items-center gap-1">
+              <span className="beige-chip easter-chip flex items-center gap-1">
                 <Users className="h-3 w-3" />
                 Choir Practice
               </span>
             )}
             {song.isChristmasSong && (
-              <span className="beige-chip flex items-center gap-1">
+              <span className="beige-chip easter-chip flex items-center gap-1">
                 <TreePine className="h-3 w-3 text-green-700" />
                 Christmas Song
               </span>
@@ -172,7 +172,7 @@ export function SongCard({
             )}
           </div>
           <div className="mt-4">
-            <p className="song-dialog-lyrics whitespace-pre-wrap text-base sm:text-lg leading-relaxed font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted">{song.lyrics}</p>
+            <p className="song-dialog-lyrics song-lyrics whitespace-pre-wrap text-base sm:text-lg leading-relaxed font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted">{song.lyrics}</p>
           </div>
         </DialogContent>
       </Dialog>

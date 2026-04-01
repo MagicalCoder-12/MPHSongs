@@ -1521,7 +1521,8 @@ html.dark[data-site-theme="easter"] {
       0 2px 10px rgba(187, 150, 71, 0.18);
   }
 
-  html[data-site-theme="easter"] .song-dialog-surface {
+  html[data-site-theme="easter"] .song-dialog-surface,
+  html[data-site-theme="easter"] .login-dialog-surface {
     background: rgba(251, 245, 232, 0.96);
     border: 1px solid rgba(199, 161, 83, 0.45);
     color: #2b1e0c;
@@ -1530,10 +1531,19 @@ html.dark[data-site-theme="easter"] {
       inset 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
-  html[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"] {
+  html[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"],
+  html[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-close"] {
     color: #5a4220;
     background: rgba(255, 248, 236, 0.92);
     border: 1px solid rgba(199, 161, 83, 0.28);
+  }
+
+  html[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-title"] {
+    color: #2b1e0c;
+  }
+
+  html[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-description"] {
+    color: #5d4827;
   }
 
   html[data-site-theme="easter"] .song-card-meta {
@@ -1568,7 +1578,8 @@ html.dark[data-site-theme="easter"] {
       0 0 22px rgba(121, 169, 255, 0.18);
   }
 
-  html.dark[data-site-theme="easter"] .song-dialog-surface {
+  html.dark[data-site-theme="easter"] .song-dialog-surface,
+  html.dark[data-site-theme="easter"] .login-dialog-surface {
     background: rgba(19, 26, 54, 0.98);
     border: 1px solid rgba(150, 180, 255, 0.28);
     color: #edf2ff;
@@ -1577,10 +1588,19 @@ html.dark[data-site-theme="easter"] {
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
-  html.dark[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"] {
+  html.dark[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"],
+  html.dark[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-close"] {
     color: #dce8ff;
     background: rgba(34, 44, 79, 0.96);
     border: 1px solid rgba(150, 180, 255, 0.22);
+  }
+
+  html.dark[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-title"] {
+    color: #edf2ff;
+  }
+
+  html.dark[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-description"] {
+    color: rgba(221, 228, 247, 0.82);
   }
 
   html.dark[data-site-theme="easter"] .song-card-meta {

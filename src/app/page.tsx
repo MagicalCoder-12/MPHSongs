@@ -790,7 +790,7 @@ export default function Home() {
 
         {/* Login Dialog */}
         <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="login-dialog-surface max-w-md">
             <DialogHeader>
               <DialogTitle>Admin Login</DialogTitle>
               <DialogDescription>

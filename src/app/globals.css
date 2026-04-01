@@ -1523,27 +1523,27 @@ html.dark[data-site-theme="easter"] {
 
   html[data-site-theme="easter"] .song-dialog-surface,
   html[data-site-theme="easter"] .login-dialog-surface {
-    background: rgba(251, 245, 232, 0.96);
-    border: 1px solid rgba(199, 161, 83, 0.45);
-    color: #2b1e0c;
+    background: #c7a153;
+    border: 1px solid #8f6e2f;
+    color: #241805;
     box-shadow:
       0 20px 40px rgba(0, 0, 0, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+      inset 0 1px 0 rgba(255, 241, 204, 0.35);
   }
 
   html[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"],
   html[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-close"] {
-    color: #5a4220;
-    background: rgba(255, 248, 236, 0.92);
-    border: 1px solid rgba(199, 161, 83, 0.28);
+    color: #2d1d05;
+    background: #e0bf74;
+    border: 1px solid #8f6e2f;
   }
 
   html[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-title"] {
-    color: #2b1e0c;
+    color: #241805;
   }
 
   html[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-description"] {
-    color: #5d4827;
+    color: #3c2b0c;
   }
 
   html[data-site-theme="easter"] .song-card-meta {
@@ -1553,10 +1553,10 @@ html.dark[data-site-theme="easter"] {
   }
 
   html[data-site-theme="easter"] .song-dialog-lyrics {
-    color: #2b1f10;
+    color: #241805;
     font-family: var(--font-playfair);
-    background: rgba(246, 237, 216, 0.96);
-    border: 1px solid rgba(199, 161, 83, 0.24);
+    background: #ead39b;
+    border: 1px solid #9d7a37;
     text-shadow:
       0 1px 0 rgba(255, 252, 246, 0.96),
       0 1px 3px rgba(0, 0, 0, 0.08);
@@ -1580,9 +1580,9 @@ html.dark[data-site-theme="easter"] {
 
   html.dark[data-site-theme="easter"] .song-dialog-surface,
   html.dark[data-site-theme="easter"] .login-dialog-surface {
-    background: rgba(19, 26, 54, 0.98);
-    border: 1px solid rgba(150, 180, 255, 0.28);
-    color: #edf2ff;
+    background: #4a2f73;
+    border: 1px solid #7d63aa;
+    color: #f2edff;
     box-shadow:
       0 22px 46px rgba(0, 0, 0, 0.42),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -1590,17 +1590,17 @@ html.dark[data-site-theme="easter"] {
 
   html.dark[data-site-theme="easter"] .song-dialog-surface [data-slot="dialog-close"],
   html.dark[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-close"] {
-    color: #dce8ff;
-    background: rgba(34, 44, 79, 0.96);
-    border: 1px solid rgba(150, 180, 255, 0.22);
+    color: #f3eeff;
+    background: #67479a;
+    border: 1px solid #8a70b8;
   }
 
   html.dark[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-title"] {
-    color: #edf2ff;
+    color: #f2edff;
   }
 
   html.dark[data-site-theme="easter"] .login-dialog-surface [data-slot="dialog-description"] {
-    color: rgba(221, 228, 247, 0.82);
+    color: #ddd2f5;
   }
 
   html.dark[data-site-theme="easter"] .song-card-meta {
@@ -1610,10 +1610,10 @@ html.dark[data-site-theme="easter"] {
   }
 
   html.dark[data-site-theme="easter"] .song-dialog-lyrics {
-    color: #f1f5ff;
+    color: #f5f0ff;
     font-family: var(--font-playfair);
-    background: rgba(30, 40, 72, 0.96);
-    border: 1px solid rgba(150, 180, 255, 0.2);
+    background: #5a3b88;
+    border: 1px solid #8a70b8;
     text-shadow:
       0 1px 0 rgba(255, 255, 255, 0.06),
       0 2px 8px rgba(6, 9, 24, 0.74);

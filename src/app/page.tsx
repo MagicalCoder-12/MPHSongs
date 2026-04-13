@@ -944,8 +944,8 @@ export default function Home() {
         </AlertDialog>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''} ${isResurrectionTheme ? 'easter-tabs-shell' : ''}`}>
-        <div className="sticky top-0 z-30 mb-4 space-y-3 rounded-md bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:top-2 sm:mb-6">
-        <div className={`flex flex-col gap-3 ${isGoodFridayTheme ? 'good-friday-controls' : ''} ${isResurrectionTheme ? 'easter-controls' : ''} ${!isSpecialTheme ? 'sm:flex-row sm:gap-4' : ''}`}>
+        <div className="sticky top-0 z-30 mb-4 w-full space-y-3 rounded-md bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:top-2 sm:mb-6">
+        <div className={`flex w-full flex-col gap-3 sm:flex-row sm:gap-4 ${isGoodFridayTheme ? 'good-friday-controls' : ''} ${isResurrectionTheme ? 'easter-controls' : ''}`}>
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />

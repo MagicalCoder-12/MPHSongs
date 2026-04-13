@@ -874,7 +874,9 @@ export default function Home() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <div className={`mb-4 flex flex-col gap-3 sm:mb-6 ${isGoodFridayTheme ? 'good-friday-controls' : ''} ${isResurrectionTheme ? 'easter-controls' : ''} ${!isSpecialTheme ? 'sm:flex-row sm:gap-4' : ''}`}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''} ${isResurrectionTheme ? 'easter-tabs-shell' : ''}`}>
+        <div className="sticky top-0 z-30 mb-4 space-y-3 rounded-md bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:top-2 sm:mb-6">
+        <div className={`flex flex-col gap-3 ${isGoodFridayTheme ? 'good-friday-controls' : ''} ${isResurrectionTheme ? 'easter-controls' : ''} ${!isSpecialTheme ? 'sm:flex-row sm:gap-4' : ''}`}>
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -967,7 +969,6 @@ export default function Home() {
           </div>
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''} ${isResurrectionTheme ? 'easter-tabs-shell' : ''}`}>
         <TabsList className={`grid w-full ${visibleTabCount === 3 ? 'grid-cols-3' : 'grid-cols-2'} h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''} ${isResurrectionTheme ? 'easter-tabs' : ''}`}>
           <TabsTrigger value="all-songs" className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
             <List className="h-4 w-4" />
@@ -998,6 +999,7 @@ export default function Home() {
             </TabsTrigger>
           )}
         </TabsList>
+        </div>
 
         <TabsContent value="all-songs" className="mt-4 sm:mt-6">
           <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''} ${isResurrectionTheme ? 'easter-song-grid' : ''}`}>

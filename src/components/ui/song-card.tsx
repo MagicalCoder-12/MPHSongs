@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type TouchEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,12 +41,49 @@ export function SongCard({
 }: SongCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [lyricsZoom, setLyricsZoom] = useState(1);
+  const pinchStartDistanceRef = useRef<number | null>(null);
+  const pinchStartZoomRef = useRef(1);
   const isGoodFridaySong = song.tags?.includes(GOOD_FRIDAY_TAG);
   const lyricsFontSize = `${lyricsZoom}rem`;
   const lyricsLineHeight = lyricsZoom >= 1.4 ? 1.65 : 1.75;
 
+  const clampLyricsZoom = (value: number) => Math.min(1.75, Math.max(0.85, Number(value.toFixed(2))));
+
   const adjustLyricsZoom = (amount: number) => {
-    setLyricsZoom((currentZoom) => Math.min(1.75, Math.max(0.85, Number((currentZoom + amount).toFixed(2)))));
+    setLyricsZoom((currentZoom) => clampLyricsZoom(currentZoom + amount));
+  };
+
+  const getTouchDistance = (touches: TouchList) => {
+    const firstTouch = touches[0];
+    const secondTouch = touches[1];
+    const deltaX = firstTouch.clientX - secondTouch.clientX;
+    const deltaY = firstTouch.clientY - secondTouch.clientY;
+
+    return Math.hypot(deltaX, deltaY);
+  };
+
+  const handleLyricsTouchStart = (event: TouchEvent<HTMLParagraphElement>) => {
+    if (event.touches.length !== 2) {
+      return;
+    }
+
+    pinchStartDistanceRef.current = getTouchDistance(event.touches);
+    pinchStartZoomRef.current = lyricsZoom;
+  };
+
+  const handleLyricsTouchMove = (event: TouchEvent<HTMLParagraphElement>) => {
+    if (event.touches.length !== 2 || !pinchStartDistanceRef.current) {
+      return;
+    }
+
+    event.preventDefault();
+    const currentDistance = getTouchDistance(event.touches);
+    const nextZoom = pinchStartZoomRef.current * (currentDistance / pinchStartDistanceRef.current);
+    setLyricsZoom(clampLyricsZoom(nextZoom));
+  };
+
+  const handleLyricsTouchEnd = () => {
+    pinchStartDistanceRef.current = null;
   };
 
   const handleCardClick = () => {
@@ -219,7 +256,11 @@ export function SongCard({
             </div>
             <p
               className="song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted"
-              style={{ fontSize: lyricsFontSize, lineHeight: lyricsLineHeight }}
+              style={{ fontSize: lyricsFontSize, lineHeight: lyricsLineHeight, touchAction: "pan-y" }}
+              onTouchStart={handleLyricsTouchStart}
+              onTouchMove={handleLyricsTouchMove}
+              onTouchEnd={handleLyricsTouchEnd}
+              onTouchCancel={handleLyricsTouchEnd}
             >
               {song.lyrics}
             </p>

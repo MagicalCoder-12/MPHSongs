@@ -28,6 +28,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const SITE_THEME_STORAGE_KEY = 'mph-site-theme';
 const GOOD_FRIDAY_TAB = 'good-friday';
+const CHRISTMAS_TAB = 'christmas';
 const CHOIR_TAB = 'choir-practice';
 
 type SongFormData = {
@@ -36,6 +37,7 @@ type SongFormData = {
   lyrics: string;
   isChoirPractice: boolean;
   isGoodFridaySong: boolean;
+  isChristmasSong: boolean;
 };
 
 interface Song {
@@ -121,6 +123,7 @@ const getEmptyFormData = (activeTab: string): SongFormData => ({
   lyrics: '',
   isChoirPractice: false,
   isGoodFridaySong: activeTab === GOOD_FRIDAY_TAB,
+  isChristmasSong: activeTab === CHRISTMAS_TAB,
 });
 
 export default function Home() {
@@ -198,6 +201,7 @@ export default function Home() {
         sortBy,
         ...(activeTab === CHOIR_TAB && { choirOnly: 'true' }),
         ...(activeTab === GOOD_FRIDAY_TAB && { tag: GOOD_FRIDAY_TAG }),
+        ...(activeTab === CHRISTMAS_TAB && { christmasOnly: 'true' }),
       });
       
       const response = await fetch(`/api/songs?${params.toString()}`);
@@ -492,6 +496,7 @@ export default function Home() {
       lyrics: song.lyrics,
       isChoirPractice: song.isChoirPractice,
       isGoodFridaySong: Boolean(song.tags?.includes(GOOD_FRIDAY_TAG)),
+      isChristmasSong: Boolean(song.isChristmasSong),
     });
     setIsDialogOpen(true);
   };
@@ -557,9 +562,23 @@ export default function Home() {
 
   const isGoodFridayTheme = siteTheme === 'good-friday';
   const isResurrectionTheme = siteTheme === 'easter';
+  const isChristmasTheme = siteTheme === 'christmas';
   const isSpecialTheme = isGoodFridayTheme || isResurrectionTheme;
+  const showGoodFridayTab = isGoodFridayTheme;
+  const showChristmasTab = isChristmasTheme;
+  const visibleTabCount = 2 + (showGoodFridayTab || showChristmasTab ? 1 : 0);
   const currentSongs = activeTab === CHOIR_TAB ? choirSongs : songs;
   const searchPlaceholder = 'Search Songs by lyrics';
+
+  useEffect(() => {
+    if (activeTab === GOOD_FRIDAY_TAB && !showGoodFridayTab) {
+      setActiveTab('all-songs');
+    }
+
+    if (activeTab === CHRISTMAS_TAB && !showChristmasTab) {
+      setActiveTab('all-songs');
+    }
+  }, [activeTab, showGoodFridayTab, showChristmasTab]);
 
   return (
     <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''} ${isResurrectionTheme ? 'easter-stage easter-shell' : ''}`}>
@@ -758,6 +777,16 @@ export default function Home() {
                       />
                       <Label htmlFor="good-friday">Tag as Good Friday</Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="christmas"
+                        checked={formData.isChristmasSong}
+                        onChange={(e) => setFormData({ ...formData, isChristmasSong: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="christmas">Tag as Christmas</Label>
+                    </div>
                   </div>
                 </ScrollArea>
                 <DialogFooter className="pt-4 border-t">
@@ -939,7 +968,7 @@ export default function Home() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''} ${isResurrectionTheme ? 'easter-tabs-shell' : ''}`}>
-        <TabsList className={`grid w-full grid-cols-3 h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''} ${isResurrectionTheme ? 'easter-tabs' : ''}`}>
+        <TabsList className={`grid w-full ${visibleTabCount === 3 ? 'grid-cols-3' : 'grid-cols-2'} h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''} ${isResurrectionTheme ? 'easter-tabs' : ''}`}>
           <TabsTrigger value="all-songs" className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
             <List className="h-4 w-4" />
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Songs' : isResurrectionTheme ? 'Songs' : 'All Songs'}</span>
@@ -950,13 +979,24 @@ export default function Home() {
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Choir' : isResurrectionTheme ? 'Choir' : 'Choir Practice'}</span>
             <span className="xs:hidden">Choir</span>
           </TabsTrigger>
-          <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
-            <Badge variant="secondary" className="hidden sm:inline-flex">
-              GF
-            </Badge>
-            <span className="hidden xs:inline">{isGoodFridayTheme ? 'GF' : isResurrectionTheme ? 'GF' : 'Good Friday'}</span>
-            <span className="xs:hidden">GF</span>
-          </TabsTrigger>
+          {showGoodFridayTab && (
+            <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
+              <Badge variant="secondary" className="hidden sm:inline-flex">
+                GF
+              </Badge>
+              <span className="hidden xs:inline">GF</span>
+              <span className="xs:hidden">GF</span>
+            </TabsTrigger>
+          )}
+          {showChristmasTab && (
+            <TabsTrigger value={CHRISTMAS_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Badge variant="secondary" className="hidden sm:inline-flex">
+                Christmas
+              </Badge>
+              <span className="hidden xs:inline">Christmas Songs</span>
+              <span className="xs:hidden">Xmas</span>
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="all-songs" className="mt-4 sm:mt-6">
@@ -1015,6 +1055,39 @@ export default function Home() {
             ) : currentSongs.length === 0 ? (
               <div className="col-span-full text-center py-8 text-muted-foreground">
                 No Good Friday songs found yet.
+              </div>
+            ) : (
+              currentSongs.map((song) => (
+                <div key={song._id}>
+                  <SongCard
+                    song={song}
+                    onEdit={handleEditSong}
+                    onDelete={handleDeleteSong}
+                    onToggleChoir={handleToggleChoir}
+                    onViewDetails={handleViewDetails}
+                    isAdmin={isAdmin}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value={CHRISTMAS_TAB} className="mt-4 sm:mt-6">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="space-y-3">
+                  <Skeleton className="h-48 w-full rounded-xl" />
+                </div>
+              ))
+            ) : currentSongs === undefined ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No Christmas songs found yet.
+              </div>
+            ) : currentSongs.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No Christmas songs found yet.
               </div>
             ) : (
               currentSongs.map((song) => (

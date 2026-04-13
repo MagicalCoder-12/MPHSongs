@@ -519,6 +519,13 @@ export default function Home() {
     searchInputRef.current?.focus();
   };
 
+  const handleOpenCreateSongDialog = () => {
+    setDialogError(null);
+    setEditingSong(null);
+    setFormData(getEmptyFormData(activeTab));
+    setIsDialogOpen(true);
+  };
+
   const handleScrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -569,6 +576,72 @@ export default function Home() {
   const visibleTabCount = 2 + (showGoodFridayTab || showChristmasTab ? 1 : 0);
   const currentSongs = activeTab === CHOIR_TAB ? choirSongs : songs;
   const searchPlaceholder = 'Search Songs by lyrics';
+  const hasSearchTerm = searchTerm.trim().length > 0;
+
+  const getEmptyStateCopy = (tab: string) => {
+    if (hasSearchTerm) {
+      return {
+        title: 'No matching songs found.',
+        description: `No lyrics matched "${searchTerm.trim()}". Try another word or clear the search.`,
+      };
+    }
+
+    if (tab === GOOD_FRIDAY_TAB) {
+      return {
+        title: 'No Good Friday songs found yet.',
+        description: 'Songs tagged as Good Friday will appear here while the Good Friday theme is active.',
+      };
+    }
+
+    if (tab === CHRISTMAS_TAB) {
+      return {
+        title: 'No Christmas songs found yet.',
+        description: 'Songs tagged as Christmas will appear here while the Christmas theme is active.',
+      };
+    }
+
+    if (tab === CHOIR_TAB) {
+      return {
+        title: 'No choir practice songs found.',
+        description: 'Add songs to choir practice from the main list.',
+      };
+    }
+
+    if (isChristmasTheme) {
+      return {
+        title: 'No songs found yet.',
+        description: 'Christmas songs and regular songs will both appear here.',
+      };
+    }
+
+    if (isGoodFridayTheme) {
+      return {
+        title: 'No songs found yet.',
+        description: 'Add songs here, then tag Good Friday songs when needed.',
+      };
+    }
+
+    return {
+      title: 'No songs found yet.',
+      description: 'Create your first song to get started.',
+    };
+  };
+
+  const renderEmptyState = (tab: string) => {
+    const emptyState = getEmptyStateCopy(tab);
+
+    return (
+      <div className="col-span-full rounded-md border border-border/70 bg-card/70 px-4 py-8 text-center shadow-sm">
+        <p className="font-medium text-foreground">{emptyState.title}</p>
+        <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{emptyState.description}</p>
+        {hasSearchTerm && (
+          <Button type="button" variant="outline" size="sm" onClick={handleClearSearch} className="mt-4">
+            Clear search
+          </Button>
+        )}
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (activeTab === GOOD_FRIDAY_TAB && !showGoodFridayTab) {
@@ -581,7 +654,7 @@ export default function Home() {
   }, [activeTab, showGoodFridayTab, showChristmasTab]);
 
   return (
-    <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''} ${isResurrectionTheme ? 'easter-stage easter-shell' : ''}`}>
+    <div className={`min-h-screen bg-background p-2 pb-24 sm:p-4 sm:pb-24 md:p-6 md:pb-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''} ${isResurrectionTheme ? 'easter-stage easter-shell' : ''}`}>
       <div className={`mx-auto ${isGoodFridayTheme ? 'max-w-5xl' : 'max-w-6xl'}`}>
         {/* Offline Banner */}
         {!isOnline && (
@@ -689,11 +762,7 @@ export default function Home() {
             }}>
               <DialogTrigger asChild>
                 <Button
-                  onClick={() => {
-                    setDialogError(null);
-                    setEditingSong(null);
-                    setFormData(getEmptyFormData(activeTab));
-                  }}
+                  onClick={handleOpenCreateSongDialog}
                   className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-add-button' : ''} ${isResurrectionTheme ? 'easter-add-button' : ''}`}
                 >
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -982,11 +1051,11 @@ export default function Home() {
           </TabsTrigger>
           {showGoodFridayTab && (
             <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
-              <Badge variant="secondary" className="hidden sm:inline-flex">
+              <Badge variant="secondary" className="hidden sm:inline-flex md:hidden">
                 GF
               </Badge>
-              <span className="hidden xs:inline">GF</span>
-              <span className="xs:hidden">GF</span>
+              <span className="hidden sm:inline">Good Friday</span>
+              <span className="sm:hidden">GF</span>
             </TabsTrigger>
           )}
           {showChristmasTab && (
@@ -995,7 +1064,7 @@ export default function Home() {
                 Christmas
               </Badge>
               <span className="hidden xs:inline">Christmas Songs</span>
-              <span className="xs:hidden">Xmas</span>
+              <span className="xs:hidden">Christmas</span>
             </TabsTrigger>
           )}
         </TabsList>
@@ -1010,13 +1079,9 @@ export default function Home() {
                 </div>
               ))
             ) : currentSongs === undefined ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No songs found. Create your first song to get started!
-              </div>
+              renderEmptyState('all-songs')
             ) : currentSongs.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No songs found. Create your first song to get started!
-              </div>
+              renderEmptyState('all-songs')
             ) : (
               currentSongs.map((song) => (
                 <div key={song._id}>
@@ -1027,6 +1092,7 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin}
+                    searchTerm={searchTerm}
                   />
                 </div>
               ))
@@ -1051,13 +1117,9 @@ export default function Home() {
                 </div>
               ))
             ) : currentSongs === undefined ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No Good Friday songs found yet.
-              </div>
+              renderEmptyState(GOOD_FRIDAY_TAB)
             ) : currentSongs.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No Good Friday songs found yet.
-              </div>
+              renderEmptyState(GOOD_FRIDAY_TAB)
             ) : (
               currentSongs.map((song) => (
                 <div key={song._id}>
@@ -1068,6 +1130,7 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin}
+                    searchTerm={searchTerm}
                   />
                 </div>
               ))
@@ -1084,13 +1147,9 @@ export default function Home() {
                 </div>
               ))
             ) : currentSongs === undefined ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No Christmas songs found yet.
-              </div>
+              renderEmptyState(CHRISTMAS_TAB)
             ) : currentSongs.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No Christmas songs found yet.
-              </div>
+              renderEmptyState(CHRISTMAS_TAB)
             ) : (
               currentSongs.map((song) => (
                 <div key={song._id}>
@@ -1101,6 +1160,7 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin}
+                    searchTerm={searchTerm}
                   />
                 </div>
               ))
@@ -1117,13 +1177,9 @@ export default function Home() {
                 </div>
               ))
             ) : currentSongs === undefined ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No choir practice songs found. Add songs to choir practice from the main list.
-              </div>
+              renderEmptyState(CHOIR_TAB)
             ) : currentSongs.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
-                No choir practice songs found. Add songs to choir practice from the main list.
-              </div>
+              renderEmptyState(CHOIR_TAB)
             ) : (
               currentSongs.map((song) => (
                 <div key={song._id}>
@@ -1134,6 +1190,7 @@ export default function Home() {
                     onToggleChoir={handleToggleChoir}
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin} // Pass isAdmin prop
+                    searchTerm={searchTerm}
                   />
                 </div>
               ))
@@ -1142,12 +1199,63 @@ export default function Home() {
         </TabsContent>
       </Tabs>
 
+      <div className="fixed inset-x-2 bottom-2 z-40 flex items-center justify-center gap-2 rounded-md border border-border/70 bg-background/95 p-2 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/85 md:hidden">
+        <ThemeToggle className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} />
+        {isAdmin && (
+          <Select
+            value={siteTheme}
+            onValueChange={(value: SiteTheme) => handleSiteThemeChange(value)}
+            disabled={isSavingSiteTheme}
+          >
+            <SelectTrigger className={`h-9 min-w-0 flex-1 ${isResurrectionTheme ? 'easter-toolbar-trigger' : ''}`} aria-label="Site theme">
+              <SelectValue placeholder="Theme" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="good-friday">Good Friday</SelectItem>
+              <SelectItem value="easter">Easter</SelectItem>
+              <SelectItem value="christmas">Christmas</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        {isAdmin ? (
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            size="sm"
+            className={`h-9 px-3 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="sr-only">Logout</span>
+          </Button>
+        ) : (
+          <Button
+            onClick={() => setShowLoginDialog(true)}
+            variant="outline"
+            size="sm"
+            className={`h-9 px-3 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
+          >
+            <LogIn className="h-4 w-4" />
+            <span className="sr-only">Admin Login</span>
+          </Button>
+        )}
+        <Button
+          type="button"
+          onClick={handleOpenCreateSongDialog}
+          size="sm"
+          className={`h-9 px-3 ${isGoodFridayTheme ? 'good-friday-add-button' : ''} ${isResurrectionTheme ? 'easter-add-button' : ''}`}
+        >
+          <Plus className="h-4 w-4" />
+          <span className="sr-only">Add Song</span>
+        </Button>
+      </div>
+
       {showScrollTop && (
         <Button
           type="button"
           onClick={handleScrollToTop}
           size="icon"
-          className={`fixed bottom-4 right-4 z-50 h-11 w-11 rounded-full shadow-lg sm:bottom-6 sm:right-6 ${
+          className={`fixed bottom-20 right-4 z-50 h-11 w-11 rounded-full shadow-lg md:bottom-6 sm:right-6 ${
             isGoodFridayTheme ? 'good-friday-scroll-top' : ''
           } ${
             isResurrectionTheme ? 'easter-scroll-top' : ''

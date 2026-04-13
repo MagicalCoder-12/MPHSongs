@@ -29,7 +29,30 @@ interface SongCardProps {
   onToggleChoir: (song: Song) => void;
   onViewDetails: (song: Song) => void;
   isAdmin?: boolean; // Added isAdmin prop to control delete visibility
+  searchTerm?: string;
 }
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const renderHighlightedText = (text: string, searchTerm: string) => {
+  const trimmedSearchTerm = searchTerm.trim();
+
+  if (!trimmedSearchTerm) {
+    return text;
+  }
+
+  const parts = text.split(new RegExp(`(${escapeRegExp(trimmedSearchTerm)})`, 'gi'));
+
+  return parts.map((part, index) =>
+    part.toLowerCase() === trimmedSearchTerm.toLowerCase() ? (
+      <mark key={`${part}-${index}`} className="rounded bg-yellow-200 px-0.5 text-yellow-950">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+};
 
 export function SongCard({ 
   song, 
@@ -38,6 +61,7 @@ export function SongCard({
   onToggleChoir, 
   onViewDetails,
   isAdmin = false, // Default to false
+  searchTerm = '',
 }: SongCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [lyricsZoom, setLyricsZoom] = useState(1);
@@ -167,7 +191,9 @@ export function SongCard({
         </CardHeader>
         <CardContent className="song-card-content pt-2 relative z-10">
           <ScrollArea className="song-card-content song-content h-32 sm:h-40 w-full">
-            <p className="song-card-lyrics song-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">{song.lyrics}</p>
+            <p className="song-card-lyrics song-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">
+              {renderHighlightedText(song.lyrics, searchTerm)}
+            </p>
           </ScrollArea>
           <div className="song-card-actions flex flex-wrap gap-2 mt-3 sm:mt-4">
             <Button
@@ -262,7 +288,7 @@ export function SongCard({
               onTouchEnd={handleLyricsTouchEnd}
               onTouchCancel={handleLyricsTouchEnd}
             >
-              {song.lyrics}
+              {renderHighlightedText(song.lyrics, searchTerm)}
             </p>
           </div>
         </DialogContent>

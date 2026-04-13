@@ -654,7 +654,7 @@ export default function Home() {
   }, [activeTab, showGoodFridayTab, showChristmasTab]);
 
   return (
-    <div className={`min-h-screen bg-background p-2 pb-24 sm:p-4 sm:pb-24 md:p-6 md:pb-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''} ${isResurrectionTheme ? 'easter-stage easter-shell' : ''}`}>
+    <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''} ${isResurrectionTheme ? 'easter-stage easter-shell' : ''}`}>
       <div className={`mx-auto ${isGoodFridayTheme ? 'max-w-5xl' : 'max-w-6xl'}`}>
         {/* Offline Banner */}
         {!isOnline && (
@@ -1199,63 +1199,12 @@ export default function Home() {
         </TabsContent>
       </Tabs>
 
-      <div className="fixed inset-x-2 bottom-2 z-40 flex items-center justify-center gap-2 rounded-md border border-border/70 bg-background/95 p-2 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/85 md:hidden">
-        <ThemeToggle className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} />
-        {isAdmin && (
-          <Select
-            value={siteTheme}
-            onValueChange={(value: SiteTheme) => handleSiteThemeChange(value)}
-            disabled={isSavingSiteTheme}
-          >
-            <SelectTrigger className={`h-9 min-w-0 flex-1 ${isResurrectionTheme ? 'easter-toolbar-trigger' : ''}`} aria-label="Site theme">
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="normal">Normal</SelectItem>
-              <SelectItem value="good-friday">Good Friday</SelectItem>
-              <SelectItem value="easter">Easter</SelectItem>
-              <SelectItem value="christmas">Christmas</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
-        {isAdmin ? (
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            className={`h-9 px-3 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="sr-only">Logout</span>
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setShowLoginDialog(true)}
-            variant="outline"
-            size="sm"
-            className={`h-9 px-3 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
-          >
-            <LogIn className="h-4 w-4" />
-            <span className="sr-only">Admin Login</span>
-          </Button>
-        )}
-        <Button
-          type="button"
-          onClick={handleOpenCreateSongDialog}
-          size="sm"
-          className={`h-9 px-3 ${isGoodFridayTheme ? 'good-friday-add-button' : ''} ${isResurrectionTheme ? 'easter-add-button' : ''}`}
-        >
-          <Plus className="h-4 w-4" />
-          <span className="sr-only">Add Song</span>
-        </Button>
-      </div>
-
       {showScrollTop && (
         <Button
           type="button"
           onClick={handleScrollToTop}
           size="icon"
-          className={`fixed bottom-20 right-4 z-50 h-11 w-11 rounded-full shadow-lg md:bottom-6 sm:right-6 ${
+          className={`fixed bottom-4 right-4 z-50 h-11 w-11 rounded-full shadow-lg sm:bottom-6 sm:right-6 ${
             isGoodFridayTheme ? 'good-friday-scroll-top' : ''
           } ${
             isResurrectionTheme ? 'easter-scroll-top' : ''

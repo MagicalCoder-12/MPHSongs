@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Edit, Trash2, TreePine } from "lucide-react";
+import { Users, Edit, Trash2, TreePine, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { GOOD_FRIDAY_TAG } from "@/lib/song-tags";
 
 interface Song {
@@ -40,7 +40,14 @@ export function SongCard({
   isAdmin = false, // Default to false
 }: SongCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [lyricsZoom, setLyricsZoom] = useState(1);
   const isGoodFridaySong = song.tags?.includes(GOOD_FRIDAY_TAG);
+  const lyricsFontSize = `${lyricsZoom}rem`;
+  const lyricsLineHeight = lyricsZoom >= 1.4 ? 1.65 : 1.75;
+
+  const adjustLyricsZoom = (amount: number) => {
+    setLyricsZoom((currentZoom) => Math.min(1.75, Math.max(0.85, Number((currentZoom + amount).toFixed(2)))));
+  };
 
   const handleCardClick = () => {
     handleViewDetails();
@@ -172,7 +179,50 @@ export function SongCard({
             )}
           </div>
           <div className="song-content mt-4">
-            <p className="song-dialog-lyrics song-lyrics whitespace-pre-wrap text-base sm:text-lg leading-relaxed font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted">{song.lyrics}</p>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-medium text-muted-foreground">Lyrics size</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => adjustLyricsZoom(-0.1)}
+                  disabled={lyricsZoom <= 0.85}
+                  aria-label="Zoom lyrics out"
+                >
+                  <ZoomOut className="h-4 w-4" />
+                </Button>
+                <span className="min-w-12 text-center text-sm text-muted-foreground">
+                  {Math.round(lyricsZoom * 100)}%
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => adjustLyricsZoom(0.1)}
+                  disabled={lyricsZoom >= 1.75}
+                  aria-label="Zoom lyrics in"
+                >
+                  <ZoomIn className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLyricsZoom(1)}
+                  disabled={lyricsZoom === 1}
+                  aria-label="Reset lyrics zoom"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <p
+              className="song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted"
+              style={{ fontSize: lyricsFontSize, lineHeight: lyricsLineHeight }}
+            >
+              {song.lyrics}
+            </p>
           </div>
         </DialogContent>
       </Dialog>

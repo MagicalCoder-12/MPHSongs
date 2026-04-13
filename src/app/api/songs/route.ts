@@ -30,9 +30,6 @@ export async function GET(request: NextRequest) {
     
     if (christmasOnly) {
       query.isChristmasSong = true;
-    } else if (!choirOnly) {
-      // In the regular songs tab, exclude Christmas songs
-      query.isChristmasSong = { $ne: true };
     }
     
     if (search) {

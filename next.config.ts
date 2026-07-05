@@ -49,6 +49,16 @@ export default withPWA({
   // Add runtime caching for API routes
   runtimeCaching: [
     {
+      urlPattern: /\/api\/songs(\?.*)?$/,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'songs-cache',
+        expiration: {
+          maxEntries: 100,
+        },
+      },
+    },
+    {
       urlPattern: /^https?.*/,
       handler: 'NetworkFirst',
       options: {

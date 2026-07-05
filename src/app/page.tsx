@@ -135,6 +135,10 @@ export default function Home() {
   // Offline state
   const [isOnline, setIsOnline] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [selectedSongIds, setSelectedSongIds] = useState<Set<string>>(new Set());
+  const [showBulkTagDialog, setShowBulkTagDialog] = useState(false);
+  const [bulkTagAdd, setBulkTagAdd] = useState<string[]>([]);
+  const [bulkTagRemove, setBulkTagRemove] = useState<string[]>([]);
   
   // Refs
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -517,6 +521,90 @@ export default function Home() {
   const handleScrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const handleBulkTag = async () => {
+    if (selectedSongIds.size === 0) return;
+
+    try {
+      const response = await fetch('/api/songs/bulk-tags', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ids: Array.from(selectedSongIds),
+          addTags: bulkTagAdd,
+          removeTags: bulkTagRemove,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSelectedSongIds(new Set());
+        setBulkTagAdd([]);
+        setBulkTagRemove([]);
+        setShowBulkTagDialog(false);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await fetchSongs();
+      } else {
+        if (response.status === 401) {
+          setIsAdmin(false);
+        }
+        console.error('Bulk tag update failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Error updating tags in bulk:', error);
+    }
+  };
+
+  const handleToggleSelectSong = (songId: string) => {
+    setSelectedSongIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(songId)) {
+        next.delete(songId);
+      } else {
+        next.add(songId);
+      }
+      return next;
+    });
+  };
+
+  const handleClearSelection = () => {
+    setSelectedSongIds(new Set());
+  };
+
+  const handleOpenBulkTagDialog = () => {
+    setBulkTagAdd([]);
+    setBulkTagRemove([]);
+    setShowBulkTagDialog(true);
+  };
+
+  const toggleBulkAddTag = (tag: string) => {
+    setBulkTagAdd((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+    setBulkTagRemove((prev) => prev.filter((t) => t !== tag));
+  };
+
+  const toggleBulkRemoveTag = (tag: string) => {
+    setBulkTagRemove((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+    setBulkTagAdd((prev) => prev.filter((t) => t !== tag));
+  };
+
+  // Cache warming: pre-fetch all songs after mount to populate SW cache
+  useEffect(() => {
+    if ('serviceWorker' in navigator && 'caches' in window) {
+      const timer = setTimeout(async () => {
+        try {
+          await fetch('/api/songs?sortBy=alphabetical');
+        } catch {
+          // Silent fail - cache warming is best-effort
+        }
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Fetch songs when component mounts or when dependencies change
   useEffect(() => {
@@ -937,6 +1025,62 @@ export default function Home() {
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* Bulk Tag Dialog */}
+        <Dialog open={showBulkTagDialog} onOpenChange={setShowBulkTagDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Tag {selectedSongIds.size} Song{selectedSongIds.size > 1 ? 's' : ''}</DialogTitle>
+              <DialogDescription>
+                Select tags to add or remove from the selected songs.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div>
+                <p className="mb-2 text-sm font-medium">Add tags</p>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORY_TAGS.map((tag) => (
+                    <Button
+                      key={`add-${tag}`}
+                      type="button"
+                      variant={bulkTagAdd.includes(tag) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => toggleBulkAddTag(tag)}
+                    >
+                      {tag === CHURCH_TAG && <Cross className="h-3.5 w-3.5 mr-1" />}
+                      {tag === YOUTH_TAG && <Star className="h-3.5 w-3.5 mr-1" />}
+                      {tag === SUNDAY_SCHOOL_TAG && <BookOpen className="h-3.5 w-3.5 mr-1" />}
+                      {tag === CHURCH_TAG ? 'Church' : tag === YOUTH_TAG ? 'Youth' : 'SundaySchool'}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-medium">Remove tags</p>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORY_TAGS.map((tag) => (
+                    <Button
+                      key={`remove-${tag}`}
+                      type="button"
+                      variant={bulkTagRemove.includes(tag) ? 'destructive' : 'outline'}
+                      size="sm"
+                      onClick={() => toggleBulkRemoveTag(tag)}
+                    >
+                      {tag === CHURCH_TAG && <Cross className="h-3.5 w-3.5 mr-1" />}
+                      {tag === YOUTH_TAG && <Star className="h-3.5 w-3.5 mr-1" />}
+                      {tag === SUNDAY_SCHOOL_TAG && <BookOpen className="h-3.5 w-3.5 mr-1" />}
+                      {tag === CHURCH_TAG ? 'Church' : tag === YOUTH_TAG ? 'Youth' : 'SundaySchool'}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowBulkTagDialog(false)}>Cancel</Button>
+              <Button onClick={handleBulkTag}>Apply</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''}`}>
         <div className="sticky top-0 z-30 mb-4 w-full space-y-3 rounded-md bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:top-2 sm:mb-6">
         <div className={`flex w-full flex-col gap-3 sm:flex-row sm:gap-4 ${isGoodFridayTheme ? 'good-friday-controls' : ''}`}>
@@ -1109,11 +1253,37 @@ export default function Home() {
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin}
                     searchTerm={searchTerm}
+                    selected={selectedSongIds.has(song._id)}
+                    onToggleSelect={() => handleToggleSelectSong(song._id)}
                   />
                 </div>
               ))
             )}
           </div>
+          {selectedSongIds.size > 0 && isAdmin && (
+            <div className="sticky bottom-4 z-40 mt-4 flex items-center justify-center gap-3 rounded-xl border bg-background/95 px-4 py-3 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80">
+              <span className="text-sm text-muted-foreground">
+                {selectedSongIds.size} song{selectedSongIds.size > 1 ? 's' : ''} selected
+              </span>
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={handleOpenBulkTagDialog}
+              >
+                Tag Selected
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleClearSelection}
+              >
+                <X className="h-3.5 w-3.5 mr-1" />
+                Clear
+              </Button>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value={GOOD_FRIDAY_TAB} className="mt-4 sm:mt-6">

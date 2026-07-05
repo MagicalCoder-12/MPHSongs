@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Edit, Trash2, TreePine, Cross, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { Users, Edit, Trash2, TreePine, Cross, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw, Check } from "lucide-react";
 import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG } from "@/lib/song-tags";
 import type { Song } from "@/lib/types";
 
@@ -17,8 +17,10 @@ interface SongCardProps {
   onDelete: (id: string) => void;
   onToggleChoir: (song: Song) => void;
   onViewDetails: (song: Song) => void;
-  isAdmin?: boolean; // Added isAdmin prop to control delete visibility
+  isAdmin?: boolean;
   searchTerm?: string;
+  selected?: boolean;
+  onToggleSelect?: () => void;
 }
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -49,8 +51,10 @@ export function SongCard({
   onDelete, 
   onToggleChoir, 
   onViewDetails,
-  isAdmin = false, // Default to false
+  isAdmin = false,
   searchTerm = '',
+  selected,
+  onToggleSelect,
 }: SongCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [lyricsZoom, setLyricsZoom] = useState(1);
@@ -103,7 +107,11 @@ export function SongCard({
   };
 
   const handleCardClick = () => {
-    handleViewDetails();
+    if (onToggleSelect) {
+      onToggleSelect();
+    } else {
+      handleViewDetails();
+    }
   };
 
   const handleViewDetails = () => {
@@ -114,9 +122,28 @@ export function SongCard({
   return (
     <>
       <Card 
-        className="leather-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
+        className={`leather-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden relative ${selected ? 'ring-2 ring-primary' : ''}`}
         onClick={handleCardClick}
       >
+        {onToggleSelect && (
+          <div
+            className="absolute left-2 top-2 z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={onToggleSelect}
+              className={`flex h-5 w-5 items-center justify-center rounded border ${
+                selected
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-muted-foreground/40 bg-background/80'
+              }`}
+              aria-label={selected ? 'Deselect song' : 'Select song'}
+            >
+              {selected && <Check className="h-3 w-3" />}
+            </button>
+          </div>
+        )}
         <CardHeader className="song-card-header pb-2 relative z-10">
           <div className="flex justify-between items-start gap-1">
             <div className="min-w-0 flex-1">

@@ -147,7 +147,14 @@ export function SongCard({
         <CardHeader className="song-card-header pb-2 relative z-10">
           <div className="flex justify-between items-start gap-1">
             <div className="min-w-0 flex-1">
-              <CardTitle className="song-card-title song-title text-base sm:text-lg truncate font-[family:var(--font-playfair)] text-foreground">{song.title}</CardTitle>
+              <CardTitle className="song-card-title song-title text-base sm:text-lg font-[family:var(--font-playfair)] text-foreground">
+                {renderHighlightedText(song.title, searchTerm)}
+                {song.subtitle && (
+                  <span className="block text-xs sm:text-sm font-normal text-muted-foreground mt-0.5">
+                    {renderHighlightedText(song.subtitle, searchTerm)}
+                  </span>
+                )}
+              </CardTitle>
               <CardDescription className="song-card-meta">
                 <div className="flex flex-wrap gap-1 mt-1">
                   <span className="beige-chip text-xs">{song.songLanguage}</span>
@@ -258,7 +265,14 @@ export function SongCard({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className=" max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
+            <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">
+              {renderHighlightedText(song.title, searchTerm)}
+              {song.subtitle && (
+                <span className="block text-sm sm:text-base font-normal text-muted-foreground mt-1">
+                  {renderHighlightedText(song.subtitle, searchTerm)}
+                </span>
+              )}
+            </DialogTitle>
           </DialogHeader>
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="beige-chip">{song.songLanguage}</span>

@@ -7,6 +7,10 @@ const songSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    subtitle: {
+      type: String,
+      trim: true,
+    },
     songLanguage: {
       type: String,
       required: true,
@@ -46,6 +50,7 @@ songSchema.index({ isChristmasSong: 1, title: 1 });
 // Index for search functionality
 songSchema.index({
   title: 'text',
+  subtitle: 'text',
   lyrics: 'text',
   tags: 'text',
 });

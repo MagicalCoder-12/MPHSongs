@@ -1,6 +1,7 @@
 export interface Song {
   _id: string;
   title: string;
+  subtitle?: string;
   songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;
@@ -12,6 +13,7 @@ export interface Song {
 
 export type SongFormData = {
   title: string;
+  subtitle?: string;
   songLanguage: string;
   lyrics: string;
   isChoirPractice: boolean;

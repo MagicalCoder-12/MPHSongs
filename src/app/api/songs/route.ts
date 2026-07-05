@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
 
       query.$or = [
         { title: { $regex: escapedSearch, $options: 'i' } },
+        { subtitle: { $regex: escapedSearch, $options: 'i' } },
         { lyrics: { $regex: escapedSearch, $options: 'i' } },
         { tags: { $regex: escapedSearch, $options: 'i' } }
       ];
@@ -84,10 +85,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
+    const { title, subtitle, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
 
     const newSong = await Song.create({
       title,
+      subtitle,
       songLanguage,
       lyrics,
       isChoirPractice,
@@ -119,16 +121,23 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       );
     }
 
-    const { title, songLanguage, lyrics, isChoirPractice } = parsedPayload.data;
+    const { title, subtitle, songLanguage, lyrics, isChoirPractice, tags } = parsedPayload.data;
+
+    const updateFields: Record<string, unknown> = {
+      title,
+      songLanguage,
+      lyrics,
+      isChoirPractice,
+      tags,
+    };
+
+    if (subtitle !== undefined) {
+      updateFields.subtitle = subtitle;
+    }
 
     const updatedSong = await Song.findByIdAndUpdate(
       id,
-      {
-        title,
-        songLanguage,
-        lyrics,
-        isChoirPractice
-      },
+      updateFields,
       { new: true, runValidators: true }
     );
     if (!updatedSong) {

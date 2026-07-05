@@ -27,6 +27,7 @@ export function sanitizeSearchTerm(value: string | null) {
 
 type SongPayload = {
   title: string;
+  subtitle?: string;
   songLanguage: SongLanguage;
   lyrics: string;
   isChoirPractice: boolean;
@@ -52,6 +53,8 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
   }
 
   const title = rawTitle.trim();
+  const rawSubtitle = body.subtitle;
+  const subtitle = typeof rawSubtitle === 'string' ? rawSubtitle.trim() || undefined : undefined;
   const lyrics = rawLyrics.trim();
 
   if (!title || !lyrics) {
@@ -95,6 +98,7 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
     success: true,
     data: {
       title,
+      subtitle,
       songLanguage: rawSongLanguage,
       lyrics,
       isChoirPractice: Boolean(body.isChoirPractice),

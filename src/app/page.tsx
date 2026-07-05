@@ -50,6 +50,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 const getEmptyFormData = (activeTab: string): SongFormData => ({
   title: '',
+  subtitle: '',
   songLanguage: 'Telugu',
   lyrics: '',
   isChoirPractice: false,
@@ -447,6 +448,7 @@ export default function Home() {
     setEditingSong(song);
     setFormData({
       title: song.title,
+      subtitle: song.subtitle,
       songLanguage: song.songLanguage,
       lyrics: song.lyrics,
       isChoirPractice: song.isChoirPractice,
@@ -818,6 +820,15 @@ export default function Home() {
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         placeholder="Enter song title"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="subtitle">Subtitle (alternative title)</Label>
+                      <Input
+                        id="subtitle"
+                        value={formData.subtitle}
+                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                        placeholder="Enter alternative title"
                       />
                     </div>
                     <div className="grid gap-2">

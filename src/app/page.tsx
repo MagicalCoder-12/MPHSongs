@@ -1253,8 +1253,7 @@ export default function Home() {
                     onViewDetails={handleViewDetails}
                     isAdmin={isAdmin}
                     searchTerm={searchTerm}
-                    selected={selectedSongIds.has(song._id)}
-                    onToggleSelect={() => handleToggleSelectSong(song._id)}
+                    {...(isAdmin ? { selected: selectedSongIds.has(song._id), onToggleSelect: () => handleToggleSelectSong(song._id) } : {})}
                   />
                 </div>
               ))

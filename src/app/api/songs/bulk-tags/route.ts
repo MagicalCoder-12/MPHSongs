@@ -3,13 +3,10 @@ import { requireAdmin } from '@/lib/admin-auth';
 import Song from '@/lib/models/Song';
 
 export async function PATCH(request: NextRequest) {
-  const adminCheck = await requireAdmin(request);
+  const authResponse = requireAdmin(request);
 
-  if (!adminCheck.isAdmin) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized' },
-      { status: 401 }
-    );
+  if (authResponse) {
+    return authResponse;
   }
 
   try {

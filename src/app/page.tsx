@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,54 +48,56 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
-// Function to detect potential duplicates
-const detectDuplicates = (newSong: SongFormData, existingSongs: Song[]) => {
-  const duplicates = existingSongs.filter(song => {
-    // Check for exact title match
-    if (song.title.toLowerCase().trim() === newSong.title.toLowerCase().trim()) {
-      return true;
-    }
-    
-    // Check for similar titles (Levenshtein distance < 3)
-    const levenshteinDistance = (a: string, b: string): number => {
-      if (a.length === 0) return b.length;
-      if (b.length === 0) return a.length;
-      
-      const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
-      
-      for (let i = 0; i <= a.length; i++) {
-        matrix[0][i] = i;
+  // Memoize duplicate detection function
+  const detectDuplicates = useCallback((newSong: SongFormData, existingSongs: Song[]) => {
+    return existingSongs.some(song => {
+      // Check for exact title match
+      if (song.title.toLowerCase().trim() === newSong.title.toLowerCase().trim()) {
+        return true;
       }
       
-      for (let j = 0; j <= b.length; j++) {
-        matrix[j][0] = j;
+      // Quick length check before expensive Levenshtein calculation
+      const titleDiff = Math.abs(song.title.length - newSong.title.length);
+      if (titleDiff > 2) {
+        return false;
       }
+      
+      // Check for similar titles (Levenshtein distance < 3)
+      const a = song.title.toLowerCase().trim();
+      const b = newSong.title.toLowerCase().trim();
+      
+      // Optimized Levenshtein with early exit
+      if (a.length === 0) return b.length < 3;
+      if (b.length === 0) return a.length < 3;
+      
+      let previousRow = Array.from({ length: a.length + 1 }, (_, i) => i);
       
       for (let j = 1; j <= b.length; j++) {
+        let currentRow = [j];
+        let minInRow = j;
+        
         for (let i = 1; i <= a.length; i++) {
           const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-          matrix[j][i] = Math.min(
-            matrix[j][i - 1] + 1, // insertion
-            matrix[j - 1][i] + 1, // deletion
-            matrix[j - 1][i - 1] + cost // substitution
-          );
+          const insertion = currentRow[i - 1] + 1;
+          const deletion = previousRow[i] + 1;
+          const substitution = previousRow[i - 1] + cost;
+          const min = Math.min(insertion, deletion, substitution);
+          
+          currentRow.push(min);
+          if (min < minInRow) minInRow = min;
         }
+        
+        // Early exit if minimum value in row exceeds threshold
+        if (minInRow >= 3) {
+          return false;
+        }
+        
+        previousRow = currentRow;
       }
       
-      return matrix[b.length][a.length];
-    };
-    
-    // Check if titles are very similar
-    const distance = levenshteinDistance(
-      song.title.toLowerCase().trim(), 
-      newSong.title.toLowerCase().trim()
-    );
-    
-    return distance < 3;
-  });
-  
-  return duplicates;
-};
+      return previousRow[a.length] < 3;
+    });
+  }, []);
 
 const getEmptyFormData = (activeTab: string): SongFormData => ({
   title: '',
@@ -108,6 +110,19 @@ const getEmptyFormData = (activeTab: string): SongFormData => ({
   isYouthSong: false,
   isSundaySchoolSong: false,
 });
+
+// Memoize the empty form data generator
+const getEmptyFormDataMemo = useCallback((activeTab: string): SongFormData => ({
+  title: '',
+  songLanguage: 'Telugu',
+  lyrics: '',
+  isChoirPractice: false,
+  isGoodFridaySong: activeTab === GOOD_FRIDAY_TAB,
+  isChristmasSong: activeTab === CHRISTMAS_TAB,
+  isChurchSong: false,
+  isYouthSong: false,
+  isSundaySchoolSong: false,
+}), []);
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
@@ -307,9 +322,8 @@ export default function Home() {
 
   const handleCreateSong = async () => {
     // Check for duplicates before creating
-    const duplicates = detectDuplicates(formData, songs);
-    if (duplicates.length > 0) {
-      setDuplicateWarning(duplicates[0]);
+    if (detectDuplicates(formData, songs)) {
+      setDuplicateWarning(songs.find(s => s.title.toLowerCase().trim() === formData.title.toLowerCase().trim()) || songs[0]);
       setShowDuplicateDialog(true);
       return;
     }
@@ -327,8 +341,6 @@ export default function Home() {
         setDialogError(null);
         setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
-        // Force refresh the song list to ensure UI updates
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
         setDialogError(result.error || 'Failed to create song');
@@ -357,8 +369,6 @@ export default function Home() {
         setDialogError(null);
         setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
-        // Force refresh the song list to ensure UI updates
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
         setDialogError(result.error || 'Failed to create song');
@@ -387,8 +397,6 @@ export default function Home() {
         setEditingSong(null);
         setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
-        // Force refresh the song list to ensure UI updates
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
         setDialogError(result.error || 'Failed to update song');
@@ -415,8 +423,6 @@ export default function Home() {
       const result = await response.json();
       
       if (result.success) {
-        // Force refresh the song list to ensure UI updates
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
         if (response.status === 401) {
@@ -444,8 +450,6 @@ export default function Home() {
       const result = await response.json();
       
       if (result.success) {
-        // Force refresh the song list to ensure UI updates
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else if (response.status === 401) {
         setIsAdmin(false);
@@ -466,8 +470,6 @@ export default function Home() {
       const result = await response.json();
       
       if (result.success) {
-        // Force refresh the song list to ensure UI updates
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure DB update
         await fetchSongs();
       } else {
         console.error('Choir toggle failed:', result.error);

@@ -36,6 +36,13 @@ const songSchema = new mongoose.Schema(
   }
 );
 
+// Compound indexes for common query patterns
+songSchema.index({ isChoirPractice: 1, createdAt: -1 });
+songSchema.index({ isChristmasSong: 1, createdAt: -1 });
+songSchema.index({ tags: 1, createdAt: -1 });
+songSchema.index({ isChoirPractice: 1, title: 1 });
+songSchema.index({ isChristmasSong: 1, title: 1 });
+
 // Index for search functionality
 songSchema.index({
   title: 'text',

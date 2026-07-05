@@ -49,7 +49,8 @@ export async function GET(request: NextRequest) {
       sortOptions = { createdAt: -1 };
     }
     
-    const songs = await Song.find(query).sort(sortOptions);
+    // Use lean() for better performance - returns plain JS objects instead of Mongoose docs
+    const songs = await Song.find(query).sort(sortOptions).lean();
     
     return NextResponse.json({ success: true,  songs });
   } catch (error) {
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
 
-    const newSong = new Song({
+    const newSong = await Song.create({
       title,
       songLanguage,
       lyrics,
@@ -93,7 +94,6 @@ export async function POST(request: NextRequest) {
       isChristmasSong,
       tags
     });
-    await newSong.save();
     return NextResponse.json({ success: true,  newSong }, { status: 201 });
   } catch (error) {
     console.error('Error creating song:', error);

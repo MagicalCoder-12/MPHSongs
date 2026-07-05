@@ -11,7 +11,7 @@ const siteSettingsSchema = new mongoose.Schema(
     siteTheme: {
       type: String,
       required: true,
-      enum: ['normal', 'good-friday', 'easter', 'christmas'],
+      enum: ['normal', 'good-friday', 'christmas'],
       default: 'normal',
     },
   },

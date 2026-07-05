@@ -1,4 +1,4 @@
-import { GOOD_FRIDAY_TAG } from '@/lib/song-tags';
+import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG } from '@/lib/song-tags';
 
 export const ALLOWED_LANGUAGES = ['Telugu', 'Hindi', 'English', 'Other'] as const;
 export type SongLanguage = typeof ALLOWED_LANGUAGES[number];
@@ -67,6 +67,9 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
 
   const rawTags = Array.isArray(body.tags) ? body.tags : [];
   const isGoodFridaySong = Boolean(body.isGoodFridaySong);
+  const isChurchSong = Boolean(body.isChurchSong);
+  const isYouthSong = Boolean(body.isYouthSong);
+  const isSundaySchoolSong = Boolean(body.isSundaySchoolSong);
 
   const normalizedTags = Array.from(
     new Set(
@@ -77,9 +80,16 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
     )
   );
 
-  const tags = isGoodFridaySong
-    ? Array.from(new Set([...normalizedTags, GOOD_FRIDAY_TAG]))
-    : normalizedTags.filter((tag) => tag !== GOOD_FRIDAY_TAG);
+  const categoryTags: string[] = [];
+  if (isChurchSong) categoryTags.push(CHURCH_TAG);
+  if (isYouthSong) categoryTags.push(YOUTH_TAG);
+  if (isSundaySchoolSong) categoryTags.push(SUNDAY_SCHOOL_TAG);
+
+  let tags = Array.from(new Set([...normalizedTags, ...categoryTags]));
+
+  tags = isGoodFridaySong
+    ? Array.from(new Set([...tags, GOOD_FRIDAY_TAG]))
+    : tags.filter((tag) => tag !== GOOD_FRIDAY_TAG);
 
   return {
     success: true,

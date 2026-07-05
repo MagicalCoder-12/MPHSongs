@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp, Cross, Star, BookOpen } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -21,7 +21,7 @@ import {
   SITE_THEME_PLACEHOLDERS,
   type SiteTheme,
 } from '@/lib/site-theme';
-import { GOOD_FRIDAY_TAG } from '@/lib/song-tags';
+import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG, CATEGORY_TAGS } from '@/lib/song-tags';
 
 import { SongCard } from '@/components/ui/song-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -38,6 +38,9 @@ type SongFormData = {
   isChoirPractice: boolean;
   isGoodFridaySong: boolean;
   isChristmasSong: boolean;
+  isChurchSong: boolean;
+  isYouthSong: boolean;
+  isSundaySchoolSong: boolean;
 };
 
 interface Song {
@@ -124,6 +127,9 @@ const getEmptyFormData = (activeTab: string): SongFormData => ({
   isChoirPractice: false,
   isGoodFridaySong: activeTab === GOOD_FRIDAY_TAB,
   isChristmasSong: activeTab === CHRISTMAS_TAB,
+  isChurchSong: false,
+  isYouthSong: false,
+  isSundaySchoolSong: false,
 });
 
 export default function Home() {
@@ -134,6 +140,7 @@ export default function Home() {
   const [siteTheme, setSiteTheme] = useState<SiteTheme>('normal');
   const [isSavingSiteTheme, setIsSavingSiteTheme] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'alphabetical'>('recent');
+  const [categoryFilter, setCategoryFilter] = useState<typeof CATEGORY_TAGS[number] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dialogError, setDialogError] = useState<string | null>(null);
@@ -202,6 +209,7 @@ export default function Home() {
         ...(activeTab === CHOIR_TAB && { choirOnly: 'true' }),
         ...(activeTab === GOOD_FRIDAY_TAB && { tag: GOOD_FRIDAY_TAG }),
         ...(activeTab === CHRISTMAS_TAB && { christmasOnly: 'true' }),
+        ...(activeTab === 'all-songs' && categoryFilter && { tag: categoryFilter }),
       });
       
       const response = await fetch(`/api/songs?${params.toString()}`);
@@ -497,6 +505,9 @@ export default function Home() {
       isChoirPractice: song.isChoirPractice,
       isGoodFridaySong: Boolean(song.tags?.includes(GOOD_FRIDAY_TAG)),
       isChristmasSong: Boolean(song.isChristmasSong),
+      isChurchSong: Boolean(song.tags?.includes(CHURCH_TAG)),
+      isYouthSong: Boolean(song.tags?.includes(YOUTH_TAG)),
+      isSundaySchoolSong: Boolean(song.tags?.includes(SUNDAY_SCHOOL_TAG)),
     });
     setIsDialogOpen(true);
   };
@@ -533,7 +544,7 @@ export default function Home() {
   // Fetch songs when component mounts or when dependencies change
   useEffect(() => {
     fetchSongs();
-  }, [activeTab, searchTerm, sortBy]);
+  }, [activeTab, searchTerm, sortBy, categoryFilter]);
 
   useEffect(() => {
     loadAdminSession();
@@ -568,12 +579,7 @@ export default function Home() {
   }, [siteTheme]);
 
   const isGoodFridayTheme = siteTheme === 'good-friday';
-  const isResurrectionTheme = siteTheme === 'easter';
   const isChristmasTheme = siteTheme === 'christmas';
-  const isSpecialTheme = isGoodFridayTheme || isResurrectionTheme;
-  const showGoodFridayTab = isGoodFridayTheme;
-  const showChristmasTab = isChristmasTheme;
-  const visibleTabCount = 2 + (showGoodFridayTab || showChristmasTab ? 1 : 0);
   const currentSongs = activeTab === CHOIR_TAB ? choirSongs : songs;
   const searchPlaceholder = 'Search Songs by lyrics';
   const hasSearchTerm = searchTerm.trim().length > 0;
@@ -643,18 +649,8 @@ export default function Home() {
     );
   };
 
-  useEffect(() => {
-    if (activeTab === GOOD_FRIDAY_TAB && !showGoodFridayTab) {
-      setActiveTab('all-songs');
-    }
-
-    if (activeTab === CHRISTMAS_TAB && !showChristmasTab) {
-      setActiveTab('all-songs');
-    }
-  }, [activeTab, showGoodFridayTab, showChristmasTab]);
-
   return (
-    <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''} ${isResurrectionTheme ? 'easter-stage easter-shell' : ''}`}>
+    <div className={`min-h-screen bg-background p-2 sm:p-4 md:p-6 lg:p-8 ${isGoodFridayTheme ? 'good-friday-stage good-friday-shell' : ''}`}>
       <div className={`mx-auto ${isGoodFridayTheme ? 'max-w-5xl' : 'max-w-6xl'}`}>
         {/* Offline Banner */}
         {!isOnline && (
@@ -671,15 +667,13 @@ export default function Home() {
           </div>
         )}
         
-        <div className={`mb-4 gap-3 sm:mb-6 md:mb-8 ${isGoodFridayTheme ? 'good-friday-header' : ''} ${isResurrectionTheme ? 'easter-header' : ''} ${!isSpecialTheme ? 'flex flex-col sm:flex-row justify-between items-center sm:gap-4' : ''}`}>
-          <div className={`flex items-center gap-2 sm:gap-3 ${isGoodFridayTheme ? 'good-friday-brand' : ''} ${isResurrectionTheme ? 'easter-brand' : ''}`}>
-            {(!isGoodFridayTheme && !isResurrectionTheme) && <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />}
+        <div className={`mb-4 gap-3 sm:mb-6 md:mb-8 ${isGoodFridayTheme ? 'good-friday-header' : ''} ${!isGoodFridayTheme ? 'flex flex-col sm:flex-row justify-between items-center sm:gap-4' : ''}`}>
+          <div className={`flex items-center gap-2 sm:gap-3 ${isGoodFridayTheme ? 'good-friday-brand' : ''}`}>
+            {!isGoodFridayTheme && <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />}
             <div>
               <h1
                 className={`text-xl font-bold sm:text-2xl md:text-3xl ${
                   isGoodFridayTheme ? 'good-friday-title font-[family:var(--font-playfair)] tracking-[0.03em]' : ''
-                } ${
-                  isResurrectionTheme ? 'easter-title font-[family:var(--font-playfair)] tracking-[0.02em]' : ''
                 }`}
               >
                 {isGoodFridayTheme ? (
@@ -687,24 +681,18 @@ export default function Home() {
                     <span className="good-friday-title-song">Song Lyrics</span>{' '}
                     <span className="good-friday-title-manager">Manager</span>
                   </>
-                ) : isResurrectionTheme ? (
-                  <>
-                    <span>🎵</span>{' '}
-                    <span>Song Lyrics</span>{' '}
-                    <span>Manager</span>
-                  </>
                 ) : (
                   'Song Lyrics Manager'
                 )}
               </h1>
-              <p className={`text-xs sm:text-sm text-muted-foreground ${isGoodFridayTheme ? 'good-friday-subtitle' : ''} ${isResurrectionTheme ? 'easter-subtitle' : ''}`}>
+              <p className={`text-xs sm:text-sm text-muted-foreground ${isGoodFridayTheme ? 'good-friday-subtitle' : ''}`}>
                 Site theme: {SITE_THEME_LABELS[siteTheme]}
               </p>
             </div>
           </div>
 
-          <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${isGoodFridayTheme ? 'good-friday-toolbar' : ''} ${isResurrectionTheme ? 'easter-toolbar' : ''}`}>
-            <ThemeToggle className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} />
+          <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${isGoodFridayTheme ? 'good-friday-toolbar' : ''}`}>
+            <ThemeToggle className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''}`} />
             {isAdmin && (
               <div className="w-[150px] sm:w-[170px]">
                 <Select
@@ -712,13 +700,12 @@ export default function Home() {
                   onValueChange={(value: SiteTheme) => handleSiteThemeChange(value)}
                   disabled={isSavingSiteTheme}
                 >
-                <SelectTrigger className={`h-8 sm:h-9 md:h-10 ${isResurrectionTheme ? 'easter-toolbar-trigger' : ''}`}>
+                <SelectTrigger className="h-8 sm:h-9 md:h-10">
                     <SelectValue placeholder="Site theme" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="normal">Normal</SelectItem>
                     <SelectItem value="good-friday">Good Friday</SelectItem>
-                    <SelectItem value="easter">Easter</SelectItem>
                     <SelectItem value="christmas">Christmas</SelectItem>
                   </SelectContent>
                 </Select>
@@ -726,8 +713,8 @@ export default function Home() {
             )}
             {!isAppInstalled && (
               <>
-                <PWAInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} compact={isSpecialTheme} />
-                <IOSInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`} compact={isSpecialTheme} />
+                <PWAInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''}`} compact={isGoodFridayTheme} />
+                <IOSInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''}`} compact={isGoodFridayTheme} />
               </>
             )}
             {isAdmin ? (
@@ -735,20 +722,20 @@ export default function Home() {
                 onClick={handleLogout}
                 variant="outline"
                 size="sm"
-                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
+                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''}`}
               >
                 <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className={`${isSpecialTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Logout</span>
+                <span className={`${isGoodFridayTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Logout</span>
               </Button>
             ) : (
               <Button
                 onClick={() => setShowLoginDialog(true)}
                 variant="outline"
                 size="sm"
-                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''} ${isResurrectionTheme ? 'easter-action-button' : ''}`}
+                className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-action-button' : ''}`}
               >
                 <LogIn className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className={`${isSpecialTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Admin Login</span>
+                <span className={`${isGoodFridayTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Admin Login</span>
               </Button>
             )}
             
@@ -763,10 +750,10 @@ export default function Home() {
               <DialogTrigger asChild>
                 <Button
                   onClick={handleOpenCreateSongDialog}
-                  className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-add-button' : ''} ${isResurrectionTheme ? 'easter-add-button' : ''}`}
+                  className={`h-8 px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 ${isGoodFridayTheme ? 'good-friday-add-button' : ''}`}
                 >
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  <span className={`${isSpecialTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Add Song</span>
+                  <span className={`${isGoodFridayTheme ? 'sr-only' : 'hidden xs:inline text-xs sm:text-sm'}`}>Add Song</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
@@ -856,6 +843,36 @@ export default function Home() {
                       />
                       <Label htmlFor="christmas">Tag as Christmas</Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="church"
+                        checked={formData.isChurchSong}
+                        onChange={(e) => setFormData({ ...formData, isChurchSong: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="church">Tag as Church</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="youth"
+                        checked={formData.isYouthSong}
+                        onChange={(e) => setFormData({ ...formData, isYouthSong: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="youth">Tag as Youth</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="sundayschool"
+                        checked={formData.isSundaySchoolSong}
+                        onChange={(e) => setFormData({ ...formData, isSundaySchoolSong: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="sundayschool">Tag as SundaySchool</Label>
+                    </div>
                   </div>
                 </ScrollArea>
                 <DialogFooter className="pt-4 border-t">
@@ -868,7 +885,7 @@ export default function Home() {
           </div>
         </div>
 
-        {siteTheme !== 'normal' && siteTheme !== 'good-friday' && siteTheme !== 'easter' && (
+        {siteTheme !== 'normal' && siteTheme !== 'good-friday' && (
           <div className="mb-4 sm:mb-6 rounded-2xl border border-border/70 bg-card/85 px-4 py-4 shadow-sm backdrop-blur-sm">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -943,9 +960,9 @@ export default function Home() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''} ${isResurrectionTheme ? 'easter-tabs-shell' : ''}`}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''}`}>
         <div className="sticky top-0 z-30 mb-4 w-full space-y-3 rounded-md bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:top-2 sm:mb-6">
-        <div className={`flex w-full flex-col gap-3 sm:flex-row sm:gap-4 ${isGoodFridayTheme ? 'good-friday-controls' : ''} ${isResurrectionTheme ? 'easter-controls' : ''}`}>
+        <div className={`flex w-full flex-col gap-3 sm:flex-row sm:gap-4 ${isGoodFridayTheme ? 'good-friday-controls' : ''}`}>
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -969,13 +986,13 @@ export default function Home() {
                 placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`h-10 pl-10 pr-20 sm:h-11 ${isGoodFridayTheme ? 'good-friday-search-input' : ''} ${isResurrectionTheme ? 'easter-search-input' : ''}`}
+                className={`h-10 pl-10 pr-20 sm:h-11 ${isGoodFridayTheme ? 'good-friday-search-input' : ''}`}
               />
             </div>
           </div>
-          <div className={`flex gap-2 ${isGoodFridayTheme ? 'good-friday-filter-row' : ''} ${isResurrectionTheme ? 'easter-filter-row' : ''}`}>
+          <div className={`flex gap-2 ${isGoodFridayTheme ? 'good-friday-filter-row' : ''}`}>
             <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
-              <SelectTrigger className={`w-[140px] sm:w-[180px] h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-sort-trigger' : ''} ${isResurrectionTheme ? 'easter-sort-trigger' : ''}`}>
+              <SelectTrigger className={`w-[140px] sm:w-[180px] h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-sort-trigger' : ''}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1000,7 +1017,7 @@ export default function Home() {
             {isAdmin && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className={`h-10 px-2 sm:h-11 sm:px-4 ${isGoodFridayTheme ? 'good-friday-delete-button' : ''} ${isResurrectionTheme ? 'easter-delete-button' : ''}`}>
+                  <Button variant="destructive" className={`h-10 px-2 sm:h-11 sm:px-4 ${isGoodFridayTheme ? 'good-friday-delete-button' : ''}`}>
                     <Trash2 className="h-4 w-4 sm:mr-2" />
                     <span className="hidden xs:inline text-xs sm:text-sm">Delete All</span>
                   </Button>
@@ -1038,40 +1055,62 @@ export default function Home() {
           </div>
         )}
 
-        <TabsList className={`grid w-full ${visibleTabCount === 3 ? 'grid-cols-3' : 'grid-cols-2'} h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''} ${isResurrectionTheme ? 'easter-tabs' : ''}`}>
-          <TabsTrigger value="all-songs" className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
+        <TabsList className={`grid w-full grid-cols-4 h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''}`}>
+          <TabsTrigger value="all-songs" className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <List className="h-4 w-4" />
-            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Songs' : isResurrectionTheme ? 'Songs' : 'All Songs'}</span>
+            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Songs' : 'All Songs'}</span>
             <span className="xs:hidden">Songs</span>
           </TabsTrigger>
-          <TabsTrigger value={CHOIR_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
+          <TabsTrigger value={CHOIR_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <Users className="h-4 w-4" />
-            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Choir' : isResurrectionTheme ? 'Choir' : 'Choir Practice'}</span>
+            <span className="hidden xs:inline">{isGoodFridayTheme ? 'Choir' : 'Choir Practice'}</span>
             <span className="xs:hidden">Choir</span>
           </TabsTrigger>
-          {showGoodFridayTab && (
-            <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''} ${isResurrectionTheme ? 'easter-tab-trigger' : ''}`}>
-              <Badge variant="secondary" className="hidden sm:inline-flex md:hidden">
-                GF
-              </Badge>
-              <span className="hidden sm:inline">Good Friday</span>
-              <span className="sm:hidden">GF</span>
-            </TabsTrigger>
-          )}
-          {showChristmasTab && (
-            <TabsTrigger value={CHRISTMAS_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Badge variant="secondary" className="hidden sm:inline-flex">
-                Christmas
-              </Badge>
-              <span className="hidden xs:inline">Christmas Songs</span>
-              <span className="xs:hidden">Christmas</span>
-            </TabsTrigger>
-          )}
+          <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+            <Badge variant="secondary" className="hidden sm:inline-flex md:hidden">
+              GF
+            </Badge>
+            <span className="hidden sm:inline">Good Friday</span>
+            <span className="sm:hidden">GF</span>
+          </TabsTrigger>
+          <TabsTrigger value={CHRISTMAS_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <span className="hidden xs:inline">Christmas Songs</span>
+            <span className="xs:hidden">Christmas</span>
+          </TabsTrigger>
         </TabsList>
         </div>
 
         <TabsContent value="all-songs" className="mt-4 sm:mt-6">
-          <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''} ${isResurrectionTheme ? 'easter-song-grid' : ''}`}>
+          <div className="mb-4 flex flex-wrap gap-2">
+            {CATEGORY_TAGS.map((tag) => (
+              <Button
+                key={tag}
+                type="button"
+                variant={categoryFilter === tag ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCategoryFilter(categoryFilter === tag ? null : tag)}
+                className="flex items-center gap-1.5"
+              >
+                {tag === CHURCH_TAG && <Cross className="h-3.5 w-3.5" />}
+                {tag === YOUTH_TAG && <Star className="h-3.5 w-3.5" />}
+                {tag === SUNDAY_SCHOOL_TAG && <BookOpen className="h-3.5 w-3.5" />}
+                {tag === CHURCH_TAG ? 'Church' : tag === YOUTH_TAG ? 'Youth' : 'SundaySchool'}
+              </Button>
+            ))}
+            {categoryFilter && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setCategoryFilter(null)}
+                className="text-muted-foreground"
+              >
+                <X className="h-3.5 w-3.5 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+          <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''}`}>
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={`skeleton-${index}`} className="space-y-3">
@@ -1101,15 +1140,7 @@ export default function Home() {
         </TabsContent>
 
         <TabsContent value={GOOD_FRIDAY_TAB} className="mt-4 sm:mt-6">
-          <div className={`mb-4 rounded-2xl border border-border/70 bg-card/80 px-4 py-3 shadow-sm ${isSpecialTheme ? 'hidden' : ''}`}>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">Good Friday Tag</Badge>
-              <p className="text-sm text-muted-foreground">
-                These songs are regular songs marked with the Good Friday tag, and they can still be added to choir practice.
-              </p>
-            </div>
-          </div>
-          <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''} ${isResurrectionTheme ? 'easter-song-grid' : ''}`}>
+          <div className={`grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${isGoodFridayTheme ? 'good-friday-song-grid' : ''}`}>
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={`skeleton-${index}`} className="space-y-3">
@@ -1206,8 +1237,6 @@ export default function Home() {
           size="icon"
           className={`fixed bottom-4 right-4 z-50 h-11 w-11 rounded-full shadow-lg sm:bottom-6 sm:right-6 ${
             isGoodFridayTheme ? 'good-friday-scroll-top' : ''
-          } ${
-            isResurrectionTheme ? 'easter-scroll-top' : ''
           }`}
           aria-label="Scroll to top"
         >

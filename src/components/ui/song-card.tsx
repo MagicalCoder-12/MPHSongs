@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Edit, Trash2, TreePine, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
-import { GOOD_FRIDAY_TAG } from "@/lib/song-tags";
+import { Users, Edit, Trash2, TreePine, Cross, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG } from "@/lib/song-tags";
 
 interface Song {
   _id: string;
@@ -68,6 +68,9 @@ export function SongCard({
   const pinchStartDistanceRef = useRef<number | null>(null);
   const pinchStartZoomRef = useRef(1);
   const isGoodFridaySong = song.tags?.includes(GOOD_FRIDAY_TAG);
+  const isChurchSong = song.tags?.includes(CHURCH_TAG);
+  const isYouthSong = song.tags?.includes(YOUTH_TAG);
+  const isSundaySchoolSong = song.tags?.includes(SUNDAY_SCHOOL_TAG);
   const lyricsFontSize = `${lyricsZoom}rem`;
   const lyricsLineHeight = lyricsZoom >= 1.4 ? 1.65 : 1.75;
 
@@ -122,7 +125,7 @@ export function SongCard({
   return (
     <>
       <Card 
-        className="leather-card easter-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
+        className="leather-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden"
         onClick={handleCardClick}
       >
         <CardHeader className="song-card-header pb-2 relative z-10">
@@ -131,15 +134,15 @@ export function SongCard({
               <CardTitle className="song-card-title song-title text-base sm:text-lg truncate font-[family:var(--font-playfair)] text-foreground">{song.title}</CardTitle>
               <CardDescription className="song-card-meta">
                 <div className="flex flex-wrap gap-1 mt-1">
-                  <span className="beige-chip easter-chip text-xs">{song.songLanguage}</span>
+                  <span className="beige-chip text-xs">{song.songLanguage}</span>
                   {song.isChoirPractice && (
-                    <span className="beige-chip easter-chip text-xs flex items-center gap-1">
+                    <span className="beige-chip text-xs flex items-center gap-1">
                       <Users className="h-3 w-3" />
                       Choir
                     </span>
                   )}
                   {song.isChristmasSong && (
-                    <span className="beige-chip easter-chip text-xs flex items-center gap-1">
+                    <span className="beige-chip text-xs flex items-center gap-1">
                       <TreePine className="h-3 w-3 text-green-700" />
                       Christmas
                     </span>
@@ -148,6 +151,24 @@ export function SongCard({
                     <Badge variant="secondary" className="text-xs">
                       Good Friday
                     </Badge>
+                  )}
+                  {isChurchSong && (
+                    <span className="beige-chip text-xs flex items-center gap-1">
+                      <Cross className="h-3 w-3" />
+                      Church
+                    </span>
+                  )}
+                  {isYouthSong && (
+                    <span className="beige-chip text-xs flex items-center gap-1">
+                      <Star className="h-3 w-3" />
+                      Youth
+                    </span>
+                  )}
+                  {isSundaySchoolSong && (
+                    <span className="beige-chip text-xs flex items-center gap-1">
+                      <BookOpen className="h-3 w-3" />
+                      SundaySchool
+                    </span>
                   )}
                 </div>
               </CardDescription>
@@ -219,26 +240,44 @@ export function SongCard({
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="easter-card easter-card-expanded max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" closeButtonClassName="easter-close-button" aria-describedby={undefined}>
+        <DialogContent className=" max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">{song.title}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="beige-chip easter-chip">{song.songLanguage}</span>
+            <span className="beige-chip">{song.songLanguage}</span>
             {song.isChoirPractice && (
-              <span className="beige-chip easter-chip flex items-center gap-1">
+              <span className="beige-chip flex items-center gap-1">
                 <Users className="h-3 w-3" />
                 Choir Practice
               </span>
             )}
             {song.isChristmasSong && (
-              <span className="beige-chip easter-chip flex items-center gap-1">
+              <span className="beige-chip flex items-center gap-1">
                 <TreePine className="h-3 w-3 text-green-700" />
                 Christmas Song
               </span>
             )}
             {isGoodFridaySong && (
               <Badge variant="secondary">Good Friday</Badge>
+            )}
+            {isChurchSong && (
+              <span className="beige-chip flex items-center gap-1">
+                <Cross className="h-3 w-3" />
+                Church
+              </span>
+            )}
+            {isYouthSong && (
+              <span className="beige-chip flex items-center gap-1">
+                <Star className="h-3 w-3" />
+                Youth
+              </span>
+            )}
+            {isSundaySchoolSong && (
+              <span className="beige-chip flex items-center gap-1">
+                <BookOpen className="h-3 w-3" />
+                SundaySchool
+              </span>
             )}
           </div>
           <div className="song-content mt-4">

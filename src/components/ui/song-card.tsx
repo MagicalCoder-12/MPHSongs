@@ -9,18 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Users, Edit, Trash2, TreePine, Cross, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG } from "@/lib/song-tags";
-
-interface Song {
-  _id: string;
-  title: string;
-  songLanguage: string;
-  lyrics: string;
-  isChoirPractice: boolean;
-  isChristmasSong?: boolean;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Song } from "@/lib/types";
 
 interface SongCardProps {
   song: Song;

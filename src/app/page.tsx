@@ -22,6 +22,7 @@ import {
   type SiteTheme,
 } from '@/lib/site-theme';
 import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG, CATEGORY_TAGS } from '@/lib/song-tags';
+import type { Song, SongFormData } from '@/lib/types';
 
 import { SongCard } from '@/components/ui/song-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,30 +31,6 @@ const SITE_THEME_STORAGE_KEY = 'mph-site-theme';
 const GOOD_FRIDAY_TAB = 'good-friday';
 const CHRISTMAS_TAB = 'christmas';
 const CHOIR_TAB = 'choir-practice';
-
-type SongFormData = {
-  title: string;
-  songLanguage: string;
-  lyrics: string;
-  isChoirPractice: boolean;
-  isGoodFridaySong: boolean;
-  isChristmasSong: boolean;
-  isChurchSong: boolean;
-  isYouthSong: boolean;
-  isSundaySchoolSong: boolean;
-};
-
-interface Song {
-  _id: string;
-  title: string;
-  songLanguage: string;
-  lyrics: string;
-  isChoirPractice: boolean;
-  isChristmasSong?: boolean;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
 
 // Extend window interface for PWA events
 declare global {

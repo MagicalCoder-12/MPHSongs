@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp, Cross, Star, BookOpen } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp, Star, BookOpen } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -48,57 +48,6 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
-  // Memoize duplicate detection function
-  const detectDuplicates = useCallback((newSong: SongFormData, existingSongs: Song[]) => {
-    return existingSongs.some(song => {
-      // Check for exact title match
-      if (song.title.toLowerCase().trim() === newSong.title.toLowerCase().trim()) {
-        return true;
-      }
-      
-      // Quick length check before expensive Levenshtein calculation
-      const titleDiff = Math.abs(song.title.length - newSong.title.length);
-      if (titleDiff > 2) {
-        return false;
-      }
-      
-      // Check for similar titles (Levenshtein distance < 3)
-      const a = song.title.toLowerCase().trim();
-      const b = newSong.title.toLowerCase().trim();
-      
-      // Optimized Levenshtein with early exit
-      if (a.length === 0) return b.length < 3;
-      if (b.length === 0) return a.length < 3;
-      
-      let previousRow = Array.from({ length: a.length + 1 }, (_, i) => i);
-      
-      for (let j = 1; j <= b.length; j++) {
-        let currentRow = [j];
-        let minInRow = j;
-        
-        for (let i = 1; i <= a.length; i++) {
-          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-          const insertion = currentRow[i - 1] + 1;
-          const deletion = previousRow[i] + 1;
-          const substitution = previousRow[i - 1] + cost;
-          const min = Math.min(insertion, deletion, substitution);
-          
-          currentRow.push(min);
-          if (min < minInRow) minInRow = min;
-        }
-        
-        // Early exit if minimum value in row exceeds threshold
-        if (minInRow >= 3) {
-          return false;
-        }
-        
-        previousRow = currentRow;
-      }
-      
-      return previousRow[a.length] < 3;
-    });
-  }, []);
-
 const getEmptyFormData = (activeTab: string): SongFormData => ({
   title: '',
   songLanguage: 'Telugu',
@@ -110,19 +59,6 @@ const getEmptyFormData = (activeTab: string): SongFormData => ({
   isYouthSong: false,
   isSundaySchoolSong: false,
 });
-
-// Memoize the empty form data generator
-const getEmptyFormDataMemo = useCallback((activeTab: string): SongFormData => ({
-  title: '',
-  songLanguage: 'Telugu',
-  lyrics: '',
-  isChoirPractice: false,
-  isGoodFridaySong: activeTab === GOOD_FRIDAY_TAB,
-  isChristmasSong: activeTab === CHRISTMAS_TAB,
-  isChurchSong: false,
-  isYouthSong: false,
-  isSundaySchoolSong: false,
-}), []);
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
@@ -158,6 +94,34 @@ export default function Home() {
   // Refs
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  const detectDuplicates = useCallback((newSong: SongFormData, existingSongs: Song[]) => {
+    return existingSongs.some(song => {
+      if (song.title.toLowerCase().trim() === newSong.title.toLowerCase().trim()) {
+        return true;
+      }
+      const titleDiff = Math.abs(song.title.length - newSong.title.length);
+      if (titleDiff > 2) {
+        return false;
+      }
+      const a = song.title.toLowerCase().trim();
+      const b = newSong.title.toLowerCase().trim();
+      if (a.length === 0) return b.length < 3;
+      if (b.length === 0) return a.length < 3;
+      let previousRow = Array.from({ length: a.length + 1 }, (_, i) => i);
+      for (let j = 1; j <= b.length; j++) {
+        let currentRow = [j];
+        let minInRow = j;
+        for (let i = 1; i <= a.length; i++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          currentRow.push(Math.min(currentRow[i - 1] + 1, previousRow[i] + 1, previousRow[i - 1] + cost));
+        }
+        if (Math.min(...currentRow) >= 3) return false;
+        previousRow = currentRow;
+      }
+      return previousRow[a.length] < 3;
+    });
+  }, []);
 
   // Check if app is installed and online status
   useEffect(() => {
@@ -773,6 +737,7 @@ export default function Home() {
                   <SelectContent>
                     <SelectItem value="normal">Normal</SelectItem>
                     <SelectItem value="good-friday">Good Friday</SelectItem>
+                    <SelectItem value="easter">Easter</SelectItem>
                     <SelectItem value="christmas">Christmas</SelectItem>
                   </SelectContent>
                 </Select>
@@ -1048,7 +1013,7 @@ export default function Home() {
                       size="sm"
                       onClick={() => toggleBulkAddTag(tag)}
                     >
-                      {tag === CHURCH_TAG && <Cross className="h-3.5 w-3.5 mr-1" />}
+                      {tag === CHURCH_TAG && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3.5 w-3.5 mr-1"><path d="M12 2v20" /><path d="M6.5 8.5h11" /></svg>}
                       {tag === YOUTH_TAG && <Star className="h-3.5 w-3.5 mr-1" />}
                       {tag === SUNDAY_SCHOOL_TAG && <BookOpen className="h-3.5 w-3.5 mr-1" />}
                       {tag === CHURCH_TAG ? 'Church' : tag === YOUTH_TAG ? 'Youth' : 'SundaySchool'}
@@ -1067,7 +1032,7 @@ export default function Home() {
                       size="sm"
                       onClick={() => toggleBulkRemoveTag(tag)}
                     >
-                      {tag === CHURCH_TAG && <Cross className="h-3.5 w-3.5 mr-1" />}
+                      {tag === CHURCH_TAG && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3.5 w-3.5 mr-1"><path d="M12 2v20" /><path d="M6.5 8.5h11" /></svg>}
                       {tag === YOUTH_TAG && <Star className="h-3.5 w-3.5 mr-1" />}
                       {tag === SUNDAY_SCHOOL_TAG && <BookOpen className="h-3.5 w-3.5 mr-1" />}
                       {tag === CHURCH_TAG ? 'Church' : tag === YOUTH_TAG ? 'Youth' : 'SundaySchool'}
@@ -1214,7 +1179,7 @@ export default function Home() {
                 onClick={() => setCategoryFilter(categoryFilter === tag ? null : tag)}
                 className="flex items-center gap-1.5"
               >
-                {tag === CHURCH_TAG && <Cross className="h-3.5 w-3.5" />}
+                {tag === CHURCH_TAG && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3.5 w-3.5"><path d="M12 2v20" /><path d="M6.5 8.5h11" /></svg>}
                 {tag === YOUTH_TAG && <Star className="h-3.5 w-3.5" />}
                 {tag === SUNDAY_SCHOOL_TAG && <BookOpen className="h-3.5 w-3.5" />}
                 {tag === CHURCH_TAG ? 'Church' : tag === YOUTH_TAG ? 'Youth' : 'SundaySchool'}

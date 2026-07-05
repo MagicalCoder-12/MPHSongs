@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Edit, Trash2, TreePine, Cross, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw, Check } from "lucide-react";
+import { Users, Edit, Trash2, TreePine, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw, Check } from "lucide-react";
 import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG } from "@/lib/song-tags";
 import type { Song } from "@/lib/types";
 
@@ -170,7 +170,7 @@ export function SongCard({
                   )}
                   {isChurchSong && (
                     <span className="beige-chip text-xs flex items-center gap-1">
-                      <Cross className="h-3 w-3" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3 w-3"><path d="M12 2v20" /><path d="M6.5 8.5h11" /></svg>
                       Church
                     </span>
                   )}
@@ -279,7 +279,7 @@ export function SongCard({
             )}
             {isChurchSong && (
               <span className="beige-chip flex items-center gap-1">
-                <Cross className="h-3 w-3" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3 w-3"><path d="M12 2v20" /><path d="M6.5 8.5h11" /></svg>
                 Church
               </span>
             )}

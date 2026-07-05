@@ -20,8 +20,6 @@ const siteSettingsSchema = new mongoose.Schema(
   }
 );
 
-siteSettingsSchema.index({ singletonKey: 1 }, { unique: true });
-
 const SiteSettings =
   mongoose.models.SiteSettings || mongoose.model('SiteSettings', siteSettingsSchema);
 

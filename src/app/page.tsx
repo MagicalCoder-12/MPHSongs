@@ -18,7 +18,6 @@ import { IOSInstall } from '@/components/ui/ios-install';
 import {
   isValidSiteTheme,
   SITE_THEME_LABELS,
-  SITE_THEME_PLACEHOLDERS,
   type SiteTheme,
 } from '@/lib/site-theme';
 import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG, CATEGORY_TAGS } from '@/lib/song-tags';
@@ -927,24 +926,6 @@ export default function Home() {
             </Dialog>
           </div>
         </div>
-
-        {siteTheme !== 'normal' && siteTheme !== 'good-friday' && (
-          <div className="mb-4 sm:mb-6 rounded-2xl border border-border/70 bg-card/85 px-4 py-4 shadow-sm backdrop-blur-sm">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-primary">{SITE_THEME_LABELS[siteTheme]} Theme</p>
-                <p className="text-sm text-muted-foreground">
-                  {SITE_THEME_PLACEHOLDERS[siteTheme as Exclude<SiteTheme, 'normal'>]}
-                </p>
-              </div>
-              {isAdmin && (
-                <Badge variant="secondary" className="w-fit">
-                  Placeholder Preview
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Login Dialog */}
         <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>

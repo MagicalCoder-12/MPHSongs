@@ -6,12 +6,13 @@ import { parseSongPayload } from '@/lib/song-validation';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
     
-    const song = await Song.findById(params.id);
+    const song = await Song.findById(id);
     
     if (!song) {
       return NextResponse.json(
@@ -41,10 +42,11 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
     
     const body = await request.json();
     const parsedPayload = parseSongPayload(body);
@@ -56,10 +58,23 @@ export async function PUT(
       );
     }
 
-    const { title, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
-    
+    const { title, subtitle, songLanguage, lyrics, isChoirPractice, tags } = parsedPayload.data;
+
+    const updateFields: Record<string, unknown> = {
+      title,
+      songLanguage,
+      lyrics,
+      isChoirPractice,
+      tags,
+    };
+
+    if (subtitle !== undefined) {
+      updateFields.subtitle = subtitle;
+    }
+
     const updatedSong = await Song.findByIdAndUpdate(
-      params.id,
+      id,
+      updateFields,
       { 
         title, 
         songLanguage,
@@ -99,7 +114,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const unauthorizedResponse = requireAdmin(request);
 
@@ -109,8 +124,9 @@ export async function DELETE(
 
   try {
     await connectDB();
+    const { id } = await params;
     
-    const deletedSong = await Song.findByIdAndDelete(params.id);
+    const deletedSong = await Song.findByIdAndDelete(id);
     
     if (!deletedSong) {
       return NextResponse.json(

@@ -447,7 +447,7 @@ export default function Home() {
     setEditingSong(song);
     setFormData({
       title: song.title,
-      subtitle: song.subtitle,
+      subtitle: song.subtitle ?? '',
       songLanguage: song.songLanguage,
       lyrics: song.lyrics,
       isChoirPractice: song.isChoirPractice,

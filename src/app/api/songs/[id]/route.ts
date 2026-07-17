@@ -58,31 +58,26 @@ export async function PUT(
       );
     }
 
-    const { title, subtitle, songLanguage, lyrics, isChoirPractice, tags } = parsedPayload.data;
+    const { title, subtitle, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
 
     const updateFields: Record<string, unknown> = {
       title,
       songLanguage,
       lyrics,
       isChoirPractice,
+      isChristmasSong,
       tags,
     };
 
     if (subtitle !== undefined) {
       updateFields.subtitle = subtitle;
+    } else {
+      updateFields.subtitle = null;
     }
 
     const updatedSong = await Song.findByIdAndUpdate(
       id,
       updateFields,
-      { 
-        title, 
-        songLanguage,
-        lyrics, 
-        isChoirPractice,
-        isChristmasSong,
-        tags
-      },
       { new: true, runValidators: true }
     );
     

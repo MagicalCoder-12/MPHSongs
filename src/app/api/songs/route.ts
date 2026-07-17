@@ -53,7 +53,10 @@ export async function GET(request: NextRequest) {
     // Use lean() for better performance - returns plain JS objects instead of Mongoose docs
     const songs = await Song.find(query).sort(sortOptions).lean();
     
-    return NextResponse.json({ success: true,  songs });
+    return NextResponse.json(
+      { success: true,  songs },
+      { headers: { 'Cache-Control': 'no-store, max-age=0' } }
+    );
   } catch (error) {
     console.error('Error fetching songs:', error);
     

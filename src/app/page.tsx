@@ -172,7 +172,10 @@ export default function Home() {
         ...(activeTab === 'all-songs' && categoryFilter && { tag: categoryFilter }),
       });
       
-      const response = await fetch(`/api/songs?${params.toString()}`);
+      const response = await fetch(`/api/songs?${params.toString()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
       const result = await response.json();
       
       if (result.success) {

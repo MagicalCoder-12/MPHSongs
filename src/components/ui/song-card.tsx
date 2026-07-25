@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState, type TouchEvent } from "react";
+import { useRef, useState, useCallback, type TouchEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Edit, Trash2, TreePine, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw, Check } from "lucide-react";
+import { Users, Edit, Trash2, TreePine, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw, Check, Share2, Copy } from "lucide-react";
 import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG } from "@/lib/song-tags";
 import type { Song } from "@/lib/types";
 
@@ -233,32 +233,62 @@ export function SongCard({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="song-card-content pt-2 relative z-10">
-          <ScrollArea className="song-card-content song-content h-32 sm:h-40 w-full">
-            <p className="song-card-lyrics song-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">
-              {renderHighlightedText(song.lyrics, searchTerm)}
-            </p>
-          </ScrollArea>
-          <div className="song-card-actions flex flex-wrap gap-2 mt-3 sm:mt-4">
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleChoir(song);
-              }}
-              className="neomorph-button song-card-primary-action flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              {song.isChoirPractice ? 'Remove Choir' : 'Add Choir'}
-            </Button>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleViewDetails();
-              }}
-              className="neomorph-button song-card-secondary-action flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            >
-              View Details
-            </Button>
-          </div>
+         <CardContent className="song-card-content relative z-10">
+           <ScrollArea className="song-card-content song-content h-32 sm:h-40 w-full">
+             <p className="song-card-lyrics song-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">
+               {renderHighlightedText(song.lyrics, searchTerm)}
+             </p>
+           </ScrollArea>
+           <div className="song-card-actions flex flex-wrap gap-2 mt-2 sm:mt-3">
+             <Button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 onToggleChoir(song);
+               }}
+               className="neomorph-button song-card-primary-action flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+             >
+               {song.isChoirPractice ? 'Remove Choir' : 'Add Choir'}
+             </Button>
+             <Button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 handleViewDetails();
+               }}
+               className="neomorph-button song-card-secondary-action flex-1 min-w-[100px] h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
+             >
+               View Details
+             </Button>
+             <Button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 if (navigator.share) {
+                   navigator.share({
+                     title: song.title,
+                     text: song.subtitle ? `${song.title} — ${song.subtitle}` : song.title,
+                     url: window.location.href,
+                   }).catch(() => {});
+                 } else {
+                   navigator.clipboard.writeText(`${song.title}${song.subtitle ? ` — ${song.subtitle}` : ''}`);
+                 }
+               }}
+               className="neomorph-button song-card-action h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
+               aria-label="Share song"
+             >
+               <Share2 className="h-3.5 w-3.5 sm:mr-1" />
+               <span className="hidden sm:inline">Share</span>
+             </Button>
+             <Button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 navigator.clipboard.writeText(song.lyrics);
+               }}
+               className="neomorph-button song-card-action h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
+               aria-label="Copy lyrics"
+             >
+               <Copy className="h-3.5 w-3.5 sm:mr-1" />
+               <span className="hidden sm:inline">Copy</span>
+             </Button>
+           </div>
         </CardContent>
       </Card>
 

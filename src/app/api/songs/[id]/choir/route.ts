@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Song from '@/lib/models/Song';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
-    
-    const { id } = params;
+
+    const { id } = await params;
     const body = await request.json();
     const { isChoirPractice } = body;
     

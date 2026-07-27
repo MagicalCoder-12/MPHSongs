@@ -90,6 +90,8 @@ export async function POST(request: NextRequest) {
 
     const { title, subtitle, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
 
+    const normalizedTags = Array.from(new Set([...(Array.isArray(tags) ? tags : []), 'web']));
+
     const newSong = await Song.create({
       title,
       subtitle,
@@ -97,7 +99,9 @@ export async function POST(request: NextRequest) {
       lyrics,
       isChoirPractice,
       isChristmasSong,
-      tags
+      tags: normalizedTags,
+      source: 'web',
+      web: 'true',
     });
     return NextResponse.json({ success: true,  newSong }, { status: 201 });
   } catch (error) {

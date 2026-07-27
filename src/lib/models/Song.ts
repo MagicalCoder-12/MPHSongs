@@ -32,7 +32,20 @@ const songSchema = new mongoose.Schema(
     },
     tags: {
       type: [String],
-      default: [],
+      default: ['web'],
+    },
+    source: {
+      type: String,
+      default: 'web',
+      enum: ['web', 'desktop'],
+    },
+    web: {
+      type: String,
+      default: 'true',
+    },
+    desktop: {
+      type: String,
+      default: null,
     },
   },
   {

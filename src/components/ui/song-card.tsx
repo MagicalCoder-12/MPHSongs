@@ -293,7 +293,7 @@ export function SongCard({
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className=" max-w-3xl max-h-[80vh] overflow-y-auto neomorph-raised" aria-describedby={undefined}>
+        <DialogContent className="w-[95vw] max-w-7xl max-h-[96vh] overflow-y-auto neomorph-raised">
           <DialogHeader>
             <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">
               {renderHighlightedText(song.title, searchTerm)}
@@ -304,7 +304,7 @@ export function SongCard({
               )}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-0">
             <span className="beige-chip">{song.songLanguage}</span>
             {song.isChoirPractice && (
               <span className="beige-chip flex items-center gap-1">
@@ -340,7 +340,7 @@ export function SongCard({
               </span>
             )}
           </div>
-          <div className="song-content mt-4">
+          <div className="song-content mt-0">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-medium text-muted-foreground">Lyrics size</p>
               <div className="flex items-center gap-2">

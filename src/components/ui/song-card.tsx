@@ -277,14 +277,15 @@ export function SongCard({
             </div>
           </div>
         </CardHeader>
-         <CardContent className="song-card-content relative z-10">
+         <CardContent className="song-card-content relative z-10 flex flex-1 flex-col">
            <ScrollArea className="song-card-content song-content h-24 sm:h-35 w-full">
              <p className="song-card-lyrics song-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">
                {renderHighlightedText(song.lyrics, searchTerm)}
              </p>
            </ScrollArea>
-           <p className="mt-1 text-xs text-muted-foreground">Updated {new Date(song.updatedAt).toLocaleDateString()}</p>
-           <div className="song-card-actions flex flex-wrap gap-2 mt-0">
+           <div className="mt-auto">
+           <p className="mt-[2px] text-xs text-muted-foreground">Updated {new Date(song.updatedAt).toLocaleDateString()}</p>
+           <div className="song-card-actions grid grid-cols-2 gap-2 pt-px">
              <Button
                onClick={(e) => {
                  e.stopPropagation();
@@ -325,7 +326,8 @@ export function SongCard({
                <Copy className="h-3.5 w-3.5 sm:mr-1" />
                <span className="hidden sm:inline">Copy</span>
              </Button>
-           </div>
+            </div>
+            </div>
         </CardContent>
       </Card>
 
@@ -333,7 +335,7 @@ export function SongCard({
         setIsDialogOpen(open);
         if (!open) setIsFullscreen(false);
       }}>
-        <DialogContent className={`${isFullscreen ? 'fixed inset-0 h-screen w-screen max-h-screen max-w-none rounded-none p-4 sm:p-6' : 'w-[95vw] max-w-7xl max-h-[96vh] pb-[15px]'} overflow-y-auto neomorph-raised`}>
+        <DialogContent className={`${isFullscreen ? 'fixed inset-0 !top-0 !left-0 !translate-x-0 !translate-y-0 !h-screen !w-screen !max-h-screen !max-w-none rounded-none p-4 sm:p-6' : 'w-[95vw] max-w-7xl max-h-[96vh] pb-[15px]'} overflow-y-auto neomorph-raised`}>
           <DialogHeader>
             <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">
               {renderHighlightedText(song.title, searchTerm)}
@@ -430,7 +432,7 @@ export function SongCard({
               </div>
             </div>
             <p
-              className="song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-[460px] w-full overflow-y-auto p-2 pr-4 rounded bg-muted"
+              className={`song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-[460px] w-full overflow-y-auto p-2 pr-4 rounded bg-muted ${isFullscreen ? 'lg:text-center' : ''}`}
               style={{ fontSize: lyricsFontSize, lineHeight: lyricsLineHeight, touchAction: "pan-y" }}
               onTouchStart={handleLyricsTouchStart}
               onTouchMove={handleLyricsTouchMove}

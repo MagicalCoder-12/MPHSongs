@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp, Star, BookOpen, Download, Upload } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp, Star, BookOpen, Download, Upload, Mic, MicOff } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -47,6 +47,20 @@ interface BeforeInstallPromptEvent extends Event {
   }>;
   prompt(): Promise<void>;
 }
+
+interface SpeechRecognitionLike {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  start: () => void;
+  stop: () => void;
+  onstart: (() => void) | null;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 const getEmptyFormData = (activeTab: string): SongFormData => ({
   title: '',
@@ -130,12 +144,15 @@ export default function Home() {
   const [bulkTagAdd, setBulkTagAdd] = useState<string[]>([]);
   const [bulkTagRemove, setBulkTagRemove] = useState<string[]>([]);
   const [importInputKey, setImportInputKey] = useState(0);
+  const [speechLanguage, setSpeechLanguage] = useState<'en-IN' | 'te-IN'>('en-IN');
+  const [isListening, setIsListening] = useState(false);
   const { toast } = useToast();
   
   // Refs
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
+  const speechRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const detectDuplicates = useCallback((newSong: SongFormData, existingSongs: Song[]) => {
     return existingSongs.some(song => {
@@ -556,6 +573,63 @@ export default function Home() {
     searchInputRef.current?.focus();
   };
 
+  const handleVoiceSearch = () => {
+    const speechWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    const SpeechRecognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      toast({ title: 'Voice search unavailable', description: 'Your browser does not support speech recognition.' });
+      return;
+    }
+
+    if (speechRecognitionRef.current) {
+      speechRecognitionRef.current.stop();
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = speechLanguage;
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0]?.[0]?.transcript?.trim();
+      if (transcript) {
+        setSearchTerm(transcript);
+        toast({ title: 'Voice search', description: `Searching for "${transcript}".` });
+      }
+    };
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      speechRecognitionRef.current = null;
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        const description = event.error === 'not-allowed'
+          ? 'Allow microphone access for localhost and try again.'
+          : event.error === 'network'
+            ? 'The browser speech service is unavailable. Check your connection or try Chrome.'
+            : `Speech recognition error: ${event.error}.`;
+        toast({ title: 'Voice search failed', description });
+      }
+    };
+    recognition.onend = () => {
+      setIsListening(false);
+      speechRecognitionRef.current = null;
+    };
+    speechRecognitionRef.current = recognition;
+    try {
+      recognition.start();
+    } catch {
+      speechRecognitionRef.current = null;
+      setIsListening(false);
+      toast({ title: 'Voice search failed', description: 'The microphone could not be started. Check browser permissions.' });
+    }
+  };
+
+  useEffect(() => () => speechRecognitionRef.current?.stop(), []);
+
   const handleExportSongs = async (format: 'json' | 'csv') => {
     try {
       const response = await fetch('/api/songs?sortBy=alphabetical', { cache: 'no-store' });
@@ -902,7 +976,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${isGoodFridayTheme ? 'good-friday-toolbar' : ''}`}>
+          <div className={`flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto ${isGoodFridayTheme ? 'good-friday-toolbar' : ''}`}>
             <ThemeToggle className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''}`} />
             {isAdmin && (
               <div className="w-[150px] sm:w-[170px]">
@@ -1249,7 +1323,25 @@ export default function Home() {
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <div className="absolute inset-y-0 right-3 flex items-center gap-2">
+                <div className="absolute inset-y-0 right-2 flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSpeechLanguage((language) => language === 'en-IN' ? 'te-IN' : 'en-IN')}
+                    className="h-7 px-1.5 text-[10px]"
+                    aria-label={`Voice search language: ${speechLanguage === 'en-IN' ? 'English' : 'Telugu'}`}
+                  >
+                    {speechLanguage === 'en-IN' ? 'EN' : 'TE'}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleVoiceSearch}
+                    className={`rounded-md p-1 transition-colors hover:bg-muted ${isListening ? 'text-destructive' : 'text-muted-foreground'}`}
+                    aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </button>
                 {searchTerm && (
                   <button
                     type="button"
@@ -1269,16 +1361,16 @@ export default function Home() {
                 placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`h-10 pl-10 pr-20 sm:h-11 ${isGoodFridayTheme ? 'good-friday-search-input' : ''}`}
+                className={`h-10 pl-10 pr-28 sm:h-11 ${isGoodFridayTheme ? 'good-friday-search-input' : ''}`}
               />
               <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">
                 {isLoading ? 'Searching...' : `${currentSongs.length} song${currentSongs.length === 1 ? '' : 's'} found`}
               </p>
             </div>
           </div>
-          <div className={`flex gap-2 ${isGoodFridayTheme ? 'good-friday-filter-row' : ''}`}>
+          <div className={`flex w-full gap-2 sm:w-auto ${isGoodFridayTheme ? 'good-friday-filter-row' : ''}`}>
             <Select value={sortBy} onValueChange={(value: 'recent' | 'alphabetical') => setSortBy(value)}>
-              <SelectTrigger className={`w-[140px] sm:w-[180px] h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-sort-trigger' : ''}`}>
+              <SelectTrigger className={`w-full sm:w-[180px] h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-sort-trigger' : ''}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1341,31 +1433,31 @@ export default function Home() {
           </div>
         )}
 
-        <TabsList className={`grid w-full grid-cols-4 h-10 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''}`}>
-          <TabsTrigger value="all-songs" className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
-            <List className="h-4 w-4" />
+        <TabsList className={`grid w-full grid-cols-4 min-h-10 h-auto p-1 max-[380px]:min-h-9 max-[380px]:p-0.5 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''}`}>
+          <TabsTrigger value="all-songs" className={`min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+            <List className="h-3.5 w-3.5 shrink-0 max-[380px]:h-3 max-[380px]:w-3 sm:h-4 sm:w-4" />
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Songs' : 'All Songs'}</span>
             <span className="xs:hidden">Songs</span>
-            <span className="text-xs opacity-80">({songCounts.all})</span>
+            <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.all})</span>
           </TabsTrigger>
-          <TabsTrigger value={CHOIR_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
-            <Users className="h-4 w-4" />
+          <TabsTrigger value={CHOIR_TAB} className={`min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+            <Users className="h-3.5 w-3.5 shrink-0 max-[380px]:h-3 max-[380px]:w-3 sm:h-4 sm:w-4" />
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Choir' : 'Choir Practice'}</span>
             <span className="xs:hidden">Choir</span>
-            <span className="text-xs opacity-80">({songCounts.choir})</span>
+            <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.choir})</span>
           </TabsTrigger>
-          <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+          <TabsTrigger value={GOOD_FRIDAY_TAB} className={`min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <Badge variant="secondary" className="hidden sm:inline-flex md:hidden">
               GF
             </Badge>
             <span className="hidden sm:inline">Good Friday</span>
             <span className="sm:hidden">GF</span>
-            <span className="text-xs opacity-80">({songCounts.goodFriday})</span>
+            <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.goodFriday})</span>
           </TabsTrigger>
-          <TabsTrigger value={CHRISTMAS_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value={CHRISTMAS_TAB} className="min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <span className="hidden xs:inline">Christmas Songs</span>
             <span className="xs:hidden">Christmas</span>
-            <span className="text-xs opacity-80">({songCounts.christmas})</span>
+            <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.christmas})</span>
           </TabsTrigger>
         </TabsList>
         </div>

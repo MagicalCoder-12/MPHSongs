@@ -64,6 +64,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
   const [songs, setSongs] = useState<Song[]>([]);
   const [choirSongs, setChoirSongs] = useState<Song[]>([]);
+  const [songCounts, setSongCounts] = useState({ all: 0, choir: 0, goodFriday: 0, christmas: 0 });
   const [searchTerm, setSearchTerm] = useState('');
   const [siteTheme, setSiteTheme] = useState<SiteTheme>('normal');
   const [isSavingSiteTheme, setIsSavingSiteTheme] = useState(false);
@@ -183,6 +184,31 @@ export default function Home() {
           setChoirSongs(result.songs || []);
         } else {
           setSongs(result.songs || []);
+        }
+
+        try {
+          const countRequests = [
+            fetch('/api/songs?sortBy=recent'),
+            fetch('/api/songs?sortBy=recent&choirOnly=true'),
+            fetch(`/api/songs?sortBy=recent&tag=${encodeURIComponent(GOOD_FRIDAY_TAG)}`),
+            fetch('/api/songs?sortBy=recent&christmasOnly=true'),
+          ];
+          const countResponses = await Promise.all(countRequests);
+          const countResults = await Promise.all(countResponses.map(async (response) => {
+            const countResult = await response.json();
+            return response.ok && countResult.success ? countResult.songs.length : null;
+          }));
+
+          if (countResults.every((count) => count !== null)) {
+            setSongCounts({
+              all: countResults[0],
+              choir: countResults[1],
+              goodFriday: countResults[2],
+              christmas: countResults[3],
+            });
+          }
+        } catch (countError) {
+          console.warn('Unable to refresh song tab counts:', countError);
         }
       } else {
         setError(result.error || 'Failed to fetch songs');
@@ -1143,11 +1169,13 @@ export default function Home() {
             <List className="h-4 w-4" />
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Songs' : 'All Songs'}</span>
             <span className="xs:hidden">Songs</span>
+            <span className="text-xs opacity-80">({songCounts.all})</span>
           </TabsTrigger>
           <TabsTrigger value={CHOIR_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <Users className="h-4 w-4" />
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Choir' : 'Choir Practice'}</span>
             <span className="xs:hidden">Choir</span>
+            <span className="text-xs opacity-80">({songCounts.choir})</span>
           </TabsTrigger>
           <TabsTrigger value={GOOD_FRIDAY_TAB} className={`flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <Badge variant="secondary" className="hidden sm:inline-flex md:hidden">
@@ -1155,10 +1183,12 @@ export default function Home() {
             </Badge>
             <span className="hidden sm:inline">Good Friday</span>
             <span className="sm:hidden">GF</span>
+            <span className="text-xs opacity-80">({songCounts.goodFriday})</span>
           </TabsTrigger>
           <TabsTrigger value={CHRISTMAS_TAB} className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <span className="hidden xs:inline">Christmas Songs</span>
             <span className="xs:hidden">Christmas</span>
+            <span className="text-xs opacity-80">({songCounts.christmas})</span>
           </TabsTrigger>
         </TabsList>
         </div>

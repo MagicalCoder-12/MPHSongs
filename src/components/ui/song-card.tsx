@@ -380,7 +380,7 @@ export function SongCard({
               </div>
             </div>
             <p
-              className="song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-[460px] w-[calc(100%+20px)] overflow-y-auto p-2 rounded bg-muted"
+              className="song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-[460px] w-full overflow-y-auto p-2 pr-4 rounded bg-muted"
               style={{ fontSize: lyricsFontSize, lineHeight: lyricsLineHeight, touchAction: "pan-y" }}
               onTouchStart={handleLyricsTouchStart}
               onTouchMove={handleLyricsTouchMove}

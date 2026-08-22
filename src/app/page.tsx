@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, type ChangeEvent } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp, Star, BookOpen } from 'lucide-react';
+import { Plus, Search, Music, Trash2, Edit, Users, List, Clock, SortAsc, AlertCircle, LogIn, LogOut, Loader2, X, ArrowUp, Star, BookOpen, Download, Upload } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { PWAInstall } from '@/components/ui/pwa-install';
 import { IOSInstall } from '@/components/ui/ios-install';
@@ -25,6 +25,7 @@ import type { Song, SongFormData } from '@/lib/types';
 
 import { SongCard } from '@/components/ui/song-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const SITE_THEME_STORAGE_KEY = 'mph-site-theme';
 const GOOD_FRIDAY_TAB = 'good-friday';
@@ -60,6 +61,43 @@ const getEmptyFormData = (activeTab: string): SongFormData => ({
   isSundaySchoolSong: false,
 });
 
+const csvEscape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+
+const parseCsv = (text: string) => {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let value = '';
+  let insideQuotes = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    const nextCharacter = text[index + 1];
+    if (character === '"' && insideQuotes && nextCharacter === '"') {
+      value += '"';
+      index += 1;
+    } else if (character === '"') {
+      insideQuotes = !insideQuotes;
+    } else if (character === ',' && !insideQuotes) {
+      row.push(value);
+      value = '';
+    } else if ((character === '\n' || character === '\r') && !insideQuotes) {
+      if (character === '\r' && nextCharacter === '\n') index += 1;
+      row.push(value);
+      rows.push(row);
+      row = [];
+      value = '';
+    } else {
+      value += character;
+    }
+  }
+
+  if (value || row.length > 0) {
+    row.push(value);
+    rows.push(row);
+  }
+  return rows;
+};
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState('all-songs');
   const [songs, setSongs] = useState<Song[]>([]);
@@ -91,10 +129,13 @@ export default function Home() {
   const [showBulkTagDialog, setShowBulkTagDialog] = useState(false);
   const [bulkTagAdd, setBulkTagAdd] = useState<string[]>([]);
   const [bulkTagRemove, setBulkTagRemove] = useState<string[]>([]);
+  const [importInputKey, setImportInputKey] = useState(0);
+  const { toast } = useToast();
   
   // Refs
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
 
   const detectDuplicates = useCallback((newSong: SongFormData, existingSongs: Song[]) => {
     return existingSongs.some(song => {
@@ -262,6 +303,7 @@ export default function Home() {
         setIsAdmin(true);
         setShowLoginDialog(false);
         setLoginForm({ username: '', password: '' });
+        toast({ title: 'Signed in', description: 'Admin controls are now available.' });
         return;
       }
 
@@ -279,6 +321,7 @@ export default function Home() {
       console.error('Error logging out:', error);
     } finally {
       setIsAdmin(false);
+      toast({ title: 'Signed out' });
     }
   };
 
@@ -335,6 +378,7 @@ export default function Home() {
         setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
         await fetchSongs();
+        toast({ title: 'Song saved', description: `${formData.title} was added.` });
       } else {
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
@@ -363,6 +407,7 @@ export default function Home() {
         setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
         await fetchSongs();
+        toast({ title: 'Song saved', description: `${formData.title} was added.` });
       } else {
         setDialogError(result.error || 'Failed to create song');
         console.error('Create Error:', result.error);
@@ -391,6 +436,7 @@ export default function Home() {
         setFormData(getEmptyFormData(activeTab));
         setIsDialogOpen(false);
         await fetchSongs();
+        toast({ title: 'Song updated', description: `${formData.title} was updated.` });
       } else {
         setDialogError(result.error || 'Failed to update song');
         console.error('Update Error:', result.error);
@@ -417,6 +463,7 @@ export default function Home() {
       
       if (result.success) {
         await fetchSongs();
+        toast({ title: 'Song deleted' });
       } else {
         if (response.status === 401) {
           setIsAdmin(false);
@@ -444,6 +491,7 @@ export default function Home() {
       
       if (result.success) {
         await fetchSongs();
+        toast({ title: 'Songs deleted' });
       } else if (response.status === 401) {
         setIsAdmin(false);
       }
@@ -464,6 +512,7 @@ export default function Home() {
       
       if (result.success) {
         await fetchSongs();
+        toast({ title: song.isChoirPractice ? 'Removed from choir' : 'Added to choir' });
       } else {
         console.error('Choir toggle failed:', result.error);
       }
@@ -507,6 +556,87 @@ export default function Home() {
     searchInputRef.current?.focus();
   };
 
+  const handleExportSongs = async (format: 'json' | 'csv') => {
+    try {
+      const response = await fetch('/api/songs?sortBy=alphabetical', { cache: 'no-store' });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error('Export failed');
+
+      const exportSongs = result.songs as Song[];
+      const content = format === 'json'
+        ? JSON.stringify(exportSongs, null, 2)
+        : [
+            'title,subtitle,songLanguage,lyrics,isChoirPractice,isChristmasSong,tags,createdAt,updatedAt',
+            ...exportSongs.map((song) => [
+              song.title,
+              song.subtitle ?? '',
+              song.songLanguage,
+              song.lyrics,
+              String(song.isChoirPractice),
+              String(Boolean(song.isChristmasSong)),
+              (song.tags ?? []).join('|'),
+              song.createdAt,
+              song.updatedAt,
+            ].map(csvEscape).join(',')),
+          ].join('\n');
+      const blob = new Blob([content], { type: format === 'json' ? 'application/json' : 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `mph-songs-${new Date().toISOString().slice(0, 10)}.${format}`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast({ title: 'Songs exported', description: `${exportSongs.length} songs saved as ${format.toUpperCase()}.` });
+    } catch {
+      toast({ title: 'Export failed', description: 'Unable to download the song backup.' });
+    }
+  };
+
+  const handleImportFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const importedSongs = file.name.toLowerCase().endsWith('.csv')
+        ? (() => {
+            const rows = parseCsv(text);
+            const headers = rows.shift()?.map((header) => header.trim()) ?? [];
+            return rows.filter((row) => row.some(Boolean)).map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ''])));
+          })()
+        : JSON.parse(text);
+      if (!Array.isArray(importedSongs)) throw new Error('Backup must contain a list of songs');
+
+      let importedCount = 0;
+      for (const song of importedSongs) {
+        const tags = typeof song.tags === 'string' ? song.tags.split('|').map((tag: string) => tag.trim()).filter(Boolean) : song.tags ?? [];
+        const response = await fetch('/api/songs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: song.title,
+            subtitle: song.subtitle,
+            songLanguage: song.songLanguage,
+            lyrics: song.lyrics,
+            isChoirPractice: song.isChoirPractice === true || song.isChoirPractice === 'true',
+            isChristmasSong: song.isChristmasSong === true || song.isChristmasSong === 'true',
+            isGoodFridaySong: tags.includes(GOOD_FRIDAY_TAG),
+            isChurchSong: tags.includes(CHURCH_TAG),
+            isYouthSong: tags.includes(YOUTH_TAG),
+            isSundaySchoolSong: tags.includes(SUNDAY_SCHOOL_TAG),
+            tags,
+          }),
+        });
+        if (response.ok && (await response.json()).success) importedCount += 1;
+      }
+      await fetchSongs();
+      toast({ title: 'Songs imported', description: `${importedCount} of ${importedSongs.length} songs imported.` });
+    } catch {
+      toast({ title: 'Import failed', description: 'Use a valid JSON or CSV song backup.' });
+    } finally {
+      setImportInputKey((key) => key + 1);
+    }
+  };
+
   const handleOpenCreateSongDialog = () => {
     setDialogError(null);
     setEditingSong(null);
@@ -520,6 +650,7 @@ export default function Home() {
 
   const handleBulkTag = async () => {
     if (selectedSongIds.size === 0) return;
+    const selectedCount = selectedSongIds.size;
 
     try {
       const response = await fetch('/api/songs/bulk-tags', {
@@ -541,6 +672,7 @@ export default function Home() {
         setShowBulkTagDialog(false);
         await new Promise(resolve => setTimeout(resolve, 100));
         await fetchSongs();
+        toast({ title: 'Tags updated', description: `${selectedCount} songs updated.` });
       } else {
         if (response.status === 401) {
           setIsAdmin(false);
@@ -609,6 +741,24 @@ export default function Home() {
 
   useEffect(() => {
     loadAdminSession();
+  }, []);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+      if (event.key === '/' && !isTyping) {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (event.key === 'Escape') {
+        setShowLoginDialog(false);
+        setShowDuplicateDialog(false);
+        setIsDialogOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
   }, []);
 
   useEffect(() => {
@@ -777,6 +927,30 @@ export default function Home() {
               <>
                 <PWAInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''}`} compact={isGoodFridayTheme} />
                 <IOSInstall className={`${isGoodFridayTheme ? 'good-friday-action-button' : ''}`} compact={isGoodFridayTheme} />
+              </>
+            )}
+            <Button onClick={() => void handleExportSongs('json')} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3">
+              <Download className="h-3 w-3 sm:mr-1 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Export JSON</span>
+            </Button>
+            {isAdmin && (
+              <>
+                <Button onClick={() => void handleExportSongs('csv')} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3">
+                  <Download className="h-3 w-3 sm:mr-1 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Export CSV</span>
+                </Button>
+                <input
+                  key={importInputKey}
+                  ref={importInputRef}
+                  type="file"
+                  accept=".json,.csv,application/json,text/csv"
+                  className="hidden"
+                  onChange={(event) => { void handleImportFile(event); }}
+                />
+                <Button onClick={() => importInputRef.current?.click()} variant="outline" size="sm" className="h-8 px-2 sm:h-9 sm:px-3">
+                  <Upload className="h-3 w-3 sm:mr-1 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Import</span>
+                </Button>
               </>
             )}
             {isAdmin ? (
@@ -1097,6 +1271,9 @@ export default function Home() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={`h-10 pl-10 pr-20 sm:h-11 ${isGoodFridayTheme ? 'good-friday-search-input' : ''}`}
               />
+              <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">
+                {isLoading ? 'Searching...' : `${currentSongs.length} song${currentSongs.length === 1 ? '' : 's'} found`}
+              </p>
             </div>
           </div>
           <div className={`flex gap-2 ${isGoodFridayTheme ? 'good-friday-filter-row' : ''}`}>

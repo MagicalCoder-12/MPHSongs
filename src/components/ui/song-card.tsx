@@ -1,13 +1,14 @@
 "use client";
 
-import { useRef, useState, useCallback, type TouchEvent, type TouchList } from "react";
+import { useRef, useState, useCallback, type KeyboardEvent, type TouchEvent, type TouchList } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, Edit, Trash2, TreePine, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw, Check, Share2, Copy } from "lucide-react";
+import { Users, Edit, Trash2, TreePine, Star, BookOpen, ZoomIn, ZoomOut, RotateCcw, Check, Share2, Copy, Maximize2, Minimize2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { GOOD_FRIDAY_TAG, CHURCH_TAG, YOUTH_TAG, SUNDAY_SCHOOL_TAG } from "@/lib/song-tags";
 import type { Song } from "@/lib/types";
 
@@ -57,7 +58,9 @@ export function SongCard({
   onToggleSelect,
 }: SongCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [lyricsZoom, setLyricsZoom] = useState(1);
+  const { toast } = useToast();
   const pinchStartDistanceRef = useRef<number | null>(null);
   const pinchStartZoomRef = useRef(1);
   const isGoodFridaySong = song.tags?.includes(GOOD_FRIDAY_TAG);
@@ -114,16 +117,57 @@ export function SongCard({
     }
   };
 
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-song-card]'));
+    const currentIndex = cards.indexOf(event.currentTarget);
+    const nextIndex = event.key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
+    const nextCard = cards[nextIndex];
+    if (nextCard) {
+      event.preventDefault();
+      nextCard.focus();
+    }
+  };
+
   const handleViewDetails = () => {
     setIsDialogOpen(true);
     onViewDetails(song);
   };
 
+  const handleCopyLyrics = async () => {
+    try {
+      await navigator.clipboard.writeText(song.lyrics);
+      toast({ title: "Lyrics copied", description: "The lyrics are ready to paste." });
+    } catch {
+      toast({ title: "Copy failed", description: "Unable to copy lyrics on this device." });
+    }
+  };
+
+  const handleShareSong = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: song.title,
+          text: song.subtitle ? `${song.title} — ${song.subtitle}` : song.title,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(`${song.title}${song.subtitle ? ` — ${song.subtitle}` : ''}`);
+      }
+      toast({ title: "Song shared", description: "The song link or title is ready to share." });
+    } catch {
+      toast({ title: "Share cancelled", description: "The song was not shared." });
+    }
+  };
+
   return (
     <>
       <Card 
+        data-song-card="true"
+        tabIndex={0}
         className={`leather-card song-card-shell h-full cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden relative ${selected ? 'ring-2 ring-primary' : ''}`}
         onClick={handleCardClick}
+        onKeyDown={handleCardKeyDown}
       >
         {onToggleSelect && (
           <div
@@ -239,6 +283,7 @@ export function SongCard({
                {renderHighlightedText(song.lyrics, searchTerm)}
              </p>
            </ScrollArea>
+           <p className="mt-1 text-xs text-muted-foreground">Updated {new Date(song.updatedAt).toLocaleDateString()}</p>
            <div className="song-card-actions flex flex-wrap gap-2 mt-0">
              <Button
                onClick={(e) => {
@@ -261,15 +306,7 @@ export function SongCard({
              <Button
                onClick={(e) => {
                  e.stopPropagation();
-                 if (navigator.share) {
-                   navigator.share({
-                     title: song.title,
-                     text: song.subtitle ? `${song.title} — ${song.subtitle}` : song.title,
-                     url: window.location.href,
-                   }).catch(() => {});
-                 } else {
-                   navigator.clipboard.writeText(`${song.title}${song.subtitle ? ` — ${song.subtitle}` : ''}`);
-                 }
+                 void handleShareSong();
                }}
                className="neomorph-button song-card-action h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
                aria-label="Share song"
@@ -280,7 +317,7 @@ export function SongCard({
              <Button
                onClick={(e) => {
                  e.stopPropagation();
-                 navigator.clipboard.writeText(song.lyrics);
+                 void handleCopyLyrics();
                }}
                className="neomorph-button song-card-action h-8 sm:h-9 text-xs sm:text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
                aria-label="Copy lyrics"
@@ -292,8 +329,11 @@ export function SongCard({
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-[95vw] max-w-7xl max-h-[96vh] overflow-y-auto neomorph-raised pb-[15px]">
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) setIsFullscreen(false);
+      }}>
+        <DialogContent className={`${isFullscreen ? 'fixed inset-0 h-screen w-screen max-h-screen max-w-none rounded-none p-4 sm:p-6' : 'w-[95vw] max-w-7xl max-h-[96vh] pb-[15px]'} overflow-y-auto neomorph-raised`}>
           <DialogHeader>
             <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">
               {renderHighlightedText(song.title, searchTerm)}
@@ -303,6 +343,7 @@ export function SongCard({
                 </span>
               )}
             </DialogTitle>
+            <DialogDescription className="sr-only">Lyrics and song details for {song.title}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-wrap gap-2 mb-0 -mt-2">
             <span className="beige-chip">{song.songLanguage}</span>
@@ -376,6 +417,15 @@ export function SongCard({
                   aria-label="Reset lyrics zoom"
                 >
                   <RotateCcw className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsFullscreen((current) => !current)}
+                  aria-label={isFullscreen ? "Exit full-screen lyrics" : "Open full-screen lyrics"}
+                >
+                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </Button>
               </div>
             </div>

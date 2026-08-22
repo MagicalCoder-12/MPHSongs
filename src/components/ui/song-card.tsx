@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, type TouchEvent } from "react";
+import { useRef, useState, useCallback, type TouchEvent, type TouchList } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -122,7 +122,7 @@ export function SongCard({
   return (
     <>
       <Card 
-        className={`leather-card song-card-shell cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden relative ${selected ? 'ring-2 ring-primary' : ''}`}
+        className={`leather-card song-card-shell h-full cursor-pointer transition-all duration-300 hover:shadow-2xl border-none overflow-hidden relative ${selected ? 'ring-2 ring-primary' : ''}`}
         onClick={handleCardClick}
       >
         {onToggleSelect && (
@@ -234,12 +234,12 @@ export function SongCard({
           </div>
         </CardHeader>
          <CardContent className="song-card-content relative z-10">
-           <ScrollArea className="song-card-content song-content h-32 sm:h-40 w-full">
+           <ScrollArea className="song-card-content song-content h-24 sm:h-35 w-full">
              <p className="song-card-lyrics song-lyrics text-xs sm:text-sm whitespace-pre-wrap line-clamp-6 text-foreground">
                {renderHighlightedText(song.lyrics, searchTerm)}
              </p>
            </ScrollArea>
-           <div className="song-card-actions flex flex-wrap gap-2 mt-2 sm:mt-3">
+           <div className="song-card-actions flex flex-wrap gap-2 mt-0">
              <Button
                onClick={(e) => {
                  e.stopPropagation();
@@ -293,7 +293,7 @@ export function SongCard({
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-[95vw] max-w-7xl max-h-[96vh] overflow-y-auto neomorph-raised">
+        <DialogContent className="w-[95vw] max-w-7xl max-h-[96vh] overflow-y-auto neomorph-raised pb-[15px]">
           <DialogHeader>
             <DialogTitle className="song-dialog-title song-title text-xl sm:text-2xl font-serif text-foreground">
               {renderHighlightedText(song.title, searchTerm)}
@@ -304,7 +304,7 @@ export function SongCard({
               )}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-wrap gap-2 mb-0">
+          <div className="flex flex-wrap gap-2 mb-0 -mt-2">
             <span className="beige-chip">{song.songLanguage}</span>
             {song.isChoirPractice && (
               <span className="beige-chip flex items-center gap-1">
@@ -340,7 +340,7 @@ export function SongCard({
               </span>
             )}
           </div>
-          <div className="song-content mt-0">
+          <div className="song-content -mt-3">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-medium text-muted-foreground">Lyrics size</p>
               <div className="flex items-center gap-2">
@@ -380,7 +380,7 @@ export function SongCard({
               </div>
             </div>
             <p
-              className="song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-96 overflow-y-auto p-2 rounded bg-muted"
+              className="song-dialog-lyrics song-lyrics whitespace-pre-wrap font-sans max-h-[460px] overflow-y-auto p-2 rounded bg-muted"
               style={{ fontSize: lyricsFontSize, lineHeight: lyricsLineHeight, touchAction: "pan-y" }}
               onTouchStart={handleLyricsTouchStart}
               onTouchMove={handleLyricsTouchMove}

@@ -26,6 +26,7 @@ import type { Song, SongFormData } from '@/lib/types';
 import { SongCard } from '@/components/ui/song-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { transcribeAudio } from '@/lib/local-speech';
 
 const SITE_THEME_STORAGE_KEY = 'mph-site-theme';
 const GOOD_FRIDAY_TAB = 'good-friday';
@@ -47,20 +48,6 @@ interface BeforeInstallPromptEvent extends Event {
   }>;
   prompt(): Promise<void>;
 }
-
-interface SpeechRecognitionLike {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  start: () => void;
-  stop: () => void;
-  onstart: (() => void) | null;
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
-  onend: (() => void) | null;
-}
-
-type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 const getEmptyFormData = (activeTab: string): SongFormData => ({
   title: '',
@@ -146,13 +133,15 @@ export default function Home() {
   const [importInputKey, setImportInputKey] = useState(0);
   const [speechLanguage, setSpeechLanguage] = useState<'en-IN' | 'te-IN'>('en-IN');
   const [isListening, setIsListening] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const { toast } = useToast();
   
   // Refs
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
-  const speechRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   const detectDuplicates = useCallback((newSong: SongFormData, existingSongs: Song[]) => {
     return existingSongs.some(song => {
@@ -573,62 +562,58 @@ export default function Home() {
     searchInputRef.current?.focus();
   };
 
-  const handleVoiceSearch = () => {
-    const speechWindow = window as Window & {
-      SpeechRecognition?: SpeechRecognitionConstructor;
-      webkitSpeechRecognition?: SpeechRecognitionConstructor;
-    };
-    const SpeechRecognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      toast({ title: 'Voice search unavailable', description: 'Your browser does not support speech recognition.' });
+  const handleVoiceSearch = async () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
       return;
     }
 
-    if (speechRecognitionRef.current) {
-      speechRecognitionRef.current.stop();
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      toast({ title: 'Voice search unavailable', description: 'This browser does not support local audio recording.' });
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = speechLanguage;
-    recognition.interimResults = false;
-    recognition.continuous = false;
-    recognition.onstart = () => setIsListening(true);
-    recognition.onresult = (event) => {
-      const transcript = event.results[0]?.[0]?.transcript?.trim();
-      if (transcript) {
-        setSearchTerm(transcript);
-        toast({ title: 'Voice search', description: `Searching for "${transcript}".` });
-      }
-    };
-    recognition.onerror = (event) => {
-      setIsListening(false);
-      speechRecognitionRef.current = null;
-      if (event.error !== 'no-speech' && event.error !== 'aborted') {
-        const description = event.error === 'not-allowed'
-          ? 'Allow microphone access for localhost and try again.'
-          : event.error === 'network'
-            ? 'The browser speech service is unavailable. Check your connection or try Chrome.'
-            : `Speech recognition error: ${event.error}.`;
-        toast({ title: 'Voice search failed', description });
-      }
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      speechRecognitionRef.current = null;
-    };
-    speechRecognitionRef.current = recognition;
     try {
-      recognition.start();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const audioChunks: Blob[] = [];
+      mediaStreamRef.current = stream;
+      mediaRecorderRef.current = recorder;
+      setIsListening(true);
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunks.push(event.data);
+      };
+      recorder.onstop = async () => {
+        mediaRecorderRef.current = null;
+        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+        setIsListening(false);
+        setIsTranscribing(true);
+        try {
+          const transcript = await transcribeAudio(new Blob(audioChunks, { type: recorder.mimeType }), speechLanguage === 'en-IN' ? 'en' : 'te');
+          if (!transcript) throw new Error('No speech detected');
+          setSearchTerm(transcript);
+          toast({ title: 'Voice search', description: `Searching for "${transcript}".` });
+        } catch {
+          toast({ title: 'Voice search failed', description: 'Whisper could not understand the recording. Try speaking the song name clearly.' });
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+      recorder.start();
     } catch {
-      speechRecognitionRef.current = null;
+      mediaRecorderRef.current = null;
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
       setIsListening(false);
-      toast({ title: 'Voice search failed', description: 'The microphone could not be started. Check browser permissions.' });
+      toast({ title: 'Microphone unavailable', description: 'Allow microphone access and try again.' });
     }
   };
 
-  useEffect(() => () => speechRecognitionRef.current?.stop(), []);
+  useEffect(() => () => {
+    mediaRecorderRef.current?.stop();
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+  }, []);
 
   const handleExportSongs = async (format: 'json' | 'csv') => {
     try {
@@ -1336,11 +1321,12 @@ export default function Home() {
                   </Button>
                   <button
                     type="button"
-                    onClick={handleVoiceSearch}
+                    onClick={() => { void handleVoiceSearch(); }}
+                    disabled={isTranscribing}
                     className={`rounded-md p-1 transition-colors hover:bg-muted ${isListening ? 'text-destructive' : 'text-muted-foreground'}`}
-                    aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
+                    aria-label={isTranscribing ? 'Transcribing voice search' : isListening ? 'Stop voice search' : 'Start voice search'}
                   >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {isTranscribing ? <Loader2 className="h-4 w-4 animate-spin" /> : isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                   </button>
                 {searchTerm && (
                   <button

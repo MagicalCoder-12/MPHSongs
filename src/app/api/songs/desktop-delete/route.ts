@@ -5,7 +5,7 @@ import Song from '@/lib/models/Song';
 /**
  * Desktop-only delete endpoint.
  * Secured by DESKTOP_SECRET env var — the desktop app sends it as X-Desktop-Secret header.
- * Only deletes songs where source === 'desktop' (or no source), to prevent wiping web songs.
+ * Deletes songs by ID. Authenticated via X-Desktop-Secret header.
  */
 export async function POST(request: NextRequest) {
   const secret = process.env.DESKTOP_SECRET;
@@ -35,18 +35,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only delete desktop-originated songs to protect web songs
-    const deleted = await Song.findOneAndDelete({ _id: id, source: 'desktop' });
+    // Authenticated via DESKTOP_SECRET header — safe to delete by ID
+    const deleted = await Song.findByIdAndDelete(id);
 
     if (!deleted) {
-      // Check if song exists but is web-owned
-      const song = await Song.findById(id).lean();
-      if (song) {
-        return NextResponse.json(
-          { success: false, error: 'Cannot delete web-owned song from desktop' },
-          { status: 403 }
-        );
-      }
       return NextResponse.json(
         { success: false, error: 'Song not found' },
         { status: 404 }

@@ -1323,13 +1323,13 @@ export default function Home() {
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <div className="absolute inset-y-0 right-2 flex items-center gap-1">
+                <div className="absolute inset-y-0 right-2 flex items-center gap-2">
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => setSpeechLanguage((language) => language === 'en-IN' ? 'te-IN' : 'en-IN')}
-                    className="h-7 px-1.5 text-[10px]"
+                    className="h-8 px-2 text-sm font-semibold"
                     aria-label={`Voice search language: ${speechLanguage === 'en-IN' ? 'English' : 'Telugu'}`}
                   >
                     {speechLanguage === 'en-IN' ? 'EN' : 'TE'}
@@ -1337,10 +1337,10 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => { void handleVoiceSearch(); }}
-                    className={`rounded-md p-1 transition-colors hover:bg-muted ${isListening ? 'text-destructive' : 'text-muted-foreground'}`}
+                    className={`rounded-md p-1.5 transition-colors hover:bg-muted ${isListening ? 'text-destructive' : 'text-muted-foreground'}`}
                     aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
                   >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                   </button>
                 {searchTerm && (
                   <button

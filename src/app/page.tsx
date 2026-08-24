@@ -1318,8 +1318,8 @@ export default function Home() {
         </Dialog>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${isGoodFridayTheme ? 'good-friday-tabs-shell' : ''}`}>
-        <div className="sticky top-0 z-30 mb-4 w-full space-y-3 rounded-md bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:top-2 sm:mb-6">
-        <div className={`flex w-full flex-col gap-3 sm:flex-row sm:gap-4 ${isGoodFridayTheme ? 'good-friday-controls' : ''}`}>
+        <div className="sticky top-0 z-30 mb-3 w-full space-y-2 rounded-md bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:top-2 sm:mb-4">
+        <div className={`flex w-full flex-col gap-2 sm:flex-row sm:gap-3 ${isGoodFridayTheme ? 'good-friday-controls' : ''}`}>
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -1434,19 +1434,19 @@ export default function Home() {
         )}
 
         <TabsList className={`grid w-full grid-cols-4 min-h-10 h-auto p-1 max-[380px]:min-h-9 max-[380px]:p-0.5 sm:h-11 ${isGoodFridayTheme ? 'good-friday-tabs' : ''}`}>
-          <TabsTrigger value="all-songs" className={`min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+          <TabsTrigger value="all-songs" className={`min-w-0 flex items-center justify-center gap-0.5 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-1 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <List className="h-3.5 w-3.5 shrink-0 max-[380px]:h-3 max-[380px]:w-3 sm:h-4 sm:w-4" />
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Songs' : 'All Songs'}</span>
             <span className="xs:hidden">Songs</span>
             <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.all})</span>
           </TabsTrigger>
-          <TabsTrigger value={CHOIR_TAB} className={`min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+          <TabsTrigger value={CHOIR_TAB} className={`min-w-0 flex items-center justify-center gap-0.5 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-1 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <Users className="h-3.5 w-3.5 shrink-0 max-[380px]:h-3 max-[380px]:w-3 sm:h-4 sm:w-4" />
             <span className="hidden xs:inline">{isGoodFridayTheme ? 'Choir' : 'Choir Practice'}</span>
             <span className="xs:hidden">Choir</span>
             <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.choir})</span>
           </TabsTrigger>
-          <TabsTrigger value={GOOD_FRIDAY_TAB} className={`min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
+          <TabsTrigger value={GOOD_FRIDAY_TAB} className={`min-w-0 flex items-center justify-center gap-0.5 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-1 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${isGoodFridayTheme ? 'good-friday-tab-trigger' : ''}`}>
             <Badge variant="secondary" className="hidden sm:inline-flex md:hidden">
               GF
             </Badge>
@@ -1454,7 +1454,7 @@ export default function Home() {
             <span className="sm:hidden">GF</span>
             <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.goodFriday})</span>
           </TabsTrigger>
-          <TabsTrigger value={CHRISTMAS_TAB} className="min-w-0 flex items-center justify-center gap-1 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-2 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value={CHRISTMAS_TAB} className="min-w-0 flex items-center justify-center gap-0.5 px-1 text-xs max-[380px]:gap-0 max-[380px]:px-0 max-[380px]:text-[10px] sm:gap-1 sm:px-2 sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <span className="hidden xs:inline">Christmas Songs</span>
             <span className="xs:hidden">Christmas</span>
             <span className="text-xs opacity-80 max-[380px]:text-[10px]">({songCounts.christmas})</span>
@@ -1462,8 +1462,8 @@ export default function Home() {
         </TabsList>
         </div>
 
-        <TabsContent value="all-songs" className="mt-4 sm:mt-6">
-          <div className="mb-4 flex flex-wrap gap-2">
+        <TabsContent value="all-songs" className="mt-3 sm:mt-4">
+          <div className="mb-3 flex flex-wrap gap-1.5">
             {CATEGORY_TAGS.map((tag) => (
               <Button
                 key={tag}

@@ -10,13 +10,16 @@ import {
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
+    try { await Song.updateMany({ owner: { $exists: false } } as any, { $set: { owner: 'web' } }); } catch {}
+    try { await Song.updateMany({ owner: null } as any, { $set: { owner: 'web' } }); } catch {}
     
     const searchParams = request.nextUrl.searchParams;
     const search = sanitizeSearchTerm(searchParams.get('search'));
     const choirOnly = searchParams.get('choirOnly') === 'true';
     const christmasOnly = searchParams.get('christmasOnly') === 'true';
     const tag = sanitizeSearchTerm(searchParams.get('tag'));
-    const sortBy = searchParams.get('sortBy') || 'recent'; // 'recent' or 'alphabetical'
+    const owner = sanitizeSearchTerm(searchParams.get('owner'));
+    const sortBy = searchParams.get('sortBy') || 'alphabetical';
     
     const query: any = {};
     
@@ -31,6 +34,10 @@ export async function GET(request: NextRequest) {
     if (christmasOnly) {
       query.isChristmasSong = true;
     }
+
+    if (owner && (owner === 'web' || owner === 'app')) {
+      query.owner = owner;
+    }
     
     if (search) {
       const escapedSearch = escapeRegex(search);
@@ -43,9 +50,11 @@ export async function GET(request: NextRequest) {
       ];
     }
     
-    let sortOptions = {};
+    let sortOptions: any = {};
     if (sortBy === 'alphabetical') {
       sortOptions = { title: 1 };
+    } else if (sortBy === 'oldest') {
+      sortOptions = { createdAt: 1 };
     } else {
       sortOptions = { createdAt: -1 };
     }
@@ -88,9 +97,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, subtitle, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
+    const { title, subtitle, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags, owner, source, desktop } = parsedPayload.data as any;
 
-    const normalizedTags = Array.from(new Set([...(Array.isArray(tags) ? tags : []), 'web']));
+    const isAppOwner = owner === 'app';
+    const finalTags = isAppOwner
+      ? (tags.includes('church') ? tags : [...tags, 'church'])
+      : (tags.length ? tags : ['web']);
+    const finalSource = source ?? (isAppOwner ? 'desktop' : 'web');
+    const finalWeb = isAppOwner ? undefined : 'true';
+    const finalDesktop = isAppOwner ? 'true' : (desktop ?? null);
 
     const newSong = await Song.create({
       title,
@@ -99,9 +114,11 @@ export async function POST(request: NextRequest) {
       lyrics,
       isChoirPractice,
       isChristmasSong,
-      tags: normalizedTags,
-      source: 'web',
-      web: 'true',
+      tags: finalTags,
+      owner: owner ?? 'web',
+      source: finalSource,
+      web: finalWeb,
+      desktop: finalDesktop as any,
     });
     return NextResponse.json({ success: true,  newSong }, { status: 201 });
   } catch (error) {
@@ -129,6 +146,22 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const { title, subtitle, songLanguage, lyrics, isChoirPractice, tags } = parsedPayload.data;
+    const extraOwner = (parsedPayload.data as any).owner;
+    const extraSource = (parsedPayload.data as any).source;
+    const extraDesktop = (parsedPayload.data as any).desktop;
+    const expectedUpdatedAt = (parsedPayload.data as any).expectedUpdatedAt as string | undefined;
+
+    const existingForConflict = await Song.findById(id);
+    if (existingForConflict && expectedUpdatedAt) {
+      const expectedDate = new Date(expectedUpdatedAt);
+      const serverDate = new Date((existingForConflict as any).updatedAt);
+      if (!isNaN(expectedDate.getTime()) && !isNaN(serverDate.getTime()) && Math.abs(serverDate.getTime() - expectedDate.getTime()) > 1000 && serverDate > expectedDate) {
+        return NextResponse.json(
+          { success: false, error: 'Conflict: server version is newer', serverSong: existingForConflict },
+          { status: 409 }
+        );
+      }
+    }
 
     const updateFields: Record<string, unknown> = {
       title,
@@ -141,6 +174,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (subtitle !== undefined) {
       updateFields.subtitle = subtitle;
     }
+    if (extraOwner === 'app' || extraOwner === 'web') (updateFields as any).owner = extraOwner;
+    if (typeof extraSource === 'string') (updateFields as any).source = extraSource;
+    if (extraDesktop === null || typeof extraDesktop === 'string') (updateFields as any).desktop = extraDesktop;
 
     const updatedSong = await Song.findByIdAndUpdate(
       id,

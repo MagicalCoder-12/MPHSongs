@@ -59,6 +59,23 @@ export async function PUT(
     }
 
     const { title, subtitle, songLanguage, lyrics, isChoirPractice, isChristmasSong, tags } = parsedPayload.data;
+    const extraOwner = (parsedPayload.data as any).owner;
+    const extraSource = (parsedPayload.data as any).source;
+    const extraDesktop = (parsedPayload.data as any).desktop;
+    const expectedUpdatedAt = (parsedPayload.data as any).expectedUpdatedAt as string | undefined;
+
+    // Conflict detection: if client sent expectedUpdatedAt, check against DB current updatedAt
+    const existingForConflict = await Song.findById(id);
+    if (existingForConflict && expectedUpdatedAt) {
+      const expectedDate = new Date(expectedUpdatedAt);
+      const serverDate = new Date((existingForConflict as any).updatedAt);
+      if (!isNaN(expectedDate.getTime()) && !isNaN(serverDate.getTime()) && Math.abs(serverDate.getTime() - expectedDate.getTime()) > 1000 && serverDate > expectedDate) {
+        return NextResponse.json(
+          { success: false, error: 'Conflict: server version is newer', serverSong: existingForConflict },
+          { status: 409 }
+        );
+      }
+    }
 
     const updateFields: Record<string, unknown> = {
       title,
@@ -74,6 +91,9 @@ export async function PUT(
     } else {
       updateFields.subtitle = null;
     }
+    if (extraOwner === 'app' || extraOwner === 'web') (updateFields as any).owner = extraOwner;
+    if (typeof extraSource === 'string') (updateFields as any).source = extraSource;
+    if (extraDesktop === null || typeof extraDesktop === 'string') (updateFields as any).desktop = extraDesktop;
 
     const updatedSong = await Song.findByIdAndUpdate(
       id,

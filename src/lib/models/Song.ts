@@ -34,6 +34,12 @@ const songSchema = new mongoose.Schema(
       type: [String],
       default: ['web'],
     },
+    owner: {
+      type: String,
+      enum: ['web', 'app'],
+      default: 'web',
+      index: true,
+    },
     source: {
       type: String,
       default: 'web',

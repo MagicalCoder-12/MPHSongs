@@ -33,6 +33,11 @@ type SongPayload = {
   isChoirPractice: boolean;
   isChristmasSong: boolean;
   tags: string[];
+  owner: 'web' | 'app';
+  source?: string;
+  desktop?: string | null;
+  updatedAt?: string;
+  expectedUpdatedAt?: string;
 };
 
 type SongPayloadResult =
@@ -94,6 +99,15 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
     ? Array.from(new Set([...tags, GOOD_FRIDAY_TAG]))
     : tags.filter((tag) => tag !== GOOD_FRIDAY_TAG);
 
+  const rawOwner = body.owner;
+  const owner: 'web' | 'app' = rawOwner === 'app' ? 'app' : 'web';
+  if (owner === 'app' && !tags.includes(CHURCH_TAG)) tags.push(CHURCH_TAG);
+  if (owner === 'web' && tags.length === 0) tags.push('web');
+  const rawSource = typeof body.source === 'string' ? body.source : undefined;
+  const rawDesktop = typeof body.desktop === 'string' ? body.desktop : body.desktop === null ? null : undefined;
+  const rawUpdatedAt = typeof body.updatedAt === 'string' ? body.updatedAt : undefined;
+  const rawExpectedUpdatedAt = typeof body.expectedUpdatedAt === 'string' ? body.expectedUpdatedAt : undefined;
+
   return {
     success: true,
     data: {
@@ -104,6 +118,11 @@ export function parseSongPayload(body: unknown): SongPayloadResult {
       isChoirPractice: Boolean(body.isChoirPractice),
       isChristmasSong: Boolean(body.isChristmasSong),
       tags,
+      owner,
+      source: rawSource,
+      desktop: rawDesktop,
+      updatedAt: rawUpdatedAt,
+      expectedUpdatedAt: rawExpectedUpdatedAt,
     },
   };
 }
